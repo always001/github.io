@@ -85,7 +85,9 @@
         // 发送消息
         function sendMsg() {
             const text = msgInput.value.trim();
-            if (!text || !conn || !conn.open) return;
+            //暂时解开限制，可以自己给自己发信
+            //if (!text || !conn || !conn.open) return;
+            if (!text) return;
             conn.send(text);
             addMsg(text, true);
             msgInput.value = '';
