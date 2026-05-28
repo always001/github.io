@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一对一聊天</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#f5f5f5;font-family:Arial;}
+.main{max-width:450px;height:100vh;margin:0 auto;background:#fff;display:flex;flex-direction:column;}
+.title{height:50px;line-height:50px;text-align:center;background:#0099ff;color:white;font-size:16px;}
+.msg-box{flex:1;padding:15px;overflow-y:auto;background:#f8f9fa;}
+.msg{margin:10px 0;}
+.me{text-align:right;}
+.you{text-align:left;}
+.text{display:inline-block;padding:9px 13px;border-radius:15px;max-width:70%;}
+.me .text{background:#0099ff;color:white;}
+.you .text{background:white;border:1px solid #ddd;}
+.input-area{height:60px;display:flex;align-items:center;padding:10px;border-top:1px solid #eee;background:#fff;}
+#input{flex:1;height:40px;border:1px solid #ddd;border-radius:20px;padding:0 15px;outline:none;}
+#send{width:70px;height:40px;margin-left:8px;border:none;border-radius:20px;background:#0099ff;color:white;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="title">一对一聊天</div>
+  <div class="msg-box" id="msgBox"></div>
+  <div class="input-area">
+    <input type="text" id="input" placeholder="输入消息...">
+    <button id="send">发送</button>
+  </div>
+</div>
+
+<script>
+// 基础功能
+const msgBox = document.getElementById('msgBox');
+const input = document.getElementById('input');
+const send = document.getElementById('send');
+const myId = Math.random().toString(36).substr(2,6);
+
+// 发送消息
+function sendMsg() {
+  let txt = input.value.trim();
+  if (!txt) return;
+
+  // 显示自己消息
+  msgBox.innerHTML += `<div class="msg me"><div class="text">${txt}</div></div>`;
+  input.value = '';
+  msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+// 按钮点击
+send.onclick = sendMsg;
+
+// 回车发送
+input.onkeydown = function(e){
+  if(e.key === 'Enter') sendMsg();
+}
+</script>
+</body>
+</html>
