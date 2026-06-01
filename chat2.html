@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨设备 P2P 聊天室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .msg-anim { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="bg-slate-100 h-screen flex items-center justify-center p-4 font-sans">
+
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col h-[85vh]">
+        
+        <!-- 头部：连接状态 -->
+        <header class="bg-indigo-600 p-4 text-white">
+            <div class="flex justify-between items-center mb-2">
+                <h1 class="font-bold text-lg"><i class="fa-solid fa-wifi mr-2"></i>P2P Chat</h1>
+                <span id="statusBadge" class="text-xs bg-indigo-500 px-2 py-1 rounded border border-indigo-400">初始化...</span>
+            </div>
+            
+            <!-- ID 显示与连接区 -->
+            <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs text-indigo-200">我的 ID:</span>
+                    <code id="myId" class="text-xs font-mono bg-black/20 px-2 py-1 rounded select-all cursor-pointer" title="点击复制">生成中...</code>
+                </div>
+                
+                <div class="flex gap-2">
+                    <input type="text" id="remoteIdInput" placeholder="输入对方 ID" class="flex-1 bg-white/90 text-slate-800 text-sm px-3 py-1.5 rounded border-none outline-none placeholder-slate-500">
+                    <button onclick="connectToPeer()" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs px-3 py-1.5 rounded font-medium transition-colors">
+                        连接
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 聊天区域 -->
+        <main id="chatBox" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+            <div class="text-center text-slate-400 text-xs mt-10">
+                <p>等待连接...</p>
+                <p class="mt-1">将你的 ID 发给朋友，或输入朋友的 ID 进行连接。</p>
+            </div>
+        </main>
+
+        <!-- 输入区域 -->
+        <footer class="p-3 bg-white border-t border-slate-100">
+            <form id="chatForm" class="flex gap-2">
+                <input type="text" id="msgInput" disabled placeholder="连接成功后输入..." class="flex-1 bg-slate-100 border border-slate-200 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none disabled:opacity-50">
+                <button type="submit" disabled id="sendBtn" class="bg-indigo-600 text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </footer>
+    </div>
+
+    <script>
+        // 初始化 PeerJS (使用官方免费云信令服务器)
+        const peer = new Peer(null, {
+            debug: 2
+        });
+
+        let conn = null;
+        const myIdEl = document.getElementById('myId');
+        const statusBadge = document.getElementById('statusBadge');
+        const chatBox = document.getElementById('chatBox');
+        const msgInput = document.getElementById('msgInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatForm = document.getElementById('chatForm');
+
+        // 1. 获取本地 ID
+        peer.on('open', (id) => {
+            myIdEl.innerText = id;
+            statusBadge.innerText = '在线 (等待连接)';
+            statusBadge.className = 'text-xs bg-emerald-500 px-2 py-1 rounded border border-emerald-400';
+        });
+
+        // 2. 监听他人连接我
+        peer.on('connection', (c) => {
+            setupConnection(c);
+        });
+
+        // 3. 主动连接他人
+        function connectToPeer() {
+            const remoteId = document.getElementById('remoteIdInput').value.trim();
+            if (!remoteId) return alert('请输入对方 ID');
+            
+            statusBadge.innerText = '连接中...';
+            const c = peer.connect(remoteId);
+            setupConnection(c);
+        }
+
+        // 4. 设置连接逻辑
+        function setupConnection(c) {
+            conn = c;
+
+            conn.on('open', () => {
+                statusBadge.innerText = '已连接';
+                statusBadge.className = 'text-xs bg-blue-500 px-2 py-1 rounded border border-blue-400';
+                
+                // 启用输入框
+                msgInput.disabled = false;
+                sendBtn.disabled = false;
+                msgInput.placeholder = "输入消息...";
+                msgInput.focus();
+
+                // 清空欢迎语
+                if(chatBox.children?.classList.contains('text-center')) {
+                    chatBox.innerHTML = '';
+                }
+                
+                addSystemMessage('连接成功！可以开始聊天了。');
+            });
+
+            conn.on('data', (data) => {
+                appendMessage(data, false);
+            });
+
+            conn.on('close', () => {
+                statusBadge.innerText = '已断开';
+                statusBadge.className = 'text-xs bg-red-500 px-2 py-1 rounded border border-red-400';
+                msgInput.disabled = true;
+                sendBtn.disabled = true;
+                addSystemMessage('对方已断开连接');
+                conn = null;
+            });
+            
+            conn.on('error', (err) => {
+                console.error(err);
+                alert('连接错误: ' + err.type);
+            });
+        }
+
+        // 5. 发送消息
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = msgInput.value.trim();
+            if (!text || !conn) return;
+
+            const msgData = {
+                text: text,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            };
+
+            // 发送数据
+            conn.send(msgData);
+            
+            // 显示在自己界面
+            appendMessage(msgData, true);
+            msgInput.value = '';
+        });
+
+        // 6. UI 渲染辅助函数
+        function appendMessage(data, isSelf) {
+            const div = document.createElement('div');
+            div.className = `flex w-full msg-anim ${isSelf ? 'justify-end' : 'justify-start'}`;
+            
+            const bubbleClass = isSelf 
+                ? 'bg-indigo-600 text-white rounded-tr-none' 
+                : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none';
+
+            div.innerHTML = `
+                <div class="max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-sm ${bubbleClass}">
+                    ${escapeHtml(data.text)}
+                    <div class="text-[10px] opacity-70 text-right mt-1">${data.time}</div>
+                </div>
+            `;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'text-center text-xs text-slate-400 my-2';
+            div.innerText = text;
+            chatBox.appendChild(div);
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // 点击复制 ID
+        myIdEl.addEventListener('click', () => {
+            navigator.clipboard.writeText(myIdEl.innerText);
+            const original = myIdEl.innerText;
+            myIdEl.innerText = '已复制!';
+            setTimeout(() => myIdEl.innerText = original, 1000);
+        });
+    </script>
+</body>
+</html>
