@@ -654,7 +654,7 @@
             </div>
             <div class="setting-row">
                 <label>🔢 题数：</label>
-                <input type="number" id="questionCount" value="5" min="1" max="20">
+                <input type="number" id="questionCount" value="8" min="1" max="20">
             </div>
             <button class="btn btn-primary" onclick="playClickSound(); startGame()">🚀 开始练习</button>
             
@@ -1859,7 +1859,7 @@ ${generateWrongQuestionsText()}
         // ============ 游戏系统 ============
         let gameState = {
             type: 'add',
-            totalCount: 5,
+            totalCount: 8,
             currentIndex: 0,
             correctCount: 0,
             questions: [],
@@ -1879,13 +1879,13 @@ ${generateWrongQuestionsText()}
         });
         
         function generateAddition() {
-            const a = Math.floor(Math.random() * 11);
-            const b = Math.floor(Math.random() * (11 - a));
+            const a = Math.floor(Math.random() * 23);
+            const b = Math.floor(Math.random() * (23 - a));
             return { text: `${a} + ${b} = ?`, answer: a + b, numberA: a, numberB: b, operator: '+' };
         }
         
         function generateSubtraction() {
-            const a = Math.floor(Math.random() * 10) + 1;
+            const a = Math.floor(Math.random() * 22) + 1;
             const b = Math.floor(Math.random() * (a + 1));
             return { text: `${a} - ${b} = ?`, answer: a - b, numberA: a, numberB: b, operator: '-' };
         }
@@ -2009,7 +2009,7 @@ ${generateWrongQuestionsText()}
                 } else {
                     showResult();
                 }
-            }, 1500);
+            }, 1000);
         }
         
         function markAsMasteredSilent(id) {
