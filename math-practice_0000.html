@@ -1092,6 +1092,10 @@
             $('feedback').textContent = '';
             $('feedback').className = 'feedback';
             
+            // ✅ 关键修复：重新启用提交按钮和输入框
+            var submitBtn = $('submitBtn');
+            if (submitBtn) submitBtn.disabled = false;
+            
             setTimeout(function() {
                 var input = $('answerInput');
                 if (input) {
