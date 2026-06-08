@@ -427,7 +427,8 @@
         
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* ============ 答案输入框专用样式 ============ */
+        
+        /* ============ 答案输入框样式 ============ */
         .answer-input {
             display: inline-block;
             font-size: 48px !important;
@@ -440,16 +441,6 @@
             color: #e17055 !important;
             background: white !important;
             padding: 8px 12px !important;
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
-        
-        /* 隐藏数字输入框的上下箭头 */
-        .answer-input::-webkit-outer-spin-button,
-        .answer-input::-webkit-inner-spin-button {
-            -webkit-appearance: none !important;
-            margin: 0 !important;
         }
         
         .answer-input:focus {
@@ -464,17 +455,39 @@
             padding: 10px 14px !important;
             text-align: center;
             font-weight: bold;
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
-            appearance: textfield;
         }
         
-        /* 隐藏题数输入框的上下箭头 */
-        #questionCount::-webkit-outer-spin-button,
-        #questionCount::-webkit-inner-spin-button {
-            -webkit-appearance: none !important;
-            margin: 0 !important;
+        /* ============ 📱 只在移动端隐藏上下箭头 ============ */
+        /* 媒体查询：只在屏幕宽度 ≤ 768px 时生效（手机） */
+        @media (max-width: 768px) {
+            .answer-input::-webkit-outer-spin-button,
+            .answer-input::-webkit-inner-spin-button,
+            #questionCount::-webkit-outer-spin-button,
+            #questionCount::-webkit-inner-spin-button {
+                -webkit-appearance: none !important;
+                margin: 0 !important;
+            }
+            
+            .answer-input {
+                font-size: 36px !important;
+                width: 120px !important;
+            }
+            
+            .question-text {
+                font-size: 36px !important;
+                letter-spacing: 2px !important;
+            }
         }
+        
+        /* ============ 🖥️ 桌面端额外优化 ============ */
+        /* 媒体查询：只在屏幕宽度 > 768px 时生效（电脑） */
+        @media (min-width: 769px) {
+            /* 桌面端特殊样式 */
+            .answer-input:hover {
+                border-color: #d63031 !important;
+            }
+        }
+        
     </style>
 </head>
 <body>
