@@ -273,8 +273,46 @@
             margin-top: 15px;
         }
         
-        /* ✅ 修复：hidden 类用 !important 确保生效 */
+        /* ✅ 修复：hidden 用 !important */
         .hidden { display: none !important; }
+        
+        /* 🆕 页面导航栏 */
+        .page-nav, .notebook-nav {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        
+        .notebook-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #dfe6e9;
+        }
+        
+        /* 🆕 返回按钮 */
+        .btn-back {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #74b9ff;
+            color: #74b9ff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-back:hover {
+            background: #74b9ff;
+            color: white;
+            transform: translateX(-3px);
+            box-shadow: 0 4px 10px rgba(116, 185, 255, 0.3);
+        }
+        
+        .btn-back:active { transform: translateX(0); }
         
         /* 错题本样式 */
         .notebook {
@@ -299,6 +337,7 @@
             gap: 15px;
             margin-bottom: 15px;
             font-size: 14px;
+            flex-wrap: wrap;
         }
         
         .notebook-stat {
@@ -323,6 +362,8 @@
             justify-content: space-between;
             align-items: center;
             border-left: 4px solid #d63031;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .wrong-item.mastered {
@@ -401,7 +442,7 @@
         
         .btn-export .emoji { font-size: 18px; }
         
-        /* ✅ 模态框 - 修复z-index */
+        /* 模态框 */
         .modal {
             position: fixed;
             top: 0;
@@ -416,14 +457,9 @@
             animation: fadeIn 0.2s;
         }
         
-        .modal.hidden { 
-            display: none !important; 
-        }
+        .modal.hidden { display: none !important; }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .modal-content {
             background: white;
@@ -520,6 +556,38 @@
             background: white;
         }
         
+        /* 🆕 二维码内容预览 */
+        .qr-text-preview {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #dfe6e9;
+        }
+        
+        .qr-text-preview details { cursor: pointer; }
+        
+        .qr-text-preview summary {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #2d3436;
+            user-select: none;
+        }
+        
+        .qr-text-preview summary:hover { background: #dfe6e9; }
+        
+        .qr-text-preview textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            resize: vertical;
+        }
+        
         /* Toast */
         .toast {
             position: fixed;
@@ -559,46 +627,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        /* 页面导航 */
-        .page-nav, .notebook-nav {
-            text-align: left;
-            margin-bottom: 15px;
-        }
-        
-        .notebook-footer {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px dashed #dfe6e9;
-        }
-        
-        .btn-back {
-            padding: 8px 16px;
-            background: white;
-            border: 2px solid #74b9ff;
-            color: #74b9ff;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .btn-back:hover {
-            background: #74b9ff;
-            color: white;
-            transform: translateX(-3px);
-            box-shadow: 0 4px 10px rgba(116, 185, 255, 0.3);
-        }
-        
-        .btn-back:active {
-            transform: translateX(0);
-        }
-        
     </style>
 </head>
 <body>
@@ -614,7 +642,7 @@
         <h1>🎓 小学1年级 算数练习</h1>
         <p class="subtitle">加油！你是最棒的！💪</p>
         
-        <!-- ✅ 初始显示：题目设置页面 -->
+        <!-- ✅ 主菜单（初始显示） -->
         <div id="settings" class="settings">
             <div class="setting-row">
                 <label>📚 题型：</label>
@@ -626,7 +654,7 @@
             </div>
             <div class="setting-row">
                 <label>🔢 题数：</label>
-                <input type="number" id="questionCount" value="8" min="1" max="20">
+                <input type="number" id="questionCount" value="5" min="1" max="20">
             </div>
             <button class="btn btn-primary" onclick="playClickSound(); startGame()">🚀 开始练习</button>
             
@@ -636,6 +664,7 @@
             </div>
         </div>
         
+        <!-- ✅ 题目页面（带返回按钮） -->
         <div id="questionArea" class="question-area hidden">
             <div class="page-nav">
                 <button class="btn-back" onclick="playClickSound(); goHome()">
@@ -648,6 +677,7 @@
             <button class="btn btn-submit" id="submitBtn" onclick="playClickSound(); submitAnswer()">提交答案 ✅</button>
         </div>
         
+        <!-- ✅ 结果页面（带返回按钮） -->
         <div id="resultArea" class="result hidden">
             <div class="page-nav">
                 <button class="btn-back" onclick="playClickSound(); goHome()">
@@ -662,12 +692,14 @@
             <button class="btn btn-secondary" onclick="playClickSound(); openNotebook()">📚 查看错题本</button>
         </div>
         
+        <!-- ✅ 错题本页面（带返回按钮） -->
         <div id="notebookArea" class="notebook hidden">
             <div class="notebook-nav">
                 <button class="btn-back" onclick="playClickSound(); goHome()">
                     ← 返回主菜单
                 </button>
             </div>
+            
             <div class="notebook-header">
                 <h2>📚 我的错题本</h2>
                 <button class="btn btn-danger" onclick="clearNotebook()" style="padding: 8px 16px; font-size: 14px;">🗑️ 清空</button>
@@ -706,7 +738,9 @@
         </div>
     </div>
     
-    <!-- ✅ 所有模态框都加上 hidden 类，确保默认隐藏 -->
+    <!-- ✅ 所有模态框默认隐藏 -->
+    
+    <!-- 邮件模态框 -->
     <div id="emailModal" class="modal hidden" onclick="if(event.target===this)closeModal('emailModal')">
         <div class="modal-content">
             <div class="modal-title">📧 发送到邮箱</div>
@@ -729,9 +763,11 @@
         </div>
     </div>
     
+    <!-- ✅ 二维码模态框（修复乱码） -->
     <div id="qrModal" class="modal hidden" onclick="if(event.target===this)closeModal('qrModal')">
         <div class="modal-content">
-            <div class="modal-title">📱 微信小程序码</div>
+            <div class="modal-title">📱 分享错题本</div>
+            
             <div class="qr-code-box">
                 <p style="color:#636e72;font-size:14px;">扫码查看错题本</p>
                 <div id="qrCodeContainer">
@@ -739,9 +775,20 @@
                     <p>生成中...</p>
                 </div>
                 <p style="color:#636e72;font-size:12px;margin-top:10px;">
-                    📌 家长扫码即可看到孩子的错题
+                    📱 用微信扫一扫即可查看
                 </p>
             </div>
+            
+            <!-- 🆕 错题内容预览 -->
+            <div class="qr-text-preview">
+                <details>
+                    <summary>📋 查看错题内容（可复制）</summary>
+                    <textarea id="qrTextContent" readonly></textarea>
+                    <button class="btn btn-secondary" style="margin-top: 10px; padding: 8px; font-size: 13px; width: 100%;" 
+                            onclick="copyQRText()">📋 复制错题内容</button>
+                </details>
+            </div>
+            
             <div class="modal-buttons">
                 <button class="btn btn-secondary" onclick="downloadQRCode()">💾 保存图片</button>
                 <button class="btn btn-danger" onclick="closeModal('qrModal')">关闭</button>
@@ -749,6 +796,7 @@
         </div>
     </div>
     
+    <!-- 主题选择模态框 -->
     <div id="themeModal" class="modal hidden" onclick="if(event.target===this)closeModal('themeModal')">
         <div class="modal-content">
             <div class="modal-title">🎨 选择图片主题</div>
@@ -760,6 +808,7 @@
         </div>
     </div>
     
+    <!-- 云同步模态框 -->
     <div id="cloudModal" class="modal hidden" onclick="if(event.target===this)closeModal('cloudModal')">
         <div class="modal-content">
             <div class="modal-title">☁️ 云同步</div>
@@ -789,6 +838,7 @@
         </div>
     </div>
     
+    <!-- 设置模态框 -->
     <div id="settingsModal" class="modal hidden" onclick="if(event.target===this)closeModal('settingsModal')">
         <div class="modal-content">
             <div class="modal-title">⚙️ 设置</div>
@@ -991,6 +1041,7 @@
                     <div class="empty-state">
                         <div class="emoji">🎉</div>
                         <h3>错题本是空的！</h3>
+                        <p>做错的题会自动加入这里</p>
                     </div>
                 `;
                 return;
@@ -1003,7 +1054,7 @@
             
             list.innerHTML = sorted.map(item => `
                 <div class="wrong-item ${item.mastered ? 'mastered' : ''}">
-                    <div>
+                    <div style="flex:1; min-width:200px;">
                         <div class="wrong-question">${item.text.replace('?', '=')} <span style="color:#00b894;">${item.correctAnswer}</span></div>
                         <div class="wrong-info">
                             你的答案：<span style="color:#d63031;text-decoration:line-through;">${item.userAnswer}</span> 
@@ -1026,9 +1077,16 @@
             renderNotebook();
         }
         
+        // ============ 🆕 返回主菜单 ============
+        function goHome() {
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('notebookArea').classList.add('hidden');
+            document.getElementById('settings').classList.remove('hidden');
+        }
+        
         // ============ 模态框控制 ============
         function openModal(id) {
-            // ✅ 先关闭所有模态框
             document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
@@ -1042,7 +1100,7 @@
             openModal('settingsModal');
         }
         
-        // ============ Toast 提示 ============
+        // ============ Toast ============
         function showToast(message, type = 'success') {
             const existing = document.querySelector('.toast');
             if (existing) existing.remove();
@@ -1341,7 +1399,7 @@
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
                 script.onload = () => doExportImage(wrong);
-                script.onerror = () => alert('图片库加载失败');
+                script.onerror = () => alert('图片库加载失败，请检查网络');
                 document.head.appendChild(script);
                 showToast('⏳ 正在加载图片库...');
             } else {
@@ -1507,12 +1565,12 @@ ${generateWrongQuestionsText()}
             }
         }
         
-        // ============ 二维码 ============
+        // ============ ✅ 二维码（修复版 - 不再有乱码） ============
         function showQRCodeModal() {
             playClickSound();
             const wrong = getWrongQuestions();
             if (wrong.length === 0) {
-                alert('错题本是空的！');
+                alert('错题本是空的！请先做几道题！');
                 return;
             }
             openModal('qrModal');
@@ -1521,35 +1579,62 @@ ${generateWrongQuestionsText()}
         
         function generateQRCode() {
             const container = document.getElementById('qrCodeContainer');
+            const textArea = document.getElementById('qrTextContent');
             container.innerHTML = '<div class="loading"></div><p>生成中...</p>';
             
             const wrong = getWrongQuestions();
-            const data = {
-                v: 1,
-                t: Date.now(),
-                q: wrong.map(w => ({
-                    t: w.text,
-                    a: w.correctAnswer,
-                    u: w.userAnswer,
-                    e: w.errorCount,
-                    m: w.mastered
-                }))
-            };
             
-            const dataStr = JSON.stringify(data);
-            const compressed = btoa(encodeURIComponent(dataStr));
-            const url = `https://你的域名.com/?data=${compressed.substring(0, 500)}`;
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=e17055`;
+            // ✅ 生成友好的中文文本（不再有乱码）
+            let friendlyText = `📚 我的错题本\n`;
+            friendlyText += `生成时间：${new Date().toLocaleString('zh-CN')}\n`;
+            friendlyText += `总计：${wrong.length} 题\n`;
+            friendlyText += `${'─'.repeat(25)}\n\n`;
+            
+            wrong.forEach((item, i) => {
+                const status = item.mastered ? '✅已掌握' : '❗待复习';
+                friendlyText += `${i+1}. ${status}\n`;
+                friendlyText += `   ${item.text}=${item.correctAnswer}\n`;
+                friendlyText += `   你的答案：${item.userAnswer} | 错了${item.errorCount}次\n\n`;
+            });
+            
+            friendlyText += `🌟 加油！错题越练越少！`;
+            
+            // 填充文本预览框
+            textArea.value = friendlyText;
+            
+            // ✅ 用友好文本生成二维码（不会有乱码）
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(friendlyText)}&color=e17055&margin=10`;
             
             setTimeout(() => {
                 container.innerHTML = `
-                    <img src="${qrApiUrl}" class="qr-code-img" alt="二维码" 
-                         onerror="this.src='https://via.placeholder.com/300/e17055/ffffff?text=二维码生成失败'">
+                    <img src="${qrApiUrl}" class="qr-code-img" alt="错题二维码" 
+                         onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent('请先做题')}&color=e17055'">
                     <p style="color:#636e72;font-size:13px;margin-top:10px;">
-                        📱 用微信扫一扫即可查看
+                        📱 扫码即可看到错题内容
+                    </p>
+                    <p style="color:#636e72;font-size:12px;margin-top:5px;">
+                        📊 共 ${wrong.length} 道错题
                     </p>
                 `;
-            }, 500);
+            }, 300);
+        }
+        
+        // 🆕 复制二维码内容
+        function copyQRText() {
+            const textArea = document.getElementById('qrTextContent');
+            textArea.select();
+            textArea.setSelectionRange(0, 99999);
+            
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textArea.value);
+                } else {
+                    document.execCommand('copy');
+                }
+                showToast('✅ 错题内容已复制！');
+            } catch (err) {
+                showToast('❌ 复制失败，请手动选择', 'error');
+            }
         }
         
         function downloadQRCode() {
@@ -1558,7 +1643,7 @@ ${generateWrongQuestionsText()}
             
             const a = document.createElement('a');
             a.href = img.src;
-            a.download = `小程序码_${Date.now()}.png`;
+            a.download = `错题本二维码_${Date.now()}.png`;
             a.target = '_blank';
             document.body.appendChild(a);
             a.click();
@@ -1774,7 +1859,7 @@ ${generateWrongQuestionsText()}
         // ============ 游戏系统 ============
         let gameState = {
             type: 'add',
-            totalCount: 8,
+            totalCount: 5,
             currentIndex: 0,
             correctCount: 0,
             questions: [],
@@ -1794,13 +1879,13 @@ ${generateWrongQuestionsText()}
         });
         
         function generateAddition() {
-            const a = Math.floor(Math.random() * 23);
-            const b = Math.floor(Math.random() * (23 - a));
+            const a = Math.floor(Math.random() * 11);
+            const b = Math.floor(Math.random() * (11 - a));
             return { text: `${a} + ${b} = ?`, answer: a + b, numberA: a, numberB: b, operator: '+' };
         }
         
         function generateSubtraction() {
-            const a = Math.floor(Math.random() * 22) + 1;
+            const a = Math.floor(Math.random() * 10) + 1;
             const b = Math.floor(Math.random() * (a + 1));
             return { text: `${a} - ${b} = ?`, answer: a - b, numberA: a, numberB: b, operator: '-' };
         }
@@ -1834,7 +1919,7 @@ ${generateWrongQuestionsText()}
         function startReviewMode() {
             const wrong = getWrongQuestions().filter(w => !w.mastered);
             if (wrong.length === 0) {
-                alert('🎉 错题本是空的！');
+                alert('🎉 错题本是空的！先去练习吧！');
                 return;
             }
             
@@ -1924,7 +2009,7 @@ ${generateWrongQuestionsText()}
                 } else {
                     showResult();
                 }
-            }, 1000);
+            }, 1500);
         }
         
         function markAsMasteredSilent(id) {
@@ -1970,13 +2055,6 @@ ${generateWrongQuestionsText()}
             document.getElementById('settings').classList.remove('hidden');
         }
         
-        function goHome() {
-            document.getElementById('questionArea').classList.add('hidden');
-            document.getElementById('resultArea').classList.add('hidden');
-            document.getElementById('notebookArea').classList.add('hidden');
-            document.getElementById('settings').classList.remove('hidden');
-        }
-        
         // ============ ✅ 初始化（修复版） ============
         function init() {
             // 恢复音效设置
@@ -1990,7 +2068,7 @@ ${generateWrongQuestionsText()}
             // ✅ 强制隐藏所有模态框
             document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
             
-            // ✅ 确保只显示初始页面
+            // ✅ 确保只显示初始页面（主菜单）
             document.getElementById('settings').classList.remove('hidden');
             document.getElementById('questionArea').classList.add('hidden');
             document.getElementById('resultArea').classList.add('hidden');
@@ -2006,7 +2084,7 @@ ${generateWrongQuestionsText()}
             });
         }
         
-        // ✅ 立即执行初始化
+        // 立即执行
         init();
     </script>
 </body>
