@@ -1020,7 +1020,20 @@
             
             var prefix = gameState.isReviewMode ? '📖 错题复习 ' : '';
             $('questionNumber').textContent = prefix + '第 ' + (gameState.currentIndex + 1) + ' / ' + gameState.totalCount + ' 题';
-            $('questionText').innerHTML = q.text.replace('?', '<input type="number" id="answerInput" class="answer-input" autofocus>');
+            //$('questionText').innerHTML = q.text.replace('?', '<input type="number" id="answerInput" class="answer-input" autofocus>');
+            //var maxAnswer = gameState.type === 'sub' ? 22 : 44;
+            //$('questionText').innerHTML = q.text.replace('?', '<input type="number" id="answerInput" class="answer-input" min="0" max="' + maxAnswer + '" autofocus>');
+            // ✅ 关键修改：限制 min=0 max=答案范围
+            var minAnswer = 0;
+            var maxAnswer = 44;  // 设置一个合理的最大值
+            
+            $('questionText').innerHTML = q.text.replace('?', 
+                '<input type="number" id="answerInput" class="answer-input" ' +
+                'min="' + minAnswer + '" max="' + maxAnswer + '" ' +
+                'onkeydown="return blockInvalidKeys(event)" ' +
+                'autofocus>'
+            );
+            
             $('feedback').textContent = '';
             $('feedback').className = 'feedback';
             
@@ -1035,6 +1048,16 @@
             }, 50);
         }
         
+        // 阻止输入负号、科学计数法等无效字符(禁止输入负号和减号)
+        function blockInvalidKeys(e) {
+            // 阻止输入 "-" "-" 键
+            if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        }
+        
         function submitAnswer() {
             var input = $('answerInput');
             if (!input) return;
@@ -1047,6 +1070,35 @@
                 feedback.textContent = '⚠️ 请输入数字！';
                 feedback.className = 'feedback wrong';
                 playWrongSound();
+                return;
+            }
+            
+            // ✅ 验证是否为负数(检查负数)
+            if (userAnswer < 0) {
+                feedback.textContent = '⚠️ 答案不能是负数哦！';
+                feedback.className = 'feedback wrong';
+                playWrongSound();
+                // 自动重置为 0
+                // 自动重置,清空
+                setTimeout(function() {
+                    //input.value = 0;
+                    input.value = '';
+                    feedback.textContent = '';
+                    feedback.className = 'feedback';
+                }, 1000);
+                return;
+            }
+            
+            // ✅ 验证是否过大(检查过大值)
+            if (userAnswer > 44) {
+                feedback.textContent = '⚠️ 答案太大了！';
+                feedback.className = 'feedback wrong';
+                playWrongSound();
+                setTimeout(function() {
+                    input.value = '';
+                    feedback.textContent = '';
+                    feedback.className = 'feedback';
+                }, 1000);
                 return;
             }
             
