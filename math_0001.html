@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 小学1年级 算数练习</title>
+    <style>
+        /* ============ 样式部分 ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #e17055;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #636e72;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        /* 设置区域 */
+        .settings {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .setting-row label {
+            font-weight: bold;
+            color: #2d3436;
+            min-width: 80px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-option {
+            padding: 8px 16px;
+            border: 2px solid #74b9ff;
+            background: white;
+            color: #74b9ff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-option:hover {
+            background: #74b9ff;
+            color: white;
+        }
+        
+        .btn-option.active {
+            background: #74b9ff;
+            color: white;
+        }
+        
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            font-size: 14px;
+            width: 80px;
+        }
+        
+        /* 题目区域 */
+        .question-area {
+            text-align: center;
+            margin: 30px 0;
+            min-height: 200px;
+        }
+        
+        .question-number {
+            color: #636e72;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2d3436;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+        
+        .question-text .answer-input {
+            font-size: 48px;
+            font-weight: bold;
+            width: 100px;
+            text-align: center;
+            border: none;
+            border-bottom: 4px solid #e17055;
+            outline: none;
+            color: #e17055;
+        }
+        
+        .feedback {
+            font-size: 20px;
+            margin: 15px 0;
+            min-height: 30px;
+        }
+        
+        .feedback.correct {
+            color: #00b894;
+            animation: bounce 0.5s;
+        }
+        
+        .feedback.wrong {
+            color: #d63031;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        /* 按钮 */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-primary {
+            background: #e17055;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: #d63031;
+            transform: translateY(-2px);
+        }
+        
+        .btn-submit {
+            background: #00b894;
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: #00cec9;
+        }
+        
+        .btn:disabled {
+            background: #b2bec3;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 成绩单 */
+        .result {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .result h2 {
+            color: #e17055;
+            margin-bottom: 20px;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(225, 112, 85, 0.3);
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dfe6e9;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .evaluation {
+            font-size: 20px;
+            padding: 15px;
+            background: #ffeaa7;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* 计时器 */
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #e17055;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 小学1年级 算数练习</h1>
+        <p class="subtitle">加油！你是最棒的！💪</p>
+        
+        <!-- 设置区域 -->
+        <div id="settings" class="settings">
+            <div class="setting-row">
+                <label>📚 题型：</label>
+                <div class="btn-group">
+                    <button class="btn-option active" data-type="add">➕ 加法</button>
+                    <button class="btn-option" data-type="sub">➖ 减法</button>
+                    <button class="btn-option" data-type="mix">🔀 混合</button>
+                </div>
+            </div>
+            <div class="setting-row">
+                <label>🔢 题数：</label>
+                <input type="number" id="questionCount" value="8" min="1" max="20">
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">🚀 开始练习</button>
+        </div>
+        
+        <!-- 题目区域 -->
+        <div id="questionArea" class="question-area hidden">
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question-text" id="questionText"></div>
+            <div class="feedback" id="feedback"></div>
+            <button class="btn btn-submit" id="submitBtn" onclick="submitAnswer()">提交答案 ✅</button>
+        </div>
+        
+        <!-- 成绩单 -->
+        <div id="resultArea" class="result hidden">
+            <h2>🎉 练习完成！</h2>
+            <div class="score-circle" id="scoreCircle">0%</div>
+            <div class="stats" id="stats"></div>
+            <div class="evaluation" id="evaluation"></div>
+            <button class="btn btn-primary" onclick="resetGame()">🔄 再来一次</button>
+        </div>
+    </div>
+    
+    <script>
+        // ============ JavaScript 部分 ============
+        
+        // 游戏状态
+        let gameState = {
+            type: 'add',           // 题型：add / sub / mix
+            totalCount: 8,         // 总题数：8
+            currentIndex: 0,       // 当前题号
+            correctCount: 0,       // 答对数
+            questions: [],         // 所有题目
+            currentAnswer: null,   // 当前正确答案
+            startTime: null        // 开始时间
+        };
+        
+        // 题目类型选择
+        document.querySelectorAll('.btn-option').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                gameState.type = this.dataset.type;
+            });
+        });
+        
+        // 生成加法题（答案≤22）
+        function generateAddition() {
+            const a = Math.floor(Math.random() * 23);
+            const b = Math.floor(Math.random() * (23 - a));
+            return { 
+                text: `${a} + ${b} = ?`, 
+                answer: a + b 
+            };
+        }
+        
+        // 生成减法题（答案≥0）
+        function generateSubtraction() {
+            const a = Math.floor(Math.random() * 22) + 1;
+            const b = Math.floor(Math.random() * (a + 1));
+            return { 
+                text: `${a} - ${b} = ?`, 
+                answer: a - b 
+            };
+        }
+        
+        // 生成题目
+        function generateQuestion() {
+            if (gameState.type === 'add') {
+                return generateAddition();
+            } else if (gameState.type === 'sub') {
+                return generateSubtraction();
+            } else {
+                return Math.random() < 0.5 ? generateAddition() : generateSubtraction();
+            }
+        }
+        
+        // 开始游戏
+        function startGame() {
+            // 重置状态
+            gameState.totalCount = parseInt(document.getElementById('questionCount').value) || 5;
+            gameState.currentIndex = 0;
+            gameState.correctCount = 0;
+            gameState.questions = [];
+            gameState.startTime = new Date();
+            
+            // 生成所有题目
+            for (let i = 0; i < gameState.totalCount; i++) {
+                gameState.questions.push(generateQuestion());
+            }
+            
+            // 切换界面
+            document.getElementById('settings').classList.add('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('questionArea').classList.remove('hidden');
+            
+            showQuestion();
+        }
+        
+        // 显示题目
+        function showQuestion() {
+            const q = gameState.questions[gameState.currentIndex];
+            gameState.currentAnswer = q.answer;
+            
+            document.getElementById('questionNumber').textContent = 
+                `📝 第 ${gameState.currentIndex + 1} / ${gameState.totalCount} 题`;
+            document.getElementById('questionText').innerHTML = 
+                q.text.replace('?', '<input type="number" id="answerInput" class="answer-input" autofocus>');
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            // 自动聚焦输入框
+            setTimeout(() => {
+                const input = document.getElementById('answerInput');
+                if (input) input.focus();
+            }, 50);
+            
+            // 回车键提交
+            document.getElementById('answerInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') submitAnswer();
+            });
+        }
+        
+        // 提交答案
+        function submitAnswer() {
+            const input = document.getElementById('answerInput');
+            if (!input) return;
+            
+            const userAnswer = parseInt(input.value);
+            const feedback = document.getElementById('feedback');
+            
+            if (isNaN(userAnswer)) {
+                feedback.textContent = '⚠️ 请输入一个数字！';
+                feedback.className = 'feedback wrong';
+                return;
+            }
+            
+            // 判断对错
+            if (userAnswer === gameState.currentAnswer) {
+                gameState.correctCount++;
+                feedback.textContent = '🎉 答对啦！你真棒！';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = `❌ 答错了，正确答案是 ${gameState.currentAnswer}`;
+                feedback.className = 'feedback wrong';
+            }
+            
+            // 禁用输入
+            input.disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            
+            // 1.0秒后进入下一题
+            setTimeout(() => {
+                gameState.currentIndex++;
+                if (gameState.currentIndex < gameState.totalCount) {
+                    document.getElementById('submitBtn').disabled = false;
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1000);
+        }
+        
+        // 显示结果
+        function showResult() {
+            const rate = (gameState.correctCount / gameState.totalCount * 100).toFixed(1);
+            const elapsed = Math.floor((new Date() - gameState.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            // 评价
+            let evaluation = '';
+            if (rate >= 90) evaluation = '🏆 太厉害了！你是数学小天才！';
+            else if (rate >= 70) evaluation = '👍 表现不错，继续加油！';
+            else if (rate >= 50) evaluation = '💪 还需努力，多练习就会进步！';
+            else evaluation = '📖 别灰心，从头再来会更棒！';
+            
+            // 显示成绩单
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.remove('hidden');
+            document.getElementById('scoreCircle').textContent = rate + '%';
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-item"><span>📝 总题数</span><strong>${gameState.totalCount}</strong></div>
+                <div class="stat-item"><span>✅ 答对</span><strong style="color:#00b894">${gameState.correctCount}</strong></div>
+                <div class="stat-item"><span>❌ 答错</span><strong style="color:#d63031">${gameState.totalCount - gameState.correctCount}</strong></div>
+                <div class="stat-item"><span>⏱️ 用时</span><strong>${minutes}分${seconds}秒</strong></div>
+            `;
+            document.getElementById('evaluation').textContent = evaluation;
+        }
+        
+        // 重置游戏
+        function resetGame() {
+            document.getElementById('settings').classList.remove('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
