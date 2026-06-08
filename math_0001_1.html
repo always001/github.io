@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 小学1年级 算数练习</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Comic Sans MS', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .sound-toggle:hover { transform: scale(1.1); }
+        .sound-toggle.muted { opacity: 0.5; }
+        
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #e17055;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #636e72;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .settings {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .setting-row label {
+            font-weight: bold;
+            color: #2d3436;
+            min-width: 80px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-option {
+            padding: 8px 16px;
+            border: 2px solid #74b9ff;
+            background: white;
+            color: #74b9ff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-option:hover { background: #74b9ff; color: white; }
+        .btn-option.active { background: #74b9ff; color: white; }
+        
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            font-size: 14px;
+            width: 80px;
+        }
+        
+        .question-area {
+            text-align: center;
+            margin: 30px 0;
+            min-height: 200px;
+        }
+        
+        .question-number {
+            color: #636e72;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2d3436;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+        
+        .question-text .answer-input {
+            font-size: 48px;
+            font-weight: bold;
+            width: 100px;
+            text-align: center;
+            border: none;
+            border-bottom: 4px solid #e17055;
+            outline: none;
+            color: #e17055;
+        }
+        
+        .feedback {
+            font-size: 20px;
+            margin: 15px 0;
+            min-height: 30px;
+        }
+        
+        .feedback.correct {
+            color: #00b894;
+            animation: bounce 0.5s;
+        }
+        
+        .feedback.wrong {
+            color: #d63031;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-primary {
+            background: #e17055;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: #d63031;
+            transform: translateY(-2px);
+        }
+        
+        .btn-submit {
+            background: #00b894;
+            color: white;
+        }
+        
+        .btn-submit:hover { background: #00cec9; }
+        .btn:disabled { background: #b2bec3; cursor: not-allowed; transform: none; }
+        
+        .result { text-align: center; padding: 20px; }
+        .result h2 { color: #e17055; margin-bottom: 20px; }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(225, 112, 85, 0.3);
+            animation: popIn 0.6s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dfe6e9;
+        }
+        
+        .stat-item:last-child { border-bottom: none; }
+        
+        .evaluation {
+            font-size: 20px;
+            padding: 15px;
+            background: #ffeaa7;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+    
+    <div class="container">
+        <h1>🎓 小学1年级 算数练习</h1>
+        <p class="subtitle">加油！你是最棒的！💪</p>
+        
+        <div id="settings" class="settings">
+            <div class="setting-row">
+                <label>📚 题型：</label>
+                <div class="btn-group">
+                    <button class="btn-option active" data-type="add">➕ 加法</button>
+                    <button class="btn-option" data-type="sub">➖ 减法</button>
+                    <button class="btn-option" data-type="mix">🔀 混合</button>
+                </div>
+            </div>
+            <div class="setting-row">
+                <label>🔢 题数：</label>
+                <input type="number" id="questionCount" value="8" min="1" max="20">
+            </div>
+            <button class="btn btn-primary" onclick="playClickSound(); startGame()">🚀 开始练习</button>
+        </div>
+        
+        <div id="questionArea" class="question-area hidden">
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question-text" id="questionText"></div>
+            <div class="feedback" id="feedback"></div>
+            <button class="btn btn-submit" id="submitBtn" onclick="playClickSound(); submitAnswer()">提交答案 ✅</button>
+        </div>
+        
+        <div id="resultArea" class="result hidden">
+            <h2>🎉 练习完成！</h2>
+            <div class="score-circle" id="scoreCircle">0%</div>
+            <div class="stats" id="stats"></div>
+            <div class="evaluation" id="evaluation"></div>
+            <button class="btn btn-primary" onclick="playClickSound(); resetGame()">🔄 再来一次</button>
+        </div>
+    </div>
+    
+    <script>
+        // ============ 音效系统 ============
+        let soundEnabled = true;
+        let audioContext = null;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        function playNote(frequency, duration, startTime = 0, volume = 0.3) {
+            if (!soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            
+            const now = audioContext.currentTime + startTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(volume, now + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            
+            oscillator.start(now);
+            oscillator.stop(now + duration);
+        }
+        
+        // ✅ 答对音效
+        function playCorrectSound() {
+            initAudio();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                playNote(freq, 0.2, i * 0.08, 0.3);
+            });
+        }
+        
+        // ❌ 答错音效
+        function playWrongSound() {
+            initAudio();
+            playNote(220, 0.15, 0, 0.3);
+            playNote(196, 0.3, 0.15, 0.3);
+        }
+        
+        // 🏆 完成音效
+        function playCompleteSound() {
+            initAudio();
+            const melody = [
+                { f: 523.25, d: 0.15 },
+                { f: 659.25, d: 0.15 },
+                { f: 783.99, d: 0.15 },
+                { f: 1046.50, d: 0.15 },
+                { f: 783.99, d: 0.15 },
+                { f: 1046.50, d: 0.4 }
+            ];
+            let time = 0;
+            melody.forEach(note => {
+                playNote(note.f, note.d, time, 0.3);
+                time += note.d;
+            });
+            
+            setTimeout(() => {
+                playNote(1318.51, 0.3, 0, 0.2);
+                playNote(1567.98, 0.4, 0.1, 0.2);
+            }, time * 1000);
+        }
+        
+        // 👆 按钮音效
+        function playClickSound() {
+            initAudio();
+            playNote(800, 0.05, 0, 0.1);
+        }
+        
+        // 🔇 切换音效
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            btn.classList.toggle('muted', !soundEnabled);
+        }
+        
+        // ============ 游戏系统 ============
+        let gameState = {
+            type: 'add',
+            totalCount: 5,
+            currentIndex: 0,
+            correctCount: 0,
+            questions: [],
+            currentAnswer: null,
+            startTime: null
+        };
+        
+        document.querySelectorAll('.btn-option').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                gameState.type = this.dataset.type;
+                playClickSound();
+            });
+        });
+        
+        function generateAddition() {
+            const a = Math.floor(Math.random() * 23);
+            const b = Math.floor(Math.random() * (23 - a));
+            return { text: `${a} + ${b} = ?`, answer: a + b };
+        }
+        
+        function generateSubtraction() {
+            const a = Math.floor(Math.random() * 22) + 1;
+            const b = Math.floor(Math.random() * (a + 1));
+            return { text: `${a} - ${b} = ?`, answer: a - b };
+        }
+        
+        function generateQuestion() {
+            if (gameState.type === 'add') return generateAddition();
+            if (gameState.type === 'sub') return generateSubtraction();
+            return Math.random() < 0.5 ? generateAddition() : generateSubtraction();
+        }
+        
+        function startGame() {
+            gameState.totalCount = parseInt(document.getElementById('questionCount').value) || 5;
+            gameState.currentIndex = 0;
+            gameState.correctCount = 0;
+            gameState.questions = [];
+            gameState.startTime = new Date();
+            
+            for (let i = 0; i < gameState.totalCount; i++) {
+                gameState.questions.push(generateQuestion());
+            }
+            
+            document.getElementById('settings').classList.add('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('questionArea').classList.remove('hidden');
+            
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const q = gameState.questions[gameState.currentIndex];
+            gameState.currentAnswer = q.answer;
+            
+            document.getElementById('questionNumber').textContent = 
+                `📝 第 ${gameState.currentIndex + 1} / ${gameState.totalCount} 题`;
+            document.getElementById('questionText').innerHTML = 
+                q.text.replace('?', '<input type="number" id="answerInput" class="answer-input" autofocus>');
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            setTimeout(() => {
+                const input = document.getElementById('answerInput');
+                if (input) input.focus();
+            }, 50);
+            
+            document.getElementById('answerInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') submitAnswer();
+            });
+        }
+        
+        function submitAnswer() {
+            const input = document.getElementById('answerInput');
+            if (!input) return;
+            
+            const userAnswer = parseInt(input.value);
+            const feedback = document.getElementById('feedback');
+            
+            if (isNaN(userAnswer)) {
+                feedback.textContent = '⚠️ 请输入一个数字！';
+                feedback.className = 'feedback wrong';
+                playWrongSound();
+                return;
+            }
+            
+            if (userAnswer === gameState.currentAnswer) {
+                gameState.correctCount++;
+                feedback.textContent = '🎉 答对啦！你真棒！';
+                feedback.className = 'feedback correct';
+                playCorrectSound();
+            } else {
+                feedback.textContent = `❌ 答错了，正确答案是 ${gameState.currentAnswer}`;
+                feedback.className = 'feedback wrong';
+                playWrongSound();
+            }
+            
+            input.disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            
+            setTimeout(() => {
+                gameState.currentIndex++;
+                if (gameState.currentIndex < gameState.totalCount) {
+                    document.getElementById('submitBtn').disabled = false;
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1000);
+        }
+        
+        function showResult() {
+            const rate = (gameState.correctCount / gameState.totalCount * 100).toFixed(1);
+            const elapsed = Math.floor((new Date() - gameState.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            let evaluation = '';
+            if (rate >= 90) evaluation = '🏆 太厉害了！你是数学小天才！';
+            else if (rate >= 70) evaluation = '👍 表现不错，继续加油！';
+            else if (rate >= 50) evaluation = '💪 还需努力，多练习就会进步！';
+            else evaluation = '📖 别灰心，从头再来会更棒！';
+            
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.remove('hidden');
+            document.getElementById('scoreCircle').textContent = rate + '%';
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-item"><span>📝 总题数</span><strong>${gameState.totalCount}</strong></div>
+                <div class="stat-item"><span>✅ 答对</span><strong style="color:#00b894">${gameState.correctCount}</strong></div>
+                <div class="stat-item"><span>❌ 答错</span><strong style="color:#d63031">${gameState.totalCount - gameState.correctCount}</strong></div>
+                <div class="stat-item"><span>⏱️ 用时</span><strong>${minutes}分${seconds}秒</strong></div>
+            `;
+            document.getElementById('evaluation').textContent = evaluation;
+            
+            playCompleteSound();
+        }
+        
+        function resetGame() {
+            document.getElementById('settings').classList.remove('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
