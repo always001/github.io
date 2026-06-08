@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 小学1年级 算数练习</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Comic Sans MS', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        /* 顶部按钮组 */
+        .top-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .icon-btn {
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .icon-btn:hover { transform: scale(1.1); }
+        .icon-btn.muted { opacity: 0.5; }
+        
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #d63031;
+            color: white;
+            border-radius: 50%;
+            min-width: 22px;
+            height: 22px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            padding: 0 5px;
+        }
+        
+        .badge:empty { display: none; }
+        
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #e17055;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #636e72;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        /* 设置区域 */
+        .settings {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .setting-row label {
+            font-weight: bold;
+            color: #2d3436;
+            min-width: 80px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-option {
+            padding: 8px 16px;
+            border: 2px solid #74b9ff;
+            background: white;
+            color: #74b9ff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-option:hover { background: #74b9ff; color: white; }
+        .btn-option.active { background: #74b9ff; color: white; }
+        
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            font-size: 14px;
+            width: 80px;
+        }
+        
+        .menu-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* 题目区域 */
+        .question-area {
+            text-align: center;
+            margin: 30px 0;
+            min-height: 200px;
+        }
+        
+        .question-number {
+            color: #636e72;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2d3436;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+        
+        .question-text .answer-input {
+            font-size: 48px;
+            font-weight: bold;
+            width: 100px;
+            text-align: center;
+            border: none;
+            border-bottom: 4px solid #e17055;
+            outline: none;
+            color: #e17055;
+        }
+        
+        .feedback {
+            font-size: 20px;
+            margin: 15px 0;
+            min-height: 30px;
+        }
+        
+        .feedback.correct {
+            color: #00b894;
+            animation: bounce 0.5s;
+        }
+        
+        .feedback.wrong {
+            color: #d63031;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        /* 按钮 */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-primary {
+            background: #e17055;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: #d63031;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #74b9ff;
+            color: white;
+        }
+        
+        .btn-secondary:hover { background: #0984e3; }
+        
+        .btn-success {
+            background: #00b894;
+            color: white;
+        }
+        
+        .btn-success:hover { background: #00cec9; }
+        
+        .btn-danger {
+            background: #d63031;
+            color: white;
+        }
+        
+        .btn-danger:hover { background: #c0392b; }
+        
+        .btn-submit {
+            background: #00b894;
+            color: white;
+        }
+        
+        .btn-submit:hover { background: #00cec9; }
+        .btn:disabled { background: #b2bec3; cursor: not-allowed; transform: none; }
+        
+        /* 成绩单 */
+        .result { text-align: center; padding: 20px; }
+        .result h2 { color: #e17055; margin-bottom: 20px; }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(225, 112, 85, 0.3);
+            animation: popIn 0.6s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dfe6e9;
+        }
+        
+        .stat-item:last-child { border-bottom: none; }
+        
+        .evaluation {
+            font-size: 20px;
+            padding: 15px;
+            background: #ffeaa7;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+        
+        .hidden { display: none; }
+        
+        /* 错题本样式 */
+        .notebook {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .notebook-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dfe6e9;
+        }
+        
+        .notebook-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .notebook-stat {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            color: #636e72;
+        }
+        
+        .notebook-stat strong {
+            color: #e17055;
+            font-size: 18px;
+            margin-left: 5px;
+        }
+        
+        .wrong-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #d63031;
+        }
+        
+        .wrong-item.mastered {
+            opacity: 0.5;
+            border-left-color: #00b894;
+        }
+        
+        .wrong-item-content {
+            flex: 1;
+        }
+        
+        .wrong-question {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+        
+        .wrong-info {
+            font-size: 13px;
+            color: #636e72;
+        }
+        
+        .wrong-user-answer {
+            color: #d63031;
+            text-decoration: line-through;
+        }
+        
+        .wrong-correct-answer {
+            color: #00b894;
+            font-weight: bold;
+        }
+        
+        .wrong-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .wrong-actions button {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-master {
+            background: #00b894;
+            color: white;
+        }
+        
+        .btn-master:hover { background: #00cec9; }
+        
+        .btn-delete {
+            background: #d63031;
+            color: white;
+        }
+        
+        .btn-delete:hover { background: #c0392b; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #636e72;
+        }
+        
+        .empty-state .emoji {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        
+        /* 撒花动画 */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti-fall {
+            0% { 
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 导出按钮 */
+        .export-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed #dfe6e9;
+        }
+        
+        .btn-export {
+            padding: 10px 5px;
+            background: white;
+            border: 2px solid #74b9ff;
+            color: #74b9ff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .btn-export:hover {
+            background: #74b9ff;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(116, 185, 255, 0.3);
+        }
+        
+        .btn-export:active {
+            transform: translateY(0);
+        }
+        
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #00b894;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            box-shadow: 0 4px 20px rgba(0, 184, 148, 0.4);
+            z-index: 1000;
+            font-weight: bold;
+            animation: toastIn 0.3s ease-out;
+        }
+        
+        @keyframes toastIn {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        
+        /* 错题导出预览（隐藏，仅用于生成图片） */
+        .export-preview {
+            position: fixed;
+            top: -10000px;
+            left: -10000px;
+            width: 600px;
+            background: white;
+            padding: 30px;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        .export-preview-header {
+            text-align: center;
+            border-bottom: 3px solid #e17055;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .export-preview-header h1 {
+            color: #e17055;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        
+        .export-preview-header p {
+            color: #636e72;
+            font-size: 14px;
+        }
+        
+        .export-preview-item {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid #d63031;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .export-preview-item.mastered {
+            opacity: 0.6;
+            border-left-color: #00b894;
+        }
+        
+        .export-preview-q {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .export-preview-info {
+            font-size: 12px;
+            color: #636e72;
+            margin-top: 4px;
+        }
+        
+        .export-preview-footer {
+            text-align: center;
+            color: #636e72;
+            font-size: 12px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #dfe6e9;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-buttons">
+        <button class="icon-btn" id="soundToggle" onclick="toggleSound()" title="音效开关">🔊</button>
+        <button class="icon-btn" id="notebookBtn" onclick="openNotebook()" title="错题本">
+            📚<span class="badge" id="notebookBadge"></span>
+        </button>
+    </div>
+    
+    <div class="container">
+        <h1>🎓 小学1年级 算数练习</h1>
+        <p class="subtitle">加油！你是最棒的！💪</p>
+        
+        <!-- 设置区域 -->
+        <div id="settings" class="settings">
+            <div class="setting-row">
+                <label>📚 题型：</label>
+                <div class="btn-group">
+                    <button class="btn-option active" data-type="add">➕ 加法</button>
+                    <button class="btn-option" data-type="sub">➖ 减法</button>
+                    <button class="btn-option" data-type="mix">🔀 混合</button>
+                </div>
+            </div>
+            <div class="setting-row">
+                <label>🔢 题数：</label>
+                <input type="number" id="questionCount" value="8" min="1" max="20">
+            </div>
+            <button class="btn btn-primary" onclick="playClickSound(); startGame()">🚀 开始练习</button>
+            
+            <div class="menu-buttons" id="menuButtons">
+                <button class="btn btn-secondary" onclick="playClickSound(); startReviewMode()">📖 错题练习</button>
+                <button class="btn btn-success" onclick="playClickSound(); openNotebook()">📚 查看错题本</button>
+            </div>
+        </div>
+        
+        <!-- 题目区域 -->
+        <div id="questionArea" class="question-area hidden">
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question-text" id="questionText"></div>
+            <div class="feedback" id="feedback"></div>
+            <button class="btn btn-submit" id="submitBtn" onclick="playClickSound(); submitAnswer()">提交答案 ✅</button>
+        </div>
+        
+        <!-- 成绩单 -->
+        <div id="resultArea" class="result hidden">
+            <h2>🎉 练习完成！</h2>
+            <div class="score-circle" id="scoreCircle">0%</div>
+            <div class="stats" id="stats"></div>
+            <div class="evaluation" id="evaluation"></div>
+            <button class="btn btn-primary" onclick="playClickSound(); resetGame()">🔄 再来一次</button>
+            <button class="btn btn-secondary" onclick="playClickSound(); openNotebook()">📚 查看错题本</button>
+        </div>
+        
+        <!-- 错题本 -->
+        <div id="notebookArea" class="notebook hidden">
+            <div class="notebook-header">
+                <h2>📚 我的错题本</h2>
+                <button class="btn btn-danger" onclick="clearNotebook()" style="padding: 8px 16px; font-size: 14px;">🗑️ 清空</button>
+            </div>
+            
+            <div class="notebook-stats" id="notebookStats"></div>
+            
+            <!-- 🆕 导出按钮组 -->
+            <div class="export-buttons">
+                <button class="btn-export" onclick="copyToClipboard()">📋 复制</button>
+                <button class="btn-export" onclick="exportAsImage()">🖼️ 图片</button>
+                <button class="btn-export" onclick="exportAsPDF()">📄 PDF</button>
+                <button class="btn-export" onclick="exportAsTxt()">💾 文本</button>
+                <button class="btn-export" onclick="printNotebook()">🖨️ 打印</button>
+            </div>
+            
+            <!-- 🆕 复制成功提示 -->
+            <div id="toast" class="toast hidden">✅ 已复制到剪贴板！</div>
+            
+            <div id="wrongList"></div>
+        </div>
+
+    </div>
+    
+    <script>
+        // ============ 音效系统 ============
+        let soundEnabled = true;
+        let audioContext = null;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        function playNote(frequency, duration, startTime = 0, volume = 0.3) {
+            if (!soundEnabled || !audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            const now = audioContext.currentTime + startTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(volume, now + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            oscillator.start(now);
+            oscillator.stop(now + duration);
+        }
+        
+        function playCorrectSound() {
+            initAudio();
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                playNote(freq, 0.2, i * 0.08, 0.3);
+            });
+        }
+        
+        function playWrongSound() {
+            initAudio();
+            playNote(220, 0.15, 0, 0.3);
+            playNote(196, 0.3, 0.15, 0.3);
+        }
+        
+        function playCompleteSound() {
+            initAudio();
+            const melody = [
+                { f: 523.25, d: 0.15 }, { f: 659.25, d: 0.15 },
+                { f: 783.99, d: 0.15 }, { f: 1046.50, d: 0.15 },
+                { f: 783.99, d: 0.15 }, { f: 1046.50, d: 0.4 }
+            ];
+            let time = 0;
+            melody.forEach(note => {
+                playNote(note.f, note.d, time, 0.3);
+                time += note.d;
+            });
+        }
+        
+        function playClickSound() {
+            initAudio();
+            playNote(800, 0.05, 0, 0.1);
+        }
+        
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            btn.classList.toggle('muted', !soundEnabled);
+        }
+        
+        // ============ 撒花动画 ============
+        function showConfetti() {
+            const colors = ['#e17055', '#fdcb6e', '#00b894', '#74b9ff', '#a29bfe', '#fd79a8'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animation = `confetti-fall ${2 + Math.random() * 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+        
+        // ============ 错题本系统 ============
+        const STORAGE_KEY = 'math_practice_wrong_questions';
+        
+        // 获取所有错题
+        function getWrongQuestions() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+        
+        // 保存错题
+        function saveWrongQuestions(questions) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
+            updateNotebookBadge();
+        }
+        
+        // 添加错题（如果已存在，不重复添加）
+        function addWrongQuestion(question, userAnswer) {
+            const wrong = getWrongQuestions();
+            
+            // 检查是否已存在（按题目内容判断）
+            const exists = wrong.find(w => w.text === question.text);
+            if (exists) {
+                // 已存在，更新错误次数和最近答错时间
+                exists.errorCount = (exists.errorCount || 1) + 1;
+                exists.lastWrongAt = new Date().toISOString();
+                exists.userAnswer = userAnswer;
+                exists.mastered = false;  // 重新答错，取消已掌握
+            } else {
+                // 新错题
+                wrong.unshift({
+                    id: Date.now(),
+                    text: question.text,
+                    question: {
+                        numberA: question.numberA,
+                        numberB: question.numberB,
+                        operator: question.operator
+                    },
+                    correctAnswer: question.answer,
+                    userAnswer: userAnswer,
+                    errorCount: 1,
+                    createdAt: new Date().toISOString(),
+                    lastWrongAt: new Date().toISOString(),
+                    mastered: false
+                });
+            }
+            
+            saveWrongQuestions(wrong);
+        }
+        
+        // 标记已掌握
+        function markAsMastered(id) {
+            const wrong = getWrongQuestions();
+            const item = wrong.find(w => w.id === id);
+            if (item) {
+                item.mastered = true;
+                item.masteredAt = new Date().toISOString();
+            }
+            saveWrongQuestions(wrong);
+            renderNotebook();
+            playClickSound();
+        }
+        
+        // 删除单个错题
+        function deleteWrongQuestion(id) {
+            const wrong = getWrongQuestions().filter(w => w.id !== id);
+            saveWrongQuestions(wrong);
+            renderNotebook();
+            playClickSound();
+        }
+        
+        // 清空错题本
+        function clearNotebook() {
+            if (confirm('⚠️ 确定要清空错题本吗？此操作不可恢复！')) {
+                saveWrongQuestions([]);
+                renderNotebook();
+            }
+        }
+        
+        // 格式化时间
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const diff = (now - date) / 1000;  // 秒
+            
+            if (diff < 60) return '刚刚';
+            if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+            if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+            if (diff < 604800) return Math.floor(diff / 86400) + '天前';
+            return date.toLocaleDateString('zh-CN');
+        }
+        
+        // 更新错题本角标
+        function updateNotebookBadge() {
+            const wrong = getWrongQuestions();
+            const unmastered = wrong.filter(w => !w.mastered).length;
+            const badge = document.getElementById('notebookBadge');
+            badge.textContent = unmastered > 0 ? unmastered : '';
+        }
+        
+        // 渲染错题本
+        function renderNotebook() {
+            const wrong = getWrongQuestions();
+            const stats = document.getElementById('notebookStats');
+            const list = document.getElementById('wrongList');
+            
+            const total = wrong.length;
+            const mastered = wrong.filter(w => w.mastered).length;
+            const unmastered = total - mastered;
+            
+            // 统计信息
+            stats.innerHTML = `
+                <div class="notebook-stat">📊 总错题<strong>${total}</strong></div>
+                <div class="notebook-stat">✅ 已掌握<strong>${mastered}</strong></div>
+                <div class="notebook-stat">❗ 待复习<strong>${unmastered}</strong></div>
+            `;
+            
+            // 列表
+            if (total === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">🎉</div>
+                        <h3>错题本是空的！</h3>
+                        <p>继续保持，做错的题会自动加入这里</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 按"未掌握优先 + 最近答错时间"排序
+            const sorted = wrong.sort((a, b) => {
+                if (a.mastered !== b.mastered) return a.mastered ? 1 : -1;
+                return new Date(b.lastWrongAt) - new Date(a.lastWrongAt);
+            });
+            
+            list.innerHTML = sorted.map(item => `
+                <div class="wrong-item ${item.mastered ? 'mastered' : ''}">
+                    <div class="wrong-item-content">
+                        <div class="wrong-question">${item.text.replace('?', '=')} <span class="wrong-correct-answer">${item.correctAnswer}</span></div>
+                        <div class="wrong-info">
+                            你的答案：<span class="wrong-user-answer">${item.userAnswer}</span> 
+                            ${item.mastered ? '✅ 已掌握' : `· 错了 ${item.errorCount} 次 · ${formatTime(item.lastWrongAt)}`}
+                        </div>
+                    </div>
+                    <div class="wrong-actions">
+                        ${!item.mastered ? `<button class="btn-master" onclick="markAsMastered(${item.id})">✓ 掌握</button>` : ''}
+                        <button class="btn-delete" onclick="deleteWrongQuestion(${item.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 打开错题本
+        function openNotebook() {
+            document.getElementById('settings').classList.add('hidden');
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('notebookArea').classList.remove('hidden');
+            renderNotebook();
+        }
+        
+        // 关闭错题本
+        function closeNotebook() {
+            document.getElementById('notebookArea').classList.add('hidden');
+            document.getElementById('settings').classList.remove('hidden');
+        }
+        
+        // ============ 游戏系统 ============
+        let gameState = {
+            type: 'add',
+            totalCount: 8,
+            currentIndex: 0,
+            correctCount: 0,
+            questions: [],
+            currentAnswer: null,
+            currentQuestionData: null,
+            startTime: null,
+            isReviewMode: false
+        };
+        
+        document.querySelectorAll('.btn-option').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                gameState.type = this.dataset.type;
+                playClickSound();
+            });
+        });
+        
+        function generateAddition() {
+            const a = Math.floor(Math.random() * 23);
+            const b = Math.floor(Math.random() * (23 - a));
+            return { 
+                text: `${a} + ${b} = ?`, 
+                answer: a + b,
+                numberA: a,
+                numberB: b,
+                operator: '+'
+            };
+        }
+        
+        function generateSubtraction() {
+            const a = Math.floor(Math.random() * 22) + 1;
+            const b = Math.floor(Math.random() * (a + 1));
+            return { 
+                text: `${a} - ${b} = ?`, 
+                answer: a - b,
+                numberA: a,
+                numberB: b,
+                operator: '-'
+            };
+        }
+        
+        function generateQuestion() {
+            if (gameState.type === 'add') return generateAddition();
+            if (gameState.type === 'sub') return generateSubtraction();
+            return Math.random() < 0.5 ? generateAddition() : generateSubtraction();
+        }
+        
+        // 普通模式开始
+        function startGame() {
+            gameState.totalCount = parseInt(document.getElementById('questionCount').value) || 5;
+            gameState.currentIndex = 0;
+            gameState.correctCount = 0;
+            gameState.questions = [];
+            gameState.startTime = new Date();
+            gameState.isReviewMode = false;
+            
+            for (let i = 0; i < gameState.totalCount; i++) {
+                gameState.questions.push(generateQuestion());
+            }
+            
+            document.getElementById('settings').classList.add('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('notebookArea').classList.add('hidden');
+            document.getElementById('questionArea').classList.remove('hidden');
+            
+            showQuestion();
+        }
+        
+        // 错题复习模式
+        function startReviewMode() {
+            const wrong = getWrongQuestions().filter(w => !w.mastered);
+            
+            if (wrong.length === 0) {
+                alert('🎉 错题本是空的！先去练习吧，做错的题会自动加入这里。');
+                return;
+            }
+            
+            gameState.totalCount = wrong.length;
+            gameState.currentIndex = 0;
+            gameState.correctCount = 0;
+            gameState.questions = wrong.map(w => ({
+                text: w.text,
+                answer: w.correctAnswer,
+                numberA: w.question.numberA,
+                numberB: w.question.numberB,
+                operator: w.question.operator,
+                wrongId: w.id  // 关联错题本ID
+            }));
+            gameState.startTime = new Date();
+            gameState.isReviewMode = true;
+            
+            document.getElementById('settings').classList.add('hidden');
+            document.getElementById('notebookArea').classList.add('hidden');
+            document.getElementById('questionArea').classList.remove('hidden');
+            
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const q = gameState.questions[gameState.currentIndex];
+            gameState.currentAnswer = q.answer;
+            gameState.currentQuestionData = q;
+            
+            const prefix = gameState.isReviewMode ? '📖 错题复习 ' : '';
+            document.getElementById('questionNumber').textContent = 
+                `${prefix}第 ${gameState.currentIndex + 1} / ${gameState.totalCount} 题`;
+            document.getElementById('questionText').innerHTML = 
+                q.text.replace('?', '<input type="number" id="answerInput" class="answer-input" autofocus>');
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            setTimeout(() => {
+                const input = document.getElementById('answerInput');
+                if (input) input.focus();
+            }, 50);
+            
+            document.getElementById('answerInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') submitAnswer();
+            });
+        }
+        
+        function submitAnswer() {
+            const input = document.getElementById('answerInput');
+            if (!input) return;
+            
+            const userAnswer = parseInt(input.value);
+            const feedback = document.getElementById('feedback');
+            const q = gameState.currentQuestionData;
+            
+            if (isNaN(userAnswer)) {
+                feedback.textContent = '⚠️ 请输入一个数字！';
+                feedback.className = 'feedback wrong';
+                playWrongSound();
+                return;
+            }
+            
+            if (userAnswer === gameState.currentAnswer) {
+                gameState.correctCount++;
+                feedback.textContent = '🎉 答对啦！你真棒！';
+                feedback.className = 'feedback correct';
+                playCorrectSound();
+                
+                // 在复习模式下答对，自动标记为已掌握
+                if (gameState.isReviewMode && q.wrongId) {
+                    setTimeout(() => markAsMasteredSilent(q.wrongId), 800);
+                }
+            } else {
+                feedback.textContent = `❌ 答错了，正确答案是 ${gameState.currentAnswer}`;
+                feedback.className = 'feedback wrong';
+                playWrongSound();
+                
+                // 添加到错题本
+                addWrongQuestion(q, userAnswer);
+            }
+            
+            input.disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            
+            setTimeout(() => {
+                gameState.currentIndex++;
+                if (gameState.currentIndex < gameState.totalCount) {
+                    document.getElementById('submitBtn').disabled = false;
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1000);
+        }
+        
+        // 静默标记（不播放音效、不重渲染错题本）
+        function markAsMasteredSilent(id) {
+            const wrong = getWrongQuestions();
+            const item = wrong.find(w => w.id === id);
+            if (item) {
+                item.mastered = true;
+                item.masteredAt = new Date().toISOString();
+            }
+            saveWrongQuestions(wrong);
+        }
+        
+        function showResult() {
+            const rate = (gameState.correctCount / gameState.totalCount * 100).toFixed(1);
+            const elapsed = Math.floor((new Date() - gameState.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            let evaluation = '';
+            if (rate == 100) {
+                evaluation = '🏆 满分！你太厉害了！';
+                showConfetti();  // 🎊 满分撒花！
+            } else if (rate >= 90) evaluation = '🌟 太厉害了！你是数学小天才！';
+            else if (rate >= 70) evaluation = '👍 表现不错，继续加油！';
+            else if (rate >= 50) evaluation = '💪 还需努力，多练习就会进步！';
+            else evaluation = '📖 别灰心，做错的题可以到错题本复习哦！';
+            
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('notebookArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.remove('hidden');
+            document.getElementById('scoreCircle').textContent = rate + '%';
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-item"><span>📝 总题数</span><strong>${gameState.totalCount}</strong></div>
+                <div class="stat-item"><span>✅ 答对</span><strong style="color:#00b894">${gameState.correctCount}</strong></div>
+                <div class="stat-item"><span>❌ 答错</span><strong style="color:#d63031">${gameState.totalCount - gameState.correctCount}</strong></div>
+                <div class="stat-item"><span>⏱️ 用时</span><strong>${minutes}分${seconds}秒</strong></div>
+            `;
+            document.getElementById('evaluation').textContent = evaluation;
+            
+            playCompleteSound();
+        }
+        
+        function resetGame() {
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('settings').classList.remove('hidden');
+        }
+        
+        // ============ 初始化 ============
+        updateNotebookBadge();
+        
+        // ============ 导出功能 ============
+        
+        // 生成错题文本（多种格式共享）
+        function generateWrongQuestionsText(includeMastered = true) {
+            const wrong = getWrongQuestions();
+            const filtered = includeMastered ? wrong : wrong.filter(w => !w.mastered);
+            
+            if (filtered.length === 0) {
+                return '🎉 错题本是空的！继续保持！';
+            }
+            
+            // 按未掌握优先排序
+            const sorted = [...filtered].sort((a, b) => {
+                if (a.mastered !== b.mastered) return a.mastered ? 1 : -1;
+                return new Date(b.lastWrongAt) - new Date(a.lastWrongAt);
+            });
+            
+            const today = new Date().toLocaleDateString('zh-CN');
+            let text = `╔══════════════════════════════════╗\n`;
+            text += `║   📚 我的错题本  (${today})     ║\n`;
+            text += `╚══════════════════════════════════╝\n\n`;
+            text += `📊 总计：${sorted.length} 题\n`;
+            text += `❗ 待复习：${sorted.filter(w => !w.mastered).length} 题\n`;
+            text += `✅ 已掌握：${sorted.filter(w => w.mastered).length} 题\n\n`;
+            text += `${'─'.repeat(40)}\n\n`;
+            
+            sorted.forEach((item, index) => {
+                const status = item.mastered ? '[✅ 已掌握]' : '[❗ 待复习]';
+                const questionText = item.text.replace('?', `= ${item.correctAnswer}`);
+                text += `${index + 1}. ${status} ${questionText}\n`;
+                text += `   你的答案：${item.userAnswer} | 错了 ${item.errorCount} 次 | ${formatTime(item.lastWrongAt)}\n\n`;
+            });
+            
+            text += `${'─'.repeat(40)}\n`;
+            text += `🌟 加油小朋友，错题越练越少！\n`;
+            
+            return text;
+        }
+        
+        // 📋 1. 复制到剪贴板
+        async function copyToClipboard() {
+            playClickSound();
+            const text = generateWrongQuestionsText();
+            
+            try {
+                // 优先使用现代 API
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    // 兼容旧浏览器
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                }
+                showToast('✅ 已复制到剪贴板！');
+            } catch (err) {
+                alert('复制失败，请手动复制：\n\n' + text);
+            }
+        }
+        
+        // 💾 2. 下载为文本文件
+        function exportAsTxt() {
+            playClickSound();
+            const text = generateWrongQuestionsText();
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            const today = new Date().toISOString().slice(0, 10);
+            a.href = url;
+            a.download = `错题本_${today}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('💾 文本文件已下载！');
+        }
+        
+        // 📄 3. 导出为 PDF（使用浏览器打印）
+        function exportAsPDF() {
+            playClickSound();
+            
+            // 创建打印专用窗口
+            const printWindow = window.open('', '_blank');
+            const wrong = getWrongQuestions();
+            
+            const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>我的错题本</title>
+                    <style>
+                        body {
+                            font-family: 'Microsoft YaHei', sans-serif;
+                            padding: 30px;
+                            max-width: 800px;
+                            margin: 0 auto;
+                        }
+                        .header {
+                            text-align: center;
+                            border-bottom: 3px solid #e17055;
+                            padding-bottom: 15px;
+                            margin-bottom: 25px;
+                        }
+                        .header h1 { color: #e17055; margin: 0 0 10px 0; }
+                        .header p { color: #666; margin: 0; }
+                        .summary {
+                            background: #f8f9fa;
+                            padding: 15px;
+                            border-radius: 10px;
+                            margin-bottom: 20px;
+                            text-align: center;
+                        }
+                        .summary span { margin: 0 15px; }
+                        .summary strong { color: #e17055; font-size: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                        th {
+                            background: #e17055;
+                            color: white;
+                            padding: 12px;
+                            text-align: left;
+                        }
+                        td {
+                            padding: 12px;
+                            border-bottom: 1px solid #eee;
+                        }
+                        tr:nth-child(even) { background: #fafafa; }
+                        .status-unmastered { color: #d63031; font-weight: bold; }
+                        .status-mastered { color: #00b894; }
+                        .footer {
+                            text-align: center;
+                            margin-top: 30px;
+                            padding-top: 15px;
+                            border-top: 2px dashed #ddd;
+                            color: #999;
+                            font-size: 12px;
+                        }
+                        @media print {
+                            body { padding: 15px; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>📚 我的错题本</h1>
+                        <p>导出时间：${new Date().toLocaleString('zh-CN')}</p>
+                    </div>
+                    
+                    <div class="summary">
+                        <span>📊 总计：<strong>${wrong.length}</strong> 题</span>
+                        <span>❗ 待复习：<strong>${wrong.filter(w => !w.mastered).length}</strong> 题</span>
+                        <span>✅ 已掌握：<strong>${wrong.filter(w => w.mastered).length}</strong> 题</span>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">序号</th>
+                                <th>题目</th>
+                                <th style="width: 80px;">正确答案</th>
+                                <th style="width: 80px;">你的答案</th>
+                                <th style="width: 60px;">错误次数</th>
+                                <th style="width: 100px;">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${wrong.map((item, i) => `
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td><strong>${item.text.replace('?', '')}</strong></td>
+                                    <td style="color:#00b894;font-weight:bold;">${item.correctAnswer}</td>
+                                    <td style="color:#d63031;text-decoration:line-through;">${item.userAnswer}</td>
+                                    <td style="text-align:center;">${item.errorCount}</td>
+                                    <td class="${item.mastered ? 'status-mastered' : 'status-unmastered'}">
+                                        ${item.mastered ? '✅ 已掌握' : '❗ 待复习'}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    
+                    <div class="footer">
+                        🌟 加油！错题越练越少！ - 小学1年级算数练习
+                    </div>
+                    
+                    <div class="no-print" style="text-align: center; margin-top: 30px;">
+                        <button onclick="window.print()" style="padding: 10px 30px; background: #e17055; color: white; border: none; border-radius: 20px; font-size: 16px; cursor: pointer;">
+                            🖨️ 打印 / 另存为 PDF
+                        </button>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(html);
+            printWindow.document.close();
+            
+            showToast('📄 打印窗口已打开！');
+        }
+        
+        // 🖼️ 4. 导出为图片
+        function exportAsImage() {
+            playClickSound();
+            
+            // 检查是否已加载 html2canvas
+            if (typeof html2canvas === 'undefined') {
+                // 动态加载 html2canvas
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                script.onload = () => generateImage();
+                script.onerror = () => {
+                    alert('图片导出库加载失败，请检查网络连接');
+                };
+                document.head.appendChild(script);
+                showToast('⏳ 正在加载图片库...');
+            } else {
+                generateImage();
+            }
+        }
+        
+        function generateImage() {
+            const wrong = getWrongQuestions();
+            
+            if (wrong.length === 0) {
+                alert('错题本是空的！');
+                return;
+            }
+            
+            // 创建预览容器
+            const preview = document.createElement('div');
+            preview.className = 'export-preview';
+            preview.id = 'exportPreview';
+            
+            const today = new Date().toLocaleDateString('zh-CN');
+            const sorted = [...wrong].sort((a, b) => {
+                if (a.mastered !== b.mastered) return a.mastered ? 1 : -1;
+                return new Date(b.lastWrongAt) - new Date(a.lastWrongAt);
+            });
+            
+            preview.innerHTML = `
+                <div class="export-preview-header">
+                    <h1>📚 我的错题本</h1>
+                    <p>导出时间：${today} | 共 ${sorted.length} 题</p>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                    <span style="margin: 0 10px;">❗ 待复习：<strong style="color:#d63031;">${sorted.filter(w => !w.mastered).length}</strong></span>
+                    <span style="margin: 0 10px;">✅ 已掌握：<strong style="color:#00b894;">${sorted.filter(w => w.mastered).length}</strong></span>
+                </div>
+                
+                ${sorted.map((item, i) => `
+                    <div class="export-preview-item ${item.mastered ? 'mastered' : ''}">
+                        <div>
+                            <div class="export-preview-q">
+                                ${i + 1}. ${item.text.replace('?', '')} = <span style="color:#00b894;">${item.correctAnswer}</span>
+                            </div>
+                            <div class="export-preview-info">
+                                ${item.mastered ? '✅ 已掌握' : `错了 ${item.errorCount} 次`} · 
+                                你的答案：<span style="color:#d63031;text-decoration:line-through;">${item.userAnswer}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+                
+                <div class="export-preview-footer">
+                    🌟 加油！错题越练越少！🌟
+                </div>
+            `;
+            
+            document.body.appendChild(preview);
+            
+            // 显示加载提示
+            showToast('🖼️ 正在生成图片...');
+            
+            // 使用 html2canvas 生成图片
+            html2canvas(preview, {
+                backgroundColor: '#ffffff',
+                scale: 2,  // 高清
+                logging: false
+            }).then(canvas => {
+                // 转为图片并下载
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const today = new Date().toISOString().slice(0, 10);
+                    a.href = url;
+                    a.download = `错题本_${today}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    // 清理
+                    document.body.removeChild(preview);
+                    showToast('✅ 图片已下载！');
+                });
+            }).catch(err => {
+                console.error(err);
+                document.body.removeChild(preview);
+                alert('图片生成失败：' + err.message);
+            });
+        }
+        
+        // 🖨️ 5. 直接打印
+        function printNotebook() {
+            playClickSound();
+            exportAsPDF();  // 复用PDF导出，会弹出打印窗口
+        }
+        
+        // Toast 提示
+        function showToast(message) {
+            let toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2000);
+        }
+        
+    </script>
+</body>
+</html>
