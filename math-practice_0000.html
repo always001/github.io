@@ -426,6 +426,55 @@
         }
         
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* ============ 答案输入框专用样式 ============ */
+        .answer-input {
+            display: inline-block;
+            font-size: 48px !important;
+            font-weight: bold !important;
+            width: 140px !important;
+            text-align: center !important;
+            border: 3px solid #e17055 !important;
+            border-radius: 12px !important;
+            outline: none !important;
+            color: #e17055 !important;
+            background: white !important;
+            padding: 8px 12px !important;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        
+        /* 隐藏数字输入框的上下箭头 */
+        .answer-input::-webkit-outer-spin-button,
+        .answer-input::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+        
+        .answer-input:focus {
+            border-color: #d63031 !important;
+            box-shadow: 0 0 0 3px rgba(225, 112, 85, 0.2) !important;
+        }
+        
+        /* ============ 题数输入框样式 ============ */
+        #questionCount {
+            font-size: 18px !important;
+            width: 90px !important;
+            padding: 10px 14px !important;
+            text-align: center;
+            font-weight: bold;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        
+        /* 隐藏题数输入框的上下箭头 */
+        #questionCount::-webkit-outer-spin-button,
+        #questionCount::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
     </style>
 </head>
 <body>
@@ -450,7 +499,7 @@
             </div>
             <div class="setting-row">
                 <label>🔢 题数：</label>
-                <input type="number" id="questionCount" value="8" min="1" max="50">
+                <input type="number" id="questionCount" value="8" min="1" max="50" inputmode="numeric">
                 <span id="countHint" class="count-hint">(1-50题)</span>
                 <div class="quick-count">
                     <button>5</button>
@@ -1086,7 +1135,8 @@
                 'onkeydown="return blockInvalidKeys(event)" ' +
                 'oninput="sanitizeAnswer(this)" ' +
                 'onpaste="handlePaste(event)" ' +
-                'autofocus>'
+                'autocomplete="off" autocorrect="off" autocapitalize="off" ' +
+                'spellcheck="false" autofocus>'
             );
             
             $('feedback').textContent = '';
