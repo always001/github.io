@@ -125,7 +125,7 @@
         
         .quick-count button {
             padding: 4px 10px;
-            border: 1px solid #dfe6e9;
+            border: 1px solid #9c3ca5;
             background: white;
             border-radius: 12px;
             cursor: pointer;
@@ -135,7 +135,12 @@
         }
         
         .quick-count button:hover {
-            background: #74b9ff;
+            background: #9c3ca5;
+            color: white;
+            border-color: #74b9ff;
+        }
+        .quick-count button.active {
+            background: #9c3ca5;
             color: white;
             border-color: #74b9ff;
         }
@@ -164,7 +169,7 @@
         .question-text .answer-input {
             font-size: 48px;
             font-weight: bold;
-            width: 100px;
+            width: 150px;
             text-align: center;
             border: none;
             border-bottom: 4px solid #e17055;
@@ -449,6 +454,7 @@
                 <span id="countHint" class="count-hint">(1-50题)</span>
                 <div class="quick-count">
                     <button>5</button>
+                    <button class="active">8</button>
                     <button>10</button>
                     <button>20</button>
                 </div>
@@ -1013,6 +1019,50 @@
             }
         }
         
+        // ✅ 阻止输入负号、科学计数法等无效字符(禁止输入负号,减号和无效字符)
+        function blockInvalidKeys(e) {
+            // 阻止输入 -、+、e、E、. 这些字符
+            if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E' || 
+                e.key === '.' || e.key === ',' || e.key === ' ') {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        }
+        
+        // ✅ 清理答案（处理粘贴、自动填充等）
+        function sanitizeAnswer(input) {
+            // 移除非数字字符（包括 -、+、.、e 等）
+            var value = input.value.replace(/[^\d]/g, '');
+            // 限制最大 2 位数（小学1年级答案最大 44）
+            if (value.length > 2) {
+                value = value.substring(0, 2);
+            }
+            //input.value = value;
+            // 限制范围
+            var num = parseInt(value) || 0;
+            if (num > 44) {
+                num = 44;
+                showToast('⚠️ 答案最大是 44 哦！', 'warn');
+            }
+            
+            // 更新输入框
+            if (input.value !== String(num)) {
+                input.value = num;
+            }
+        }
+        
+        // ✅ 处理粘贴事件
+        function handlePaste(e) {
+            e.preventDefault();
+            var paste = (e.clipboardData || window.clipboardData).getData('text');
+            var cleanNum = paste.replace(/[^\d]/g, '').substring(0, 2);
+            
+            var input = e.target;
+            input.value = cleanNum;
+            sanitizeAnswer(input);
+        }
+        
         function showQuestion() {
             var q = gameState.questions[gameState.currentIndex];
             gameState.currentAnswer = q.answer;
@@ -1026,11 +1076,16 @@
             // ✅ 关键修改：限制 min=0 max=答案范围
             var minAnswer = 0;
             var maxAnswer = 44;  // 设置一个合理的最大值
+            var stepNum = 1;
             
             $('questionText').innerHTML = q.text.replace('?', 
                 '<input type="number" id="answerInput" class="answer-input" ' +
-                'min="' + minAnswer + '" max="' + maxAnswer + '" ' +
+                'min="' + minAnswer + '" max="' + maxAnswer + '" step="' + stepNum + '" ' +
+                'inputmode="numeric" ' +
+                'pattern="[0-9]*" ' +
                 'onkeydown="return blockInvalidKeys(event)" ' +
+                'oninput="sanitizeAnswer(this)" ' +
+                'onpaste="handlePaste(event)" ' +
                 'autofocus>'
             );
             
@@ -1049,24 +1104,31 @@
         }
         
         // 阻止输入负号、科学计数法等无效字符(禁止输入负号和减号)
+        /**
         function blockInvalidKeys(e) {
-            // 阻止输入 "-" "-" 键
+            // 阻止输入 -、+、e、E、. 这些字符
             if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E' || e.key === '.') {
                 e.preventDefault();
                 return false;
             }
             return true;
         }
+        */
         
         function submitAnswer() {
             var input = $('answerInput');
             if (!input) return;
             
+            // ✅ 最后再清理一次
+            sanitizeAnswer(input);
+            
             var userAnswer = parseInt(input.value);
             var feedback = $('feedback');
             var q = gameState.currentQuestionData;
             
-            if (isNaN(userAnswer)) {
+            // 验证是否为空
+            if (input.value === '' || isNaN(userAnswer)) {
+            //if (isNaN(userAnswer)) {
                 feedback.textContent = '⚠️ 请输入数字！';
                 feedback.className = 'feedback wrong';
                 playWrongSound();
@@ -1084,7 +1146,8 @@
                     //input.value = 0;
                     input.value = '';
                     feedback.textContent = '';
-                    feedback.className = 'feedback';
+                    //feedback.className = 'feedback';
+                    input.focus();
                 }, 1000);
                 return;
             }
@@ -1097,7 +1160,8 @@
                 setTimeout(function() {
                     input.value = '';
                     feedback.textContent = '';
-                    feedback.className = 'feedback';
+                    //feedback.className = 'feedback';
+                    input.focus();
                 }, 1000);
                 return;
             }
@@ -1708,7 +1772,11 @@
             var qcBtns = document.querySelectorAll('.quick-count button');
             for (var i = 0; i < qcBtns.length; i++) {
                 (function(btn) {
-                    btn.onclick = function() { setQuestionCount(parseInt(btn.textContent)); };
+                    btn.onclick = function() { 
+                        setQuestionCount(parseInt(btn.textContent)); 
+                        for (var j = 0; j < qcBtns.length; j++) qcBtns[j].classList.remove('active');
+                        btn.classList.add('active');
+                    };
                 })(qcBtns[i]);
             }
             
