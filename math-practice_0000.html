@@ -1417,29 +1417,40 @@
         
         function generateQRCode() {
             var container = $('qrCodeContainer');
+            var wrong = getWrongQuestions();
+            
             container.innerHTML = '<div class="loading"></div><p>生成中...</p>';
             
-            var wrong = getWrongQuestions();
-            var text = '📚 我的错题本\n';
-            text += '生成时间：' + new Date().toLocaleString('zh-CN') + '\n';
-            text += '总计：' + wrong.length + ' 题\n';
-            text += '─────────────────────────\n\n';
+            // 完整文本（用于预览框）
+            var fullText = '📚 我的错题本\n';
+            fullText += '生成时间：' + new Date().toLocaleString('zh-CN') + '\n';
+            fullText += '总计：' + wrong.length + ' 题\n';
+            fullText += '─────────────────────────\n\n';
             
             for (var i = 0; i < wrong.length; i++) {
                 var item = wrong[i];
-                var status = item.mastered ? '✅已掌握' : '❗待复习';
-                text += (i+1) + '. ' + status + '\n';
-                text += '   ' + item.text + '=' + item.correctAnswer + '\n';
-                text += '   你的答案：' + item.userAnswer + ' | 错了' + item.errorCount + '次\n\n';
+                var status = item.mastered ? '✅' : '❗';
+                fullText += (i+1) + '. ' + status + ' ' + item.text + '=' + item.correctAnswer + '\n';
+                fullText += '   你的答案：' + item.userAnswer + ' | 错了' + item.errorCount + '次\n\n';
             }
-            text += '🌟 加油！错题越练越少！';
+            fullText += '🌟 加油！错题越练越少！';
             
-            $('qrTextContent').value = text;
+            $('qrTextContent').value = fullText;
             
-            var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(text) + '&color=e17055&margin=10';
+            // 紧凑文本（用于二维码，更短更易扫）
+            var compactText = '📚错题本 ' + wrong.length + '题\n';
+            for (var i = 0; i < wrong.length; i++) {
+                var item = wrong[i];
+                compactText += (i+1) + '. ' + item.text + '=' + item.correctAnswer + '\n';
+            }
+            
+            var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
+                           encodeURIComponent(compactText) + '&color=e17055&margin=10';
             
             setTimeout(function() {
-                container.innerHTML = '<img src="' + qrApiUrl + '" class="qr-code-img" alt="错题二维码"><p style="color:#636e72;font-size:13px;margin-top:10px;">📱 扫码即可看到错题内容</p><p style="color:#636e72;font-size:12px;margin-top:5px;">📊 共 ' + wrong.length + ' 道错题</p>';
+                container.innerHTML = 
+                    '<img src="' + qrApiUrl + '" class="qr-code-img" alt="错题二维码">' +
+                    '<p style="color:#636e72;font-size:13px;margin-top:10px;">📊 共 ' + wrong.length + ' 道错题</p>';
             }, 300);
         }
         
