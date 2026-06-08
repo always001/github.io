@@ -1428,11 +1428,21 @@
             fullText += '─────────────────────────\n\n';
             
             for (var i = 0; i < wrong.length; i++) {
-                var item = wrong[i];
-                var status = item.mastered ? '✅' : '❗';
-                fullText += (i+1) + '. ' + status + ' ' + item.text + '=' + item.correctAnswer + '\n';
-                fullText += '   你的答案：' + item.userAnswer + ' | 错了' + item.errorCount + '次\n\n';
-            }
+		        var item = wrong[i];
+		        var status = item.mastered ? '✅' : '❗';
+		        
+		        // ✅ 关键修复：正确处理题目文本
+		        // item.text 可能是 "21 + 1 = ?" 或 "21 + 1 =? " 
+		        // 统一处理：把 "?" 替换为空，然后拼接答案
+		        var cleanText = item.text.replace(/\?\s*/g, '').trim();
+		        // 去掉尾部可能多余的 "="
+		        if (cleanText.endsWith('=')) {
+		            cleanText = cleanText.slice(0, -1).trim();
+		        }
+		        
+		        fullText += (i+1) + '. ' + status + ' ' + cleanText + ' = ' + item.correctAnswer + '\n';
+		        fullText += '   你的答案：' + item.userAnswer + ' | 错了' + item.errorCount + '次\n\n';
+		    }
             fullText += '🌟 加油！错题越练越少！';
             
             $('qrTextContent').value = fullText;
