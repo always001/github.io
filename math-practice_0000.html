@@ -1107,11 +1107,24 @@
             if (num > 44) {
                 num = 44;
                 showToast('⚠️ 答案最大是 44 哦！', 'warn');
+                feedback.textContent = '⚠️ 数字太大了！';
             }
             
             // 更新输入框
-            if (input.value !== String(num)) {
-                input.value = num;
+            //if (input.value !== String(num)) {
+                //input.value = num;
+            //}
+            
+            if (isNaN(input.value)) {
+                feedback.textContent = '⚠️ 请输入一个数字！';
+                feedback.className = 'feedback wrong';
+                playWrongSound();
+                return;
+            } else {
+                if (input.value !== String(num)) {
+                    //alert(num) 
+                    //input.value = num; //..★TODO
+                }
             }
         }
         
