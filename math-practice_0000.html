@@ -1453,6 +1453,7 @@
         
         function showExportImageModal() {
             playClickSound();
+            closeAllModals();
             var html = '';
             var themes = CONFIG.THEMES;
             for (var key in themes) {
