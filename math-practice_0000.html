@@ -545,6 +545,26 @@
             }
         }
         
+        /* 進捗バーの外枠（グレーの背景） */
+        .progress-container {
+            width: 100%;
+            max-width: 300px; /* 画面に合わせて適宜調整してください */
+            background-color: #eef2f3;
+            border-radius: 10px;
+            height: 8px;
+            margin: 8px auto; /* 中央寄せ */
+            overflow: hidden;
+        }
+
+        /* 進捗バーの中身（緑色のゲージ） */
+        .progress-bar {
+            height: 100%;
+            width: 10%; /* 初期値（10問中1問目の場合） */
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); /* 綺麗な青〜水色のグラデ */
+            /* ボタンの緑色に合わせる場合はこちら： background: linear-gradient(90deg, #10b981 0%, #059669 100%); */
+            border-radius: 10px;
+            transition: width 0.3s ease; /* ゲージが伸びる時のアニメーション */
+        }
     </style>
 </head>
 <body>
@@ -590,6 +610,9 @@
                 <button class="btn-back" id="backFromQuestion">← 返回主菜单</button>
             </div>
             <div class="question-number" id="questionNumber"></div>
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
             <div class="question-text" id="questionText"></div>
             <div class="feedback" id="feedback"></div>
             <button class="btn btn-submit" id="submitBtn">提交答案 ✅</button>
@@ -1203,6 +1226,10 @@
             
             var prefix = gameState.isReviewMode ? '📖 错题复习 ' : '';
             $('questionNumber').textContent = prefix + '第 ' + (gameState.currentIndex + 1) + ' / ' + gameState.totalCount + ' 题';
+            // パーセンテージの計算
+            const percentage = ((gameState.currentIndex + 1) / gameState.totalCount) * 100;
+            // バーの幅を書き換え
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
             //$('questionText').innerHTML = q.text.replace('?', '<input type="number" id="answerInput" class="answer-input" autofocus>');
             //var maxAnswer = gameState.type === 'sub' ? 22 : 44;
             //$('questionText').innerHTML = q.text.replace('?', '<input type="number" id="answerInput" class="answer-input" min="0" max="' + maxAnswer + '" autofocus>');
@@ -1240,6 +1267,33 @@
                 }
             }, 50);
         }
+        
+        // 一例としての状態管理変数（既存の変数名に合わせてください）
+        //let currentQuestion = 1; 
+        //let totalQuestions = 10;
+        
+        // 進捗バーを更新する関数
+        //function updateProgressBar() {
+            // テキストの更新
+            //document.getElementById('current-question-text').innerText = `第 ${currentQuestion} / ${totalQuestions} 题`;
+            
+            // パーセンテージの計算
+            //const percentage = (currentQuestion / totalQuestions) * 100;
+            
+            // バーの幅を書き換え
+            //document.getElementById('progress-bar').style.width = `${percentage}%`;
+        //
+        
+        // --- 使用イメージ ---
+        // 次の問題に進むボタンを押した時のイベント内などで呼び出します
+        //function nextQuestion() {
+            //if (currentQuestion < totalQuestions) {
+                //currentQuestion++;
+                //updateProgressBar(); // ここでバーを更新
+            //} else {
+                //alert('全部クリア！お疲れ様でした！🎉'); // ★TODO
+            //}
+        //}
         
         // 阻止输入负号、科学计数法等无效字符(禁止输入负号和减号)
         /**
