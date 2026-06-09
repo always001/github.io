@@ -760,6 +760,10 @@
     
     <input type="file" id="importFile" style="display:none" accept=".json">
     
+    <!-- 在HTML中引入库 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- 或者使用更现代的 qrcode -->
+    <!--  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>  -->
     <script>
         // ============ 全部功能 - 用最稳健的方式 ============
         
@@ -1735,6 +1739,7 @@
             if (wrong.length === 0) { alert('错题本是空的！请先做几道题！'); return; }
             $('qrModal').classList.remove('hidden');
             generateQRCode();
+            //generateQrCodeUrl(wrong);
         }
         
         function generateQRCode() {
@@ -1782,15 +1787,196 @@
                 compactText += (i+1) + '.  ' + cleanText + ' = ' + item.correctAnswer + '  ' +  '\n';
             }
             
-            var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
-                           encodeURIComponent(compactText) + '&color=e17055&margin=10';
+            // 在编码前，可以尝试将连续的多个换行符标准化为单个，避免格式混乱
+            compactText = compactText.replace(/\n\s*\n/g, '\n\n'); // 将空行标准化为两个换行符
+            
+            // 2. 调试：在控制台打印原始文本，确认换行符存在
+            console.log('--- 原始文本内容 ---');
+            console.log(compactText);
+            console.log('------------------');
+            
+            // 3. 编码并生成 URL
+            // encodeURIComponent 会将 \n 转换为 %0A
+            //var encodedData = encodeURIComponent(compactText);
+            
+            // 构造 API URL
+            //var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
+                           //encodedData + 
+                           //'&color=e17055&margin=10';
+                           
+            
+            //var encoded = compactText.replace(/\n/g, '%0A');
+            
+            // ✅ 最终解决方案：用 Base64 编码文本，再放进二维码
+            // 1. 生成 Base64（保证所有扫码器都能保留换行）
+            var base64 = btoa(unescape(encodeURIComponent(compactText)));
+            //var url = "decode.html?data=" + base64;
+            //var localUrl = "file:///C:/D-Drive/FIS/2026/20260611/decode.html?data=" + base64;
+            //var qrApiUrl =
+            //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+            //  encodeURIComponent(localUrl) +
+            //  "&color=e17055&margin=10";
+            
+            //var qrApiUrl =
+            //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+            //  encodeURIComponent(url) +
+            //  "&color=e17055&margin=10";
+            
+            // 2. 放进二维码
+            //var qrApiUrl =
+            //  'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
+            //  base64 +
+            //  '&color=e17055&margin=10';
+            
+            var qrApiUrl =
+              'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
+              encodeURIComponent("decode.html?data=" + base64) +
+              '&color=e17055&margin=10';
+            
+            // 3. 扫码后得到 Base64 字符串
+            // decodeURIComponent(escape(atob(base64String)));
+            //var decoded = decodeURIComponent(escape(atob(base64)));
+            
+            //var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(encoded) + '&color=e17055&margin=10';
+            //var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(compactText) + '&color=e17055&margin=10';
+            
+            //var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
+            //               encodeURIComponent(compactText) + '&color=e17055&margin=10';
+            // 示例：使用 goqr.me API (参数略有不同)
+            //var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(compactText) + '&color=e17055&margin=10';
+            // 可以尝试换成：
+            //var qrApiUrlAlt = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(compactText) + '&color=e17055&margin=10';
+            // 注意：goqr.me 可能需要不同的参数名，请查阅其文档。
+            
+            //var qrApiUrl = generateQrCodeUrl(wrong);
             
             setTimeout(function() {
                 container.innerHTML = 
                     '<img src="' + qrApiUrl + '" class="qr-code-img" alt="错题二维码">' +
                     '<p style="color:#636e72;font-size:13px;margin-top:10px;">📊 共 ' + wrong.length + ' 道错题</p>';
             }, 300);
+            
+            // 3. 使用 QRCode.js 生成
+            // 这个库会直接处理文本中的 \n，生成的二维码包含标准换行信息
+            /*
+            new QRCode(container, {
+                text: compactText,
+                width: 300,
+                height: 300,
+                colorDark : "#e17055", // 您的主题色
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H // 高容错率，防止因内容多导致难扫
+            });
+            
+            console.log('二维码已本地生成，文本内容：', compactText);
+            */
+            
+            /*
+            setTimeout(function() {
+                // 在指定DOM元素中生成二维码
+                new QRCode(document.getElementById("qrCodeContainer"), {
+                    text: compactText, // 直接传入文本，无需URL编码
+                    width: 300,
+                    height: 300,
+                    colorDark : "#e17055",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }, 300);
+            */
         }
+        
+        // 解码二维码内容
+        function decodeBase64Text(base64) {
+            return decodeURIComponent(escape(atob(base64)));
+        }
+        // eg
+        //var decoded = decodeBase64Text("8J TmumUmemimOacrCAy6aKYCjEuICA0ICsgMTEgPSAxNSAgCjIuICAxOSArIDMgPSAyMiAgCg==");
+        //console.log(decoded);
+        // 输出就是：
+        //📚错题本 2题
+        //1. 4 + 11 = 15
+        //2. 19 + 3 = 22
+        
+        function generateQrCodeUrl(wrong) {
+            if (!wrong || wrong.length === 0) return '';
+            
+            // 1. 构建紧凑文本
+            // 注意：这里严格使用 \n 作为换行符，不要使用 \r\n
+            var compactText = '📚错题本 ' + wrong.length + '题\n';
+            
+            for (var i = 0; i < wrong.length; i++) {
+                var item = wrong[i];
+                
+                // 清理题目文本
+                var cleanText = item.text.replace(/\?\s*/g, '').trim();
+                if (cleanText.endsWith('=')) {
+                    cleanText = cleanText.slice(0, -1).trim();
+                }
+                
+                // 格式化每一行：序号. 题目 = 答案
+                // 建议：去掉末尾多余的空格，保持整洁
+                compactText += (i + 1) + '. ' + cleanText + '=' + item.correctAnswer + '\n';
+            }
+            
+            // 2. 调试：在控制台打印原始文本，确认换行符存在
+            console.log('--- 原始文本内容 ---');
+            console.log(compactText);
+            console.log('------------------');
+            
+            // 3. 编码并生成 URL
+            // encodeURIComponent 会将 \n 转换为 %0A
+            var encodedData = encodeURIComponent(compactText);
+            
+            // 构造 API URL
+            var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
+                           encodedData + 
+                           '&color=e17055&margin=10';
+            
+            return qrApiUrl;
+        }
+        
+        // 使用示例：
+        // var url = generateQrCodeUrl(wrongList);
+        // document.getElementById('qrImg').src = url;
+        
+        
+        function renderQrCodeLocal(wrong, containerId) {
+            if (!wrong || wrong.length === 0) return;
+            
+            // 1. 构建文本（与之前相同）
+            var compactText = '📚错题本 ' + wrong.length + '题\n';
+            for (var i = 0; i < wrong.length; i++) {
+                var item = wrong[i];
+                var cleanText = item.text.replace(/\?\s*/g, '').trim();
+                if (cleanText.endsWith('=')) {
+                    cleanText = cleanText.slice(0, -1).trim();
+                }
+                // 确保每行末尾只有 \n
+                compactText += (i + 1) + '. ' + cleanText + '=' + item.correctAnswer + '\n';
+            }
+            
+            // 2. 清空容器
+            var container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // 3. 使用 QRCode.js 生成
+            // 这个库会直接处理文本中的 \n，生成的二维码包含标准换行信息
+            new QRCode(container, {
+                text: compactText,
+                width: 300,
+                height: 300,
+                colorDark : "#e17055", // 您的主题色
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H // 高容错率，防止因内容多导致难扫
+            });
+            
+            console.log('二维码已本地生成，文本内容：', compactText);
+        }
+        
+        // 使用示例：
+        // 假设 HTML 中有 <div id="qrcode-container"></div>
+        // renderQrCodeLocal(wrongList, 'qrcode-container');
         
         function copyQRText() {
             var ta = $('qrTextContent');
