@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <script>
+    window.onload = function () {
+        // 禁用右键菜单
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        // 禁用文本选择
+        document.body.style.cssText += `
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        `;
+    };
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎓 小学1年级 算数练习</title>
@@ -2032,7 +2046,7 @@
         // 显示主菜单
         showPage('settings');
         
-        console.log('✅ 应用已启动');
+        //console.log('✅ 应用已启动');
     </script>
 </body>
 </html>
