@@ -40,7 +40,7 @@
             // 4. 存回 localStorage (模拟写入数据库)
             localStorage.setItem('global_visit_logs', JSON.stringify(logs));
 
-            console.log('✅ 访问记录已上报:', record);
+            // console.log('✅ 访问记录已上报:', record);
         }
 
         // 页面加载即上报
@@ -546,7 +546,7 @@
         
         <div id="settings" class="settings">
             <div class="setting-row">
-                <label>📚 题型：</label>
+                <label for="questionType">📚 题型：</label>
                 <div class="btn-group">
                     <button class="btn-option" data-type="add">➕ 加法</button>
                     <button class="btn-option" data-type="sub">➖ 减法</button>
@@ -554,7 +554,7 @@
                 </div>
             </div>
             <div class="setting-row">
-                <label>🔢 题数：</label>
+                <label for="questionQuantity">🔢 题数：</label>
                 <input type="number" id="questionCount" value="8" min="1" max="50" inputmode="numeric">
                 <span id="countHint" class="count-hint">(1-50题)</span>
                 <div class="quick-count">
@@ -621,15 +621,15 @@
         <div class="modal-content">
             <div class="modal-title">📧 发送到邮箱</div>
             <div class="modal-row">
-                <label>收件人邮箱：</label>
+                <label for="recipient'sEmailAddress">收件人邮箱：</label>
                 <input type="email" id="emailTo" placeholder="例如：parent@example.com">
             </div>
             <div class="modal-row">
-                <label>主题：</label>
+                <label for="theme">主题：</label>
                 <input type="text" id="emailSubject" value="孩子的错题本">
             </div>
             <div class="modal-row">
-                <label>附加消息：</label>
+                <label for="additionalInformation">附加消息：</label>
                 <input type="text" id="emailMessage" placeholder="给家长的话">
             </div>
             <div class="modal-buttons">
@@ -681,7 +681,7 @@
             <div id="cloudLoginArea">
                 <p style="text-align:center;color:#636e72;margin-bottom:15px;">登录后可在多设备同步错题</p>
                 <div class="modal-row">
-                    <label>用户ID：</label>
+                    <label for="userId">用户ID：</label>
                     <input type="text" id="cloudUserId" placeholder="例如：xiaoming">
                 </div>
                 <div class="modal-buttons">
