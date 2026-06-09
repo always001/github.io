@@ -555,15 +555,20 @@
             margin: 8px auto; /* 中央寄せ */
             overflow: hidden;
         }
-
+        
         /* 進捗バーの中身（緑色のゲージ） */
         .progress-bar {
             height: 100%;
-            width: 10%; /* 初期値（10問中1問目の場合） */
-            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); /* 綺麗な青〜水色のグラデ */
+            width: 0%; /* 初期値（10問中1問目の場合） */
+            /* background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); */ /* 綺麗な青〜水色のグラデ */
             /* ボタンの緑色に合わせる場合はこちら： background: linear-gradient(90deg, #10b981 0%, #059669 100%); */
+            
+            /* 左から右へ流れる綺麗なエメラルドグリーン */
+            background: linear-gradient(90deg, #00d2ff 0%, #00c7a3 100%);
             border-radius: 10px;
-            transition: width 0.3s ease; /* ゲージが伸びる時のアニメーション */
+            /* transition: width 0.3s ease;*/ /* ゲージが伸びる時のアニメーション */
+            /* 滑らかにゲージを動かすアニメーション */
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
