@@ -1770,7 +1770,7 @@
             $('qrTextContent').value = fullText;
             
             // 紧凑文本（用于二维码，更短更易扫）
-            var compactText = '📚错题本 ' + wrong.length + '题\n';
+            var compactText = '📚错题本 ' + wrong.length + '题\n\n';
             for (var i = 0; i < wrong.length; i++) {
                 var item = wrong[i];
                 // compactText += (i+1) + '. ' + item.text + '=' + item.correctAnswer + '\n';
@@ -1779,7 +1779,7 @@
                 if (cleanText.endsWith('=')) {
                     cleanText = cleanText.slice(0, -1).trim();
                 }
-                compactText += (i+1) + '. ' + cleanText + '=' + item.correctAnswer + '\n';
+                compactText += (i+1) + '.  ' + cleanText + '=' + item.correctAnswer + '\n\n';
             }
             
             var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
