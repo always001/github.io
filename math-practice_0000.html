@@ -1315,9 +1315,9 @@
             });
             
             var today = new Date().toLocaleDateString('zh-CN');
-            var text = '╔════════════════════════════════╗\n';
-            text += '║   📚 我的错题本  ('+ today + ')    ║\n';
-            text += '╚════════════════════════════════╝\n\n';
+            var text = `╔═════════════════════════════════╗\n`;
+            text += `║   📚 我的错题本  (${today})     ║\n`;
+            text += `╚═════════════════════════════════╝\n\n`;
             text += '📊 总计：' + sorted.length + ' 题\n';
             text += '❗ 待复习：' + sorted.filter(function(w) { return !w.mastered; }).length + ' 题\n';
             text += '✅ 已掌握：' + sorted.filter(function(w) { return w.mastered; }).length + ' 题\n\n';
