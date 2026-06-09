@@ -1811,11 +1811,11 @@
             // 1. 生成 Base64（保证所有扫码器都能保留换行）
             var base64 = btoa(unescape(encodeURIComponent(compactText)));
             //var url = "decode.html?data=" + base64;
-            //var localUrl = "file:///C:/D-Drive/FIS/2026/20260611/decode.html?data=" + base64;
-            //var qrApiUrl =
-            //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
-            //  encodeURIComponent(localUrl) +
-            //  "&color=e17055&margin=10";
+            var localUrl = "https://always001.github.io/github.io/decode.html?data=" + base64;
+            var qrApiUrl =
+              "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+              encodeURIComponent(localUrl) +
+              "&color=e17055&margin=10";
             
             //var qrApiUrl =
             //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
@@ -1828,10 +1828,10 @@
             //  base64 +
             //  '&color=e17055&margin=10';
             
-            var qrApiUrl =
-              'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
-              encodeURIComponent("decode.html?data=" + base64) +
-              '&color=e17055&margin=10';
+            //var qrApiUrl =
+            //  'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
+            //  encodeURIComponent("decode.html?data=" + base64) +
+            //  '&color=e17055&margin=10';
             
             // 3. 扫码后得到 Base64 字符串
             // decodeURIComponent(escape(atob(base64String)));
