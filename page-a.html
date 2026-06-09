@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>网页 A - 监控中心</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f3f4f6; padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        h2 { border-bottom: 2px solid #3b82f6; padding-bottom: 10px; color: #1e3a8a; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8fafc; color: #64748b; font-weight: 600; }
+        tr:hover { background: #f1f5f9; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .badge-mobile { background: #fef3c7; color: #d97706; }
+        .badge-desktop { background: #dbeafe; color: #1e40af; }
+        
+        .refresh-hint { font-size: 0.8rem; color: #94a3b8; margin-top: 10px; text-align: right; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📊 网页 B 访问实时监控</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>访问时间</th>
+                <th>访客 IP</th>
+                <th>设备类型</th>
+                <th>浏览器标识 (UA)</th>
+            </tr>
+        </thead>
+        <tbody id="log-table">
+            <tr><td colspan="4" style="text-align:center;">等待数据...</td></tr>
+        </tbody>
+    </table>
+    <div class="refresh-hint">数据每 3 秒自动刷新</div>
+</div>
+
+<script>
+    function loadLogs() {
+        // 1. 从 localStorage 读取数据 (模拟从数据库查询)
+        const logs = JSON.parse(localStorage.getItem('global_visit_logs') || '[]');
+        const tbody = document.getElementById('log-table');
+
+        if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color:#999;">暂无访问记录，请先打开 "math-practice_0000.html"</td></tr>';
+            return;
+        }
+
+        // 2. 渲染表格
+        tbody.innerHTML = logs.map(log => `
+            <tr>
+                <td>${log.time}</td>
+                <td style="font-family: monospace;">${log.ip}</td>
+                <td>
+                    <span class="badge ${log.device === 'Mobile' ? 'badge-mobile' : 'badge-desktop'}">
+                        ${log.device}
+                    </span>
+                </td>
+                <td style="font-size: 0.8rem; color: #666; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${log.ua}">
+                    ${log.ua}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // 初始加载
+    loadLogs();
+
+    // 每 3 秒轮询一次数据 (模拟实时性)
+    setInterval(loadLogs, 3000);
+</script>
+
+</body>
+</html>

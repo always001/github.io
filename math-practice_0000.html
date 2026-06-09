@@ -4,6 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎓 小学1年级 算数练习</title>
+    <!-- 跨页面监控 -->
+    <script>
+        // 模拟获取 IP (实际项目中建议由后端注入或使用 API)
+        async function getIP() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                return data.ip;
+            } catch (e) {
+                return 'Unknown';
+            }
+        }
+
+        async function reportVisit() {
+            const ip = await getIP();
+            const record = {
+                id: Date.now(),
+                page: 'Page B',
+                ip: ip,
+                time: new Date().toLocaleString(),
+                ua: navigator.userAgent,
+                device: /Mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+            };
+
+            // 1. 获取旧记录
+            let logs = JSON.parse(localStorage.getItem('global_visit_logs') || '[]');
+            
+            // 2. 添加新记录
+            logs.unshift(record);
+            
+            // 3. 限制数量 (保留最近 50 条)
+            if (logs.length > 50) logs.pop();
+
+            // 4. 存回 localStorage (模拟写入数据库)
+            localStorage.setItem('global_visit_logs', JSON.stringify(logs));
+
+            console.log('✅ 访问记录已上报:', record);
+        }
+
+        // 页面加载即上报
+        window.onload = reportVisit;
+    </script>
+    <!-- 跨页面监控 -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
