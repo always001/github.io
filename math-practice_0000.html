@@ -1316,7 +1316,7 @@
             
             var today = new Date().toLocaleDateString('zh-CN');
             var text = '╔══════════════════════════════════╗\n';
-            text += '║   📚 我的错题本  (' + today + ')     ║\n';
+            text += '║   📚 我的错题本  (' + today + ')      ║\n';
             text += '╚══════════════════════════════════╝\n\n';
             text += '📊 总计：' + sorted.length + ' 题\n';
             text += '❗ 待复习：' + sorted.filter(function(w) { return !w.mastered; }).length + ' 题\n';
@@ -1326,7 +1326,7 @@
             for (var i = 0; i < sorted.length; i++) {
                 var item = sorted[i];
                 var status = item.mastered ? '[✅ 已掌握]' : '[❗ 待复习]';
-                text += (i + 1) + '. ' + status + ' ' + item.text.replace('?', '= ' + item.correctAnswer) + '\n';
+                text += (i + 1) + '. ' + status + ' ' + item.text.replace('?', '' + item.correctAnswer) + '\n';
                 text += '   你的答案：' + item.userAnswer + ' | 错了 ' + item.errorCount + ' 次 | ' + formatTime(item.lastWrongAt) + '\n\n';
             }
             text += '────────────────────────────────────────\n';
