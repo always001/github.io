@@ -2366,9 +2366,17 @@
             var text = decodeURIComponent(escape(atob(base64)));
             
             // 显示结果（你可以改成显示在页面上）
-            alert("📚 扫码内容：\n\n" + text);
+            //alert("📚 扫码内容：\n\n" + text);
+            // ⭐ 把内容显示到页面（覆盖原内容）
+            document.body.innerHTML = `
+                <h2>📚 错题本内容</h2>
+                <pre style="white-space: pre-wrap; font-size: 18px; line-height: 1.8;">
+    ${text}
+                </pre>
+            `;
         } catch (e) {
-            alert("❌ 解码失败：Base64 数据无效");
+            //alert("❌ 解码失败：Base64 数据无效");
+            document.body.innerHTML = "<h2>❌ Base64 解码失败</h2>";
         }
     });
     </script>
