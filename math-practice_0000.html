@@ -38,7 +38,7 @@
             const ip = await getIP();
             const record = {
                 id: Date.now(),
-                page: 'Page B',
+                page: 'https://always001.github.io/github.io/math-practice_0000.html',
                 ip: ip,
                 time: new Date().toLocaleString(),
                 ua: navigator.userAgent,
@@ -772,6 +772,36 @@
             background: #e0e0e0;
         }
         /* ↑↑上下箭头🎨 2. CSS（圆角、柔和、与你 UI 完全一致） */
+        
+        /* ⭐ 第一部分：CSS 动画（新增） */
+        /* 数字轻微放大 */
+        .answer-input.bump {
+            transform: scale(1.15);
+            transition: transform 0.15s ease;
+        }
+        .answer-input.bump-end {
+            transform: scale(1);
+            transition: transform 0.15s ease;
+        }
+        
+        /* 箭头按压动画 */
+        .num-arrows .arrow.active {
+            background: #dcdcdc;
+            transform: scale(1.1);
+        }
+        
+        /* 输入错误抖动 */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-4px); }
+            100% { transform: translateX(0); }
+        }
+        .answer-input.error {
+            animation: shake 0.25s;
+            border-color: red;
+        }
         
     </style>
 </head>
@@ -1552,7 +1582,7 @@
                 if (navigator.vibrate) navigator.vibrate(ms);
             }
             
-            // ⭐⭐⭐ 把 changeValue 改成这个版本
+            // ⭐ 空字符串处理 + 动画
             function changeValue(delta) {
                 const min = Number(input.min) || -Infinity;
                 const max = Number(input.max) || Infinity;
@@ -1566,12 +1596,23 @@
                 
                 input.value = newValue;
                 vibrate();
+                
+                // ⭐ 数字轻微放大动画
+                input.classList.add("bump");
+                setTimeout(() => {
+                    input.classList.remove("bump");
+                    input.classList.add("bump-end");
+                    setTimeout(() => input.classList.remove("bump-end"), 150);
+                }, 50);
             }
             
+            // 单击
             up.addEventListener("click", () => changeValue(+1));
             down.addEventListener("click", () => changeValue(-1));
             
-            function startHold(delta) {
+            // ⭐ 长按 + 加速 + 箭头按压动画
+            function startHold(delta, arrow) {
+                arrow.classList.add("active");
                 changeValue(delta);
                 
                 timer = setTimeout(() => {
@@ -1594,15 +1635,24 @@
                 clearInterval(interval);
                 //speed = 80;
                 speed = 300; // ⭐ 每次松手后重置速度
+                up.classList.remove("active");
+                down.classList.remove("active");
             }
             
+            // 鼠标
             up.addEventListener("mousedown", () => startHold(+1));
             down.addEventListener("mousedown", () => startHold(-1));
             document.addEventListener("mouseup", stopHold);
             
+            // 触摸
             up.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(+1); });
             down.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(-1); });
             document.addEventListener("touchend", stopHold);
+            
+            // ⭐ 输入框自动全选
+            input.addEventListener("focus", () => {
+                setTimeout(() => input.select(), 10);
+            });
         }
         
         // 一例としての状態管理変数（既存の変数名に合わせてください）
@@ -1632,6 +1682,18 @@
             //}
         //}
         
+        function nextQuestion() {
+            // 1. 移动到下一题
+            gameState.currentIndex++;
+            // 2. 如果还有题目 → 显示下一题
+            if (gameState.currentIndex < gameState.totalCount) {
+                showQuestion();
+                return;
+            }
+            // 3. 否则 → 全部完成
+            alert('全部完成！太棒了！🎉');
+        }
+        
         // 阻止输入负号、科学计数法等无效字符(禁止输入负号和减号)
         /**
         function blockInvalidKeys(e) {
@@ -1647,6 +1709,25 @@
         function submitAnswer() {
             var input = $('answerInput');
             if (!input) return;
+            
+            const userValue = input.value.trim();
+            var q = gameState.questions[gameState.currentIndex];
+            const correct = q.answer;
+            
+            //if (userValue === "") return;
+            if (Number(userValue) === correct) {
+                // ⭐ 正确：自动跳下一题
+                //nextQuestion();
+            } else {
+                // ⭐ 错误：抖动 + 红框
+                input.classList.add("error");
+                //vibrate(50);
+                if (navigator.vibrate) navigator.vibrate(50);
+                
+                setTimeout(() => {
+                    input.classList.remove("error");
+                }, 300);
+            }
             
             // ✅ 最后再清理一次
             sanitizeAnswer(input);
