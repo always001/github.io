@@ -576,6 +576,52 @@
             /* 滑らかにゲージを動かすアニメーション */
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
+        /* 存在 inline style（内联样式）。无障碍检查器 / Lighthouse の提示対応 */
+        .hidden-input {
+            display: none;
+        }
+        
+        /*  Lighthouse / Axeの提示対応 */
+        .clear-notebook-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .vertical-menu {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .vertical-modal {
+            flex-direction: column;
+        }
+        
+        .page-description {
+            text-align: center;
+            color: #636e72;
+            margin-bottom: 15px;
+        }
+        
+        .copy-qr-btn {
+            margin-top: 10px;
+            padding: 8px;
+            font-size: 13px;
+            width: 100%;
+        }
+        
+        .note-text {
+            color: #636e72;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .text-note {
+            color: #636e72;
+            font-size: 14px;
+        }
+        
+        
     </style>
 </head>
 <body>
@@ -591,15 +637,23 @@
         
         <div id="settings" class="settings">
             <div class="setting-row">
-                <label for="questionType">📚 题型：</label>
+                <label>📚 题型：</label>
                 <div class="btn-group">
                     <button class="btn-option" data-type="add">➕ 加法</button>
                     <button class="btn-option" data-type="sub">➖ 减法</button>
                     <button class="btn-option active" data-type="mix">🔀 混合</button>
                 </div>
+                <!--
+                <label for="questionType">📚 题型：</label>
+                <select id="questionType">
+                    <option value="add">加法</option>
+                    <option value="sub">减法</option>
+                    <option value="mix">混合</option>
+                </select>
+                -->
             </div>
             <div class="setting-row">
-                <label for="questionQuantity">🔢 题数：</label>
+                <label for="questionCount">🔢 题数：</label>
                 <input type="number" id="questionCount" value="8" min="1" max="50" inputmode="numeric" aria-label="题目数量">
                 <span id="countHint" class="count-hint">(1-50题)</span>
                 <div class="quick-count">
@@ -647,7 +701,7 @@
             </div>
             <div class="notebook-header">
                 <h2>📚 我的错题本</h2>
-                <button class="btn btn-danger" id="clearNotebookBtn" style="padding: 8px 16px; font-size: 14px;">🗑️ 清空</button>
+                <button class="btn btn-danger clear-notebook-btn" id="clearNotebookBtn">🗑️ 清空</button>
             </div>
             <div class="notebook-stats" id="notebookStats"></div>
             <div class="export-buttons">
@@ -669,15 +723,15 @@
         <div class="modal-content">
             <div class="modal-title">📧 发送到邮箱</div>
             <div class="modal-row">
-                <label for="recipient'sEmailAddress">收件人邮箱：</label>
+                <label for="emailTo">收件人邮箱：</label>
                 <input type="email" id="emailTo" placeholder="例如：parent@example.com">
             </div>
             <div class="modal-row">
-                <label for="theme">主题：</label>
+                <label for="emailSubject">主题：</label>
                 <input type="text" id="emailSubject" value="孩子的错题本" aria-label="邮件标题">
             </div>
             <div class="modal-row">
-                <label for="additionalInformation">附加消息：</label>
+                <label for="emailMessage">附加消息：</label>
                 <input type="text" id="emailMessage" placeholder="给家长的话">
             </div>
             <div class="modal-buttons">
@@ -691,18 +745,18 @@
         <div class="modal-content">
             <div class="modal-title">📱 分享错题本</div>
             <div class="qr-code-box">
-                <p style="color:#636e72;font-size:14px;">扫码查看错题本</p>
+                <p class="text-note">扫码查看错题本</p>
                 <div id="qrCodeContainer">
                     <div class="loading"></div>
                     <p>生成中...</p>
                 </div>
-                <p style="color:#636e72;font-size:12px;margin-top:10px;">📱 微信扫一扫即可查看</p>
+                <p class="note-text">📱 微信扫一扫即可查看</p>
             </div>
             <div class="qr-text-preview">
                 <details>
                     <summary>📋 查看错题内容（可复制）</summary>
                     <textarea id="qrTextContent" readonly title="二维码内容"></textarea>
-                    <button class="btn btn-secondary" id="copyQRBtn" style="margin-top: 10px; padding: 8px; font-size: 13px; width: 100%;">📋 复制错题内容</button>
+                    <button class="btn btn-secondary copy-qr-btn" id="copyQRBtn">📋 复制错题内容</button>
                 </details>
             </div>
             <div class="modal-buttons">
@@ -727,9 +781,9 @@
         <div class="modal-content">
             <div class="modal-title">☁️ 云同步</div>
             <div id="cloudLoginArea">
-                <p style="text-align:center;color:#636e72;margin-bottom:15px;">登录后可在多设备同步错题</p>
+                <p class="page-description">登录后可在多设备同步错题</p>
                 <div class="modal-row">
-                    <label for="userId">用户ID：</label>
+                    <label for="cloudUserId">用户ID：</label>
                     <input type="text" id="cloudUserId" placeholder="例如：xiaoming">
                 </div>
                 <div class="modal-buttons">
@@ -738,8 +792,8 @@
                 </div>
             </div>
             <div id="cloudSyncArea" class="hidden">
-                <p style="text-align:center;color:#636e72;margin-bottom:15px;">✅ 已登录：<strong id="cloudUserName"></strong></p>
-                <div class="modal-buttons" style="flex-direction:column;">
+                <p class="page-description">✅ 已登录：<strong id="cloudUserName"></strong></p>
+                <div class="modal-buttons vertical-modal">
                     <button class="btn btn-primary" id="cloudUploadBtn">⬆️ 上传错题到云端</button>
                     <button class="btn btn-secondary" id="cloudDownloadBtn">⬇️ 从云端下载错题</button>
                     <button class="btn btn-danger" id="cloudLogoutBtn">🚪 退出登录</button>
@@ -751,7 +805,7 @@
     <div id="settingsModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-title">⚙️ 设置</div>
-            <div class="menu-buttons" style="display:flex;flex-direction:column;">
+            <div class="menu-buttons" vertical-menu>
                 <button class="btn btn-secondary" id="openCloudBtn">☁️ 云同步设置</button>
                 <button class="btn btn-success" id="openThemeBtn">🎨 图片主题</button>
                 <button class="btn btn-primary" id="exportAllBtn">💾 备份所有数据</button>
@@ -764,7 +818,7 @@
         </div>
     </div>
     
-    <input type="file" id="importFile" style="display:none" accept=".json" aria-label="导入 JSON 文件">
+    <input type="file" id="importFile" class="hidden-input" accept=".json" aria-label="导入 JSON 文件">
     
     <!-- 在HTML中引入库 -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script> -->
