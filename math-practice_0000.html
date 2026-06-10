@@ -803,6 +803,36 @@
             border-color: red;
         }
         
+        /* 🌈 输入正确绿色闪烁 */
+        .feedback.correct.flash {
+            animation: correctFlash 0.6s ease-out;
+        }
+        @keyframes correctFlash {
+            0%   { color: #0f0; transform: scale(1.1); }
+            50%  { color: #3c3; transform: scale(1.2); }
+            100% { color: #0f0; transform: scale(1.0); }
+        }
+        
+        /* 🌈 输入错误红色抖动 */
+        .feedback.shake {
+            animation: shakeText 0.4s;
+        }
+        @keyframes shakeText {
+            0%   { transform: translateX(0); }
+            25%  { transform: translateX(-4px); }
+            50%  { transform: translateX(4px); }
+            75%  { transform: translateX(-4px); }
+            100% { transform: translateX(0); }
+        }
+        
+        /* 🌈 完成后烟花动画 */
+        #fireworksCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
     </style>
 </head>
 <body>
@@ -1551,6 +1581,24 @@
             bindNumberArrows(input, up, down);
             /*  自制上下箭头（替代原生箭头）  */
             
+                        // 加上自动判断监听器：
+            // ⭐⭐⭐ 自动判断答案（不按提交也能跳题）
+            input.addEventListener("input", function () {
+                const val = input.value.trim();
+                if (val === "") return;
+                
+                // 必须是整数
+                if (!/^\d+$/.test(val)) return;
+                
+                const userAnswer = Number(val);
+                const correct = gameState.currentAnswer;
+                
+                if (userAnswer === correct) {
+                    submitAnswer();   // ⭐ 自动跳下一题
+                }
+            });
+            // 加上自动判断监听器：
+            
             $('feedback').textContent = '';
             $('feedback').className = 'feedback';
             
@@ -1567,6 +1615,22 @@
                     };
                 }
             }, 50);
+            // 🌈 自动读题（语音）
+            speakQuestion(q);
+            
+        }
+        
+        // 简单版：用浏览器自带 TTS：
+        function speakQuestion(q) {
+            if (!("speechSynthesis" in window)) return;
+            const text = q.text.replace("?", "多少？"); // 例如 “16 + 3 = ?”
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = "zh-CN"; //ja en es fr
+            //utter.lang = "en";
+            utter.rate = 1.0;
+            utter.pitch = 1.0;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utter);
         }
         
         /* 🟦 動的箭头逻辑放进一个函数：*/
@@ -1682,123 +1746,61 @@
             //}
         //}
         
-        function nextQuestion() {
-            // 1. 移动到下一题
-            gameState.currentIndex++;
-            // 2. 如果还有题目 → 显示下一题
-            if (gameState.currentIndex < gameState.totalCount) {
-                showQuestion();
-                return;
-            }
-            // 3. 否则 → 全部完成
-            alert('全部完成！太棒了！🎉');
-        }
-        
-        // 阻止输入负号、科学计数法等无效字符(禁止输入负号和减号)
-        /**
-        function blockInvalidKeys(e) {
-            // 阻止输入 -、+、e、E、. 这些字符
-            if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E' || e.key === '.') {
-                e.preventDefault();
-                return false;
-            }
-            return true;
-        }
-        */
-        
         function submitAnswer() {
             var input = $('answerInput');
             if (!input) return;
             
+            var feedback = $('feedback');   // ⭐ 必须加上
+            
             const userValue = input.value.trim();
-            var q = gameState.questions[gameState.currentIndex];
+            const q = gameState.questions[gameState.currentIndex];
             const correct = q.answer;
             
-            //if (userValue === "") return;
-            if (Number(userValue) === correct) {
-                // ⭐ 正确：自动跳下一题
-                //nextQuestion();
-            } else {
-                // ⭐ 错误：抖动 + 红框
-                input.classList.add("error");
-                //vibrate(50);
-                if (navigator.vibrate) navigator.vibrate(50);
-                
-                setTimeout(() => {
-                    input.classList.remove("error");
-                }, 300);
-            }
-            
-            // ✅ 最后再清理一次
-            sanitizeAnswer(input);
-            
-            var userAnswer = parseInt(input.value);
-            var feedback = $('feedback');
-            var q = gameState.currentQuestionData;
-            
-            // 验证是否为空
-            /**
-            if (input.value === '' || isNaN(userAnswer)) {
+            // 空值不跳题
+            if (userValue === "" || isNaN(Number(userValue))) {
                 feedback.textContent = '⚠️ 请输入数字！';
                 feedback.className = 'feedback wrong';
-                playWrongSound();
-                return;
-            }
-            */
-            
-            if (isNaN(userAnswer)) {
-                feedback.textContent = '⚠️ 请输入一个数字！';
-                feedback.className = 'feedback wrong';
-                playWrongSound();
                 return;
             }
             
-            // ✅ 验证是否为负数(检查负数)
+            const userAnswer = Number(userValue);
+            
+            // 负数不跳题
             if (userAnswer < 0) {
                 feedback.textContent = '⚠️ 答案不能是负数哦！';
                 feedback.className = 'feedback wrong';
-                playWrongSound();
-                // 自动重置为 0
-                // 自动重置,清空
-                setTimeout(function() {
-                    //input.value = 0;
-                    input.value = '';
-                    feedback.textContent = '';
-                    //feedback.className = 'feedback';
-                    input.focus();
-                }, 1000);
                 return;
             }
             
-            // ✅ 验证是否过大(检查过大值)
+            // 太大不跳题
             if (userAnswer > 44) {
                 feedback.textContent = '⚠️ 答案太大了！';
                 feedback.className = 'feedback wrong';
-                playWrongSound();
-                setTimeout(function() {
-                    input.value = '';
-                    feedback.textContent = '';
-                    //feedback.className = 'feedback';
-                    input.focus();
-                }, 1000);
                 return;
             }
             
-            if (userAnswer === gameState.currentAnswer) {
-                gameState.correctCount++;
+            // ⭐ 到这里说明答案有效 → 可以跳题了,计分 + 反馈
+            if (userAnswer === correct) {
+                gameState.correctCount++;   // ⭐ 计分
                 feedback.textContent = '🎉 答对啦！';
                 feedback.className = 'feedback correct';
+                
+                feedback.classList.add("flash");
+                setTimeout(() => feedback.classList.remove("flash"), 600);
+                
                 playCorrectSound();
-                if (gameState.isReviewMode && q.wrongId) {
-                    setTimeout(function() { markAsMasteredSilent(q.wrongId); }, 800);
-                }
             } else {
-                feedback.textContent = '❌ 答错了，正确答案是 ' + gameState.currentAnswer;
+                feedback.textContent = '❌ 答错了，正确答案是 ' + correct;
                 feedback.className = 'feedback wrong';
+                
+                feedback.classList.add("shake");
+                setTimeout(() => feedback.classList.remove("shake"), 400);
+                
                 playWrongSound();
-                addWrongQuestion(q, userAnswer);
+                addWrongQuestion(q, userAnswer); // ⭐ 错题本
             }
             
+            // ⭐ 统一跳题逻辑（不会被 return 阻断）
             input.disabled = true;
             $('submitBtn').disabled = true;
             
@@ -1810,7 +1812,7 @@
                 } else {
                     showResult();
                 }
-            }, 1000);
+            }, 800);
         }
         
         function markAsMasteredSilent(id) {
@@ -1825,7 +1827,55 @@
             saveWrongQuestions(wrong);
         }
         
+        // JS：简单示意（伪烟花，可以以后换成库）：
+        function startFireworks() {
+            const canvas = document.getElementById("fireworksCanvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            let particles = [];
+            
+            function spawn() {
+                for (let i = 0; i < 80; i++) {
+                    particles.push({
+                        x: canvas.width / 2,
+                        y: canvas.height / 3,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        life: 60,
+                        color: `hsl(${Math.random() * 360}, 100%, 60%)`
+                    });
+                }
+            }
+            
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.05;
+                    p.life--;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                particles = particles.filter(p => p.life > 0);
+                if (particles.length > 0) {
+                    requestAnimationFrame(loop);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            
+            spawn();
+            loop();
+        }
+        
         function showResult() {
+            // 原来的结果显示...
+            startFireworks();
             var rate = (gameState.correctCount / gameState.totalCount * 100).toFixed(1);
             var elapsed = Math.floor((new Date() - gameState.startTime) / 1000);
             var minutes = Math.floor(elapsed / 60);
@@ -2956,6 +3006,8 @@
         }
     });
     </script>
-
+    
+    <!-- 放在这里：页面最底部 -->
+    <canvas id="fireworksCanvas"></canvas>
 </body>
 </html>
