@@ -1848,11 +1848,19 @@
             //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
             //  encodeURIComponent("data:text/html;base64," + htmlBase64) +
             //  "&color=e17055&margin=10";
+            
+            // Local用
+            //var qrApiUrl =
+            //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+            //  encodeURIComponent("http://192.168.3.24:5500/math-practice_0000.html#data=" + base64Text) +
+            //  "&color=e17055&margin=10";
+            
+            
             var qrApiUrl =
               "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
-              encodeURIComponent("http://192.168.3.24:5500/math-practice_0000.html#data=" + base64Text) +
+              encodeURIComponent("https://always001.github.io/github.io/math-practice_0000.html#data=" + base64Text) +
               "&color=e17055&margin=10";
-
+              
               
             //var url = "decode.html?data=" + base64;
             // ★↓↓コメントアウトする★
