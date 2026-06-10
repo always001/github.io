@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" class="desktop-mode">
 <head>
+    
     <script>
     window.onload = function () {
         // 禁用右键菜单
@@ -13,6 +14,49 @@
           user-select: none;         /* 标准写法 */
         `;
     };
+    // ⭐ 全局变量：保存可用语音
+    let availableVoices = [];
+    // ⭐ 初始化语音（必须在页面加载后执行）
+    function initVoices() {
+        return new Promise(resolve => {
+            function load() {
+                availableVoices = speechSynthesis.getVoices();
+                if (availableVoices.length > 0) resolve();
+            }
+            speechSynthesis.onvoiceschanged = load;
+            load();
+        });
+    }
+    // ⭐ 获取中文语音（如果有）
+    function getChineseVoice() {
+        if (!availableVoices || availableVoices.length === 0) return null;
+        
+        return availableVoices.find(v =>
+            v.lang.startsWith("zh") ||
+            v.name.includes("Chinese") ||
+            v.name.includes("Mandarin") ||
+            v.name.includes("中文")
+        );
+    }
+    // ⭐ 获取最接近中文的语音（fallback）
+    function getClosestVoice() {
+        if (!availableVoices || availableVoices.length === 0) return null;
+        // 优先：英文（比日文更接近中文发音）
+        let en = availableVoices.find(v => v.lang.startsWith("en"));
+        if (en) return en;
+        // 再 fallback：日文
+        let jp = availableVoices.find(v => v.lang.startsWith("ja"));
+        if (jp) return jp;
+        // 最后：随便一个
+        return availableVoices[0];
+    }
+    // ⭐ 自动检测 + 自动提示
+    function checkChineseVoice() {
+        const zh = getChineseVoice();
+        if (!zh) {
+            //alert("⚠️ 你的设备没有中文语音。\n\n请安装中文语音以获得更好的读题体验。");
+        }
+    }
     </script>
     
     <meta charset="UTF-8">
@@ -836,6 +880,28 @@
     </style>
 </head>
 <body>
+    <!-- ⭐ 语音检测 Modal -->
+    <!--
+    <div class="modal fade" id="voiceCheckModal" tabindex="-1" hidden>
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">🔊 语音检测</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>检查你的设备是否支持中文语音</p>
+            <button class="btn btn-primary" onclick="testVoices()">开始检测</button>
+            <div id="voiceResult" style="margin-top:20px; font-size:16px;"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    -->
+
     <button class="toggle-mode-btn" id="toggleModeBtn">电脑模式</button>
     
     <div class="top-buttons">
@@ -919,6 +985,10 @@
             <div class="evaluation" id="evaluation"></div>
             <button class="btn btn-primary" id="retryBtn">🔄 再来一次</button>
             <button class="btn btn-secondary" id="openNotebookFromResult">📚 查看错题本</button>
+            
+            <!-- ⭐ 错题本二维码放这里 -->
+            <h3>📘 错题本二维码</h3>
+            <div id="wrongBookQR"></div>
         </div>
         
         <div id="notebookArea" class="notebook hidden">
@@ -1037,6 +1107,10 @@
                 <button class="btn btn-primary" id="exportAllBtn">💾 备份所有数据</button>
                 <button class="btn btn-primary" id="importAllBtn">📂 恢复数据</button>
                 <button class="btn btn-danger" id="clearAllBtn">🗑️ 清除所有数据</button>
+                <!-- ⭐ 新增语音检测按钮（风格一致） -->
+                <button class="btn btn-info" id="voiceCheckBtn" title="检查手机是否支持中文语音">
+                    🔊 语音检测
+                </button>
             </div>
             <div class="modal-buttons">
                 <button class="btn btn-danger" id="closeSettings">关闭</button>
@@ -1048,7 +1122,7 @@
     
     <!-- 在HTML中引入库 -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script> -->
-    
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <!-- 或者使用更现代的 qrcode -->
     <!--  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>  -->
     <script>
@@ -1623,14 +1697,42 @@
         // 简单版：用浏览器自带 TTS：
         function speakQuestion(q) {
             if (!("speechSynthesis" in window)) return;
+            //await initVoices(); // ⭐ 确保语音加载完毕
             const text = q.text.replace("?", "多少？"); // 例如 “16 + 3 = ?”
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = "zh-CN"; //ja en es fr
             //utter.lang = "en";
+            
+            // ⭐ 尝试强制选择中文语音
+            
+            const voices = speechSynthesis.getVoices();
+            const zhVoice = voices.find(v => 
+                v.lang.startsWith("zh") || 
+                v.name.includes("Chinese") || 
+                v.name.includes("Mandarin") ||
+                v.name.includes("中文")
+            );
+            if (zhVoice) {
+                utter.voice = zhVoice;
+            } else {
+                // 找不到中文语音 → fallback
+                utter.lang = "zh-CN";
+            }
+            
+            // ⭐ 尝试强制选择中文语音
+            let zh = getChineseVoice();
+            if (zh) {
+                utter.voice = zh; // ⭐ 有中文 → 强制中文
+            } else {
+                checkChineseVoice(); // ⭐ 提示用户安装中文语音
+                utter.voice = getClosestVoice(); // ⭐ 自动选择最接近中文的语音
+            }
             utter.rate = 1.0;
             utter.pitch = 1.0;
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utter);
+            //window.speechSynthesis.cancel();
+            //window.speechSynthesis.speak(utter);
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utter);
         }
         
         /* 🟦 動的箭头逻辑放进一个函数：*/
@@ -1898,7 +2000,30 @@
             
             showPage('resultArea');
             playCompleteSound();
+            
+            // 🌈 错题本生成二维码
+            // ⭐ 生成错题本文本
+            const text = buildWrongBookText();
+            // ⭐ 清空旧二维码
+            const qrContainer = document.getElementById("wrongBookQR");
+            qrContainer.innerHTML = "";
+            // ⭐ 生成二维码
+            new QRCode(qrContainer, {
+                text: text,
+                width: 200,
+                height: 200
+            });
+            // ⭐ 播放烟花
+            startFireworks();
         }
+        
+        // 🌈 错题本生成二维码
+        function buildWrongBookText() {
+            return gameState.wrongQuestions
+                .map((item, i) => `第${i + 1}题：${item.text} 你的答案：${item.userAnswer} 正确：${item.correct}`)
+                .join("\n");
+        }
+        
         
         function resetGame() {
             showPage('settings');
@@ -2072,6 +2197,12 @@
             }
             $('themeGrid').innerHTML = html;
             $('themeModal').classList.remove('hidden');
+        }
+        
+        function showVoiceCheckModal() {
+            alert("時間がある時に実装します！！！")
+            var modal = new bootstrap.Modal(document.getElementById('voiceCheckModal'));
+            modal.show();
         }
         
         function selectTheme(theme) {
@@ -2756,6 +2887,11 @@
             $('importAllBtn').onclick = importAllData;
             $('clearAllBtn').onclick = clearAllData;
             $('closeSettings').onclick = closeAllModals;
+            // 语音检测
+            //$('voiceCheckBtn').onclick = function () {
+                //location.href = "voice-check.html";
+            //};
+            $('voiceCheckBtn').onclick = showVoiceCheckModal;
             
             // 点击模态框背景关闭
             var modals = document.querySelectorAll('.modal');
@@ -3007,7 +3143,13 @@
     });
     </script>
     
+    
+
     <!-- 放在这里：页面最底部 -->
     <canvas id="fireworksCanvas"></canvas>
+    <!-- ✔ Bootstrap JS 必须放在 Modal 后面 -->
+    <!-- 引入 Bootstrap JS（否则关闭按钮永远无效）-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
