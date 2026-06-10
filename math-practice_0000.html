@@ -2369,23 +2369,51 @@
             //alert("📚 扫码内容：\n\n" + text);
             // ⭐ 完全覆盖页面，包括背景、样式、所有内容
             document.documentElement.innerHTML = `
-                <head>
-                    <meta charset="UTF-8">
-                    <title>📚 错题本内容</title>
-                    <style>
-                        body {
-                            font-family: sans-serif;
-                            padding: 20px;
-                            white-space: pre-wrap;
-                            font-size: 20px;
-                            line-height: 1.8;
-                            background: #ffffff;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${text}
-                </body>
+            <head>
+                <meta charset="UTF-8">
+                <title>📚 错题本内容</title>
+                <style>
+                    body {
+                        font-family: "Segoe UI", "PingFang SC", sans-serif;
+                        background: #f7f7f7;
+                        padding: 20px;
+                        margin: 0;
+                    }
+                    .card {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background: #fff;
+                        padding: 25px 30px;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                    }
+                    h1 {
+                        font-size: 26px;
+                        text-align: center;
+                        margin-bottom: 10px;
+                    }
+                    h2 {
+                        font-size: 20px;
+                        text-align: center;
+                        color: #555;
+                        margin-top: 0;
+                        margin-bottom: 25px;
+                    }
+                    pre {
+                        white-space: pre-wrap;
+                        font-size: 18px;
+                        line-height: 1.9;
+                        color: #333;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="card">
+                    <h1>📚 错题本内容</h1>
+                    <h2>以下是你扫码的错题</h2>
+                    <pre>${text}</pre>
+                </div>
+            </body>
             `;
         } catch (e) {
             //alert("❌ 解码失败：Base64 数据无效");
