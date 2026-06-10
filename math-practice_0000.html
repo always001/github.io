@@ -16,8 +16,9 @@
     </script>
     
     <meta charset="UTF-8">
+    <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-    <meta name="viewport" content="width=764, initial-scale=0.5">
+    <!-- <meta name="viewport" content="width=764, initial-scale=0.5"> -->
 
     <title>🎓 小学1年级 算数练习</title>
     <!-- 跨页面监控 -->
@@ -623,10 +624,43 @@
             font-size: 14px;
         }
         
+        /* 手机显示按钮，桌面隐藏 */
+        /* 默认隐藏按钮 */
+        .toggle-mode-btn {
+            display: none;
+            position: fixed;
+            top: 12px;
+            left: 12px;   /* ← 从右上角改成左上角 */
+            z-index: 9999;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #0984e3, #74b9ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(6px);
+            transition: all 0.25s ease;
+        }
+        .toggle-mode-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* 手机宽度 < 600px 才显示按钮 */
+        /*@media (max-width: 600px) { */
+        /* 手机设备才显示按钮（使用 device-width 判断） */
+        @media (max-device-width: 600px) {
+            .toggle-mode-btn {
+                display: block;
+            }
+        }
         
     </style>
 </head>
 <body>
+    <button class="toggle-mode-btn" id="toggleModeBtn">切换到电脑模式</button>
+    
     <div class="top-buttons">
         <button class="icon-btn" id="soundToggle" title="音效开关">🔊</button>
         <button class="icon-btn" id="notebookBtn" title="错题本">📚<span class="badge" id="notebookBadge"></span></button>
@@ -2414,6 +2448,58 @@
         
         //console.log('✅ 应用已启动');
     </script>
+    
+    <script>
+    const meta = document.getElementById("viewportMeta");
+    const btn = document.getElementById("toggleModeBtn");
+    
+    let isDesktopMode = false;
+    
+    // 从 localStorage 读取用户选择
+    if (localStorage.getItem("mode") === "desktop") {
+        enableDesktopMode(false);
+    }
+    
+    // 横屏自动切换
+    window.addEventListener("orientationchange", () => {
+        if (localStorage.getItem("mode") === "manual") return; // 用户手动切换过就不自动切换
+        
+        if (window.orientation === 90 || window.orientation === -90) {
+            enableDesktopMode(true);
+        } else {
+            enableMobileMode(true);
+        }
+    });
+    
+    // 按钮点击切换
+    btn.addEventListener("click", () => {
+        if (!isDesktopMode) {
+            enableDesktopMode(true);
+            localStorage.setItem("mode", "desktop");
+        } else {
+            enableMobileMode(true);
+            localStorage.setItem("mode", "mobile");
+        }
+        
+        // 用户手动切换 → 不再自动切换
+        localStorage.setItem("mode", "manual");
+    });
+    
+    // 切换到电脑模式
+    function enableDesktopMode(updateBtn = true) {
+        meta.setAttribute("content", "width=764");
+        if (updateBtn) btn.textContent = "切换到手机模式";
+        isDesktopMode = true;
+    }
+    
+    // 切换到手机模式
+    function enableMobileMode(updateBtn = true) {
+        meta.setAttribute("content", "width=device-width, initial-scale=1.0");
+        if (updateBtn) btn.textContent = "切换到电脑模式";
+        isDesktopMode = false;
+    }
+    </script>
+    
     <script>
     // ✔ 第二步：在你的 math-practice_0000.html 里加入一个“自动解码器”
     // 自动检测 hash 并解码
