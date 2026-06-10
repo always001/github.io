@@ -761,7 +761,8 @@
     <input type="file" id="importFile" style="display:none" accept=".json">
     
     <!-- 在HTML中引入库 -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script> -->
+    
     <!-- 或者使用更现代的 qrcode -->
     <!--  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>  -->
     <script>
@@ -1816,14 +1817,57 @@
             
             // ✅ 最终解决方案：用 Base64 编码文本，再放进二维码
             // 1. 生成 Base64（保证所有扫码器都能保留换行）
-            var base64 = btoa(unescape(encodeURIComponent(compactText)));
-            //var url = "decode.html?data=" + base64;
-            var localUrl = "https://always001.github.io/github.io/decode.html?data=" + base64;
+            //var base64 = btoa(unescape(encodeURIComponent(compactText)));
+            var base64Text = btoa(unescape(encodeURIComponent(compactText)));
+            
+            var html = `
+            <!DOCTYPE html>
+            <html lang="zh-CN">
+            <head>
+            <meta charset="UTF-8">
+            <title>📚 错题本内容</title>
+            <style>
+            body { font-family: sans-serif; padding: 20px; white-space: pre-wrap; line-height: 1.8; }
+            textarea { width: 100%; height: 300px; font-size: 16px; white-space: pre-wrap; }
+            </style>
+            </head>
+            <body>
+            <h2>📚 错题本内容</h2>
+            <textarea id="output"></textarea>
+            <script>
+            var text = decodeURIComponent(escape(atob("${base64Text}")));
+            document.getElementById("output").value = text;
+            <\/script>
+            </body>
+            </html>
+            `;
+            
+            //var htmlBase64 = btoa(unescape(encodeURIComponent(html)));
+            
+            //var qrApiUrl =
+            //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+            //  encodeURIComponent("data:text/html;base64," + htmlBase64) +
+            //  "&color=e17055&margin=10";
             var qrApiUrl =
               "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
-              encodeURIComponent(localUrl) +
+              encodeURIComponent("http://192.168.3.24:5500/math-practice_0000.html#data=" + base64Text) +
               "&color=e17055&margin=10";
-            
+
+              
+            //var url = "decode.html?data=" + base64;
+            // ★↓↓コメントアウトする★
+            //var localUrl = "https://always001.github.io/github.io/decode.html?data=" + base64;
+            //var qrApiUrl =
+            //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+            //  encodeURIComponent(localUrl) +
+            //  "&color=e17055&margin=10";
+            // ★↑上記をコメントアウトする★
+            // 🚀 方案 C：单页面 + URL Hash 解码（不跳转、不覆盖、不需要服务器）
+            // ✔ 第一步：二维码内容改成 hash 形式
+            //var qrApiUrl =
+            //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+            //  encodeURIComponent("math-practice_0000.html#data=" + base64) +
+            //  "&color=e17055&margin=10";
             //var qrApiUrl =
             //  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
             //  encodeURIComponent(url) +
@@ -2300,5 +2344,26 @@
         
         //console.log('✅ 应用已启动');
     </script>
+    <script>
+    // ✔ 第二步：在你的 math-practice_0000.html 里加入一个“自动解码器”
+    // 自动检测 hash 并解码
+    window.addEventListener("load", function () {
+        var hash = location.hash;
+        
+        // 必须以 #data= 开头
+        if (!hash.startsWith("#data=")) return;
+        
+        try {
+            var base64 = hash.substring(6); // 去掉 "#data="
+            var text = decodeURIComponent(escape(atob(base64)));
+            
+            // 显示结果（你可以改成显示在页面上）
+            alert("📚 扫码内容：\n\n" + text);
+        } catch (e) {
+            alert("❌ 解码失败：Base64 数据无效");
+        }
+    });
+    </script>
+
 </body>
 </html>
