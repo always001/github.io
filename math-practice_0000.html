@@ -2367,16 +2367,30 @@
             
             // 显示结果（你可以改成显示在页面上）
             //alert("📚 扫码内容：\n\n" + text);
-            // ⭐ 把内容显示到页面（覆盖原内容）
-            document.body.innerHTML = `
-                <h2>📚 错题本内容</h2>
-                <pre style="white-space: pre-wrap; font-size: 18px; line-height: 1.8;">
-    ${text}
-                </pre>
+            // ⭐ 完全覆盖页面，包括背景、样式、所有内容
+            document.documentElement.innerHTML = `
+                <head>
+                    <meta charset="UTF-8">
+                    <title>📚 错题本内容</title>
+                    <style>
+                        body {
+                            font-family: sans-serif;
+                            padding: 20px;
+                            white-space: pre-wrap;
+                            font-size: 20px;
+                            line-height: 1.8;
+                            background: #ffffff;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${text}
+                </body>
             `;
         } catch (e) {
             //alert("❌ 解码失败：Base64 数据无效");
-            document.body.innerHTML = "<h2>❌ Base64 解码失败</h2>";
+            //document.body.innerHTML = "<h2>❌ Base64 解码失败</h2>";
+            document.documentElement.innerHTML = "<h2>❌ Base64 解码失败</h2>";
         }
     });
     </script>
