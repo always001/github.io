@@ -1546,6 +1546,7 @@
             let interval = null;
             //let speed = 80;
             let speed = 200;   // 初始速度：200ms（更慢更自然）
+            //let speed = 300; // ⭐ 初始速度：300ms（更慢更稳）
             
             function vibrate(ms = 10) {
                 if (navigator.vibrate) navigator.vibrate(ms);
@@ -1578,17 +1579,21 @@
                         changeValue(delta);
                         //speed = Math.max(20, speed - 5);
                         // ⭐ 加速更慢，最低速度 80ms
-                        speed = Math.max(80, speed - 10);
+                        //speed = Math.max(80, speed - 10);
+                        // ⭐ 加速更慢，最低速度 120ms
+                        speed = Math.max(120, speed - 20);
+                        
                         clearInterval(interval);
                         interval = setInterval(() => changeValue(delta), speed);
                     }, speed);
-                }, 300);
+                }, 400); // ⭐ 长按触发延迟更长（更不容易误触）
             }
             
             function stopHold() {
                 clearTimeout(timer);
                 clearInterval(interval);
-                speed = 80;
+                //speed = 80;
+                speed = 300; // ⭐ 每次松手后重置速度
             }
             
             up.addEventListener("mousedown", () => startHold(+1));
