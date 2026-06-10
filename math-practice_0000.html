@@ -716,6 +716,63 @@
             pointer-events: auto !important;
         }
         
+        /* ↓↓上下箭头🎨 2. CSS（圆角、柔和、与你 UI 完全一致） */
+        .number-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .number-box input[type=number] {
+            width: 90px;
+            height: 46px;
+            padding-right: 36px;
+            font-size: 20px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            text-align: center;
+            outline: none;
+        }
+        
+        /* 箭头容器 */
+        .num-arrows {
+            position: absolute;
+            right: 6px;
+            top: 4px;
+            bottom: 4px;
+            width: 28px;
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        /* 单个箭头 */
+        .num-arrows .arrow {
+            width: 100%;
+            height: 50%;
+            background: #f7f7f7;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            
+            transition: background 0.15s ease;
+            user-select: none;
+        }
+        
+        .num-arrows .arrow svg {
+            width: 16px;
+            height: 16px;
+            fill: #555;
+        }
+        
+        .num-arrows .arrow:active {
+            background: #e0e0e0;
+        }
+        /* ↑↑上下箭头🎨 2. CSS（圆角、柔和、与你 UI 完全一致） */
+        
     </style>
 </head>
 <body>
@@ -750,7 +807,17 @@
             </div>
             <div class="setting-row">
                 <label for="questionCount">🔢 题数：</label>
-                <input type="number" id="questionCount" value="8" min="1" max="50" inputmode="numeric" aria-label="题目数量">
+                <div class="number-box">
+                    <input type="number" id="questionCount" value="8" min="1" max="50" step="1" inputmode="numeric" aria-label="题目数量">
+                    <div class="num-arrows">
+                        <div class="arrow up">
+                            <svg viewBox="0 0 24 24"><path d="M12 6l-8 8h16z"/></svg>
+                        </div>
+                        <div class="arrow down">
+                            <svg viewBox="0 0 24 24"><path d="M12 18l8-8H4z"/></svg>
+                        </div>
+                    </div>
+                </div>
                 <span id="countHint" class="count-hint">(1-50题)</span>
                 <div class="quick-count">
                     <button>5</button>
@@ -774,7 +841,10 @@
             <div class="progress-container">
                 <div id="progress-bar" class="progress-bar"></div>
             </div>
+            <!-- 自制上下箭头（替代原生箭头） -->
             <div class="question-text" id="questionText"></div>
+            <div id="answerArea"></div>
+            <!-- 自制上下箭头（替代原生箭头） -->
             <div class="feedback" id="feedback"></div>
             <button class="btn btn-submit" id="submitBtn">提交答案 ✅</button>
         </div>
@@ -1404,6 +1474,7 @@
             var maxAnswer = 44;  // 设置一个合理的最大值
             var stepNum = 1;
             
+            /*
             $('questionText').innerHTML = q.text.replace('?', 
                 '<input type="number" id="answerInput" class="answer-input" ' +
                 'min="' + minAnswer + '" max="' + maxAnswer + '" step="' + stepNum + '" ' +
@@ -1415,6 +1486,40 @@
                 'autocomplete="off" autocorrect="off" autocapitalize="off" ' +
                 'spellcheck="false" autofocus>'
             );
+            */
+            
+            /*  自制上下箭头（替代原生箭头）  */
+            // 1. 动态插入 input + 箭头组件
+            $('questionText').innerHTML = q.text.replace('?', '');
+            $('answerArea').innerHTML =
+                '<div class="number-box">' +
+                    '<input type="number" id="answerInput" class="answer-input" ' +
+                    'min="' + minAnswer + '" max="' + maxAnswer + '" step="' + stepNum + '" ' +
+                    'inputmode="numeric" pattern="[0-9]*" ' +
+                    'onkeydown="return blockInvalidKeys(event)" ' +
+                    'oninput="sanitizeAnswer(this)" ' +
+                    'onpaste="handlePaste(event)" ' +
+                    'autocomplete="off" autocorrect="off" autocapitalize="off" ' +
+                    'spellcheck="false" autofocus>' +
+                    
+                    '<div class="num-arrows">' +
+                        '<div class="arrow up">' +
+                            '<svg viewBox="0 0 24 24"><path d="M12 6l-8 8h16z"/></svg>' +
+                        '</div>' +
+                        '<div class="arrow down">' +
+                            '<svg viewBox="0 0 24 24"><path d="M12 18l8-8H4z"/></svg>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            
+            // ⭐⭐⭐ 2. 现在再获取元素（此时元素已经存在）
+            const input = document.getElementById("answerInput");
+            const up = $('answerArea').querySelector(".num-arrows .up");
+            const down = $('answerArea').querySelector(".num-arrows .down");
+            
+            // ⭐⭐⭐ 3. 绑定箭头事件（长按、加速、震动等）
+            bindNumberArrows(input, up, down);
+            /*  自制上下箭头（替代原生箭头）  */
             
             $('feedback').textContent = '';
             $('feedback').className = 'feedback';
@@ -1432,6 +1537,67 @@
                     };
                 }
             }, 50);
+        }
+        
+        /* 🟦 動的箭头逻辑放进一个函数：*/
+        function bindNumberArrows(input, up, down) {
+        
+            let timer = null;
+            let interval = null;
+            //let speed = 80;
+            let speed = 200;   // 初始速度：200ms（更慢更自然）
+            
+            function vibrate(ms = 10) {
+                if (navigator.vibrate) navigator.vibrate(ms);
+            }
+            
+            // ⭐⭐⭐ 把 changeValue 改成这个版本
+            function changeValue(delta) {
+                const min = Number(input.min) || -Infinity;
+                const max = Number(input.max) || Infinity;
+                const step = Number(input.step) || 1;
+                
+                let current = input.value === "" ? 0 : Number(input.value);
+                let newValue = current + delta * step;
+                
+                newValue = Math.min(max, Math.max(min, newValue));
+                newValue = Math.round(newValue / step) * step;
+                
+                input.value = newValue;
+                vibrate();
+            }
+            
+            up.addEventListener("click", () => changeValue(+1));
+            down.addEventListener("click", () => changeValue(-1));
+            
+            function startHold(delta) {
+                changeValue(delta);
+                
+                timer = setTimeout(() => {
+                    interval = setInterval(() => {
+                        changeValue(delta);
+                        //speed = Math.max(20, speed - 5);
+                        // ⭐ 加速更慢，最低速度 80ms
+                        speed = Math.max(80, speed - 10);
+                        clearInterval(interval);
+                        interval = setInterval(() => changeValue(delta), speed);
+                    }, speed);
+                }, 300);
+            }
+            
+            function stopHold() {
+                clearTimeout(timer);
+                clearInterval(interval);
+                speed = 80;
+            }
+            
+            up.addEventListener("mousedown", () => startHold(+1));
+            down.addEventListener("mousedown", () => startHold(-1));
+            document.addEventListener("mouseup", stopHold);
+            
+            up.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(+1); });
+            down.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(-1); });
+            document.addEventListener("touchend", stopHold);
         }
         
         // 一例としての状態管理変数（既存の変数名に合わせてください）
@@ -2510,6 +2676,76 @@
     </script>
     
     <script>
+    /* ↓↓上下箭头⚙️ 3. JS（长按、加速、震动、范围、步长全部整合）*/
+    const input = document.getElementById("questionCount");
+    const up = document.querySelector(".num-arrows .up");
+    const down = document.querySelector(".num-arrows .down");
+    
+    let timer = null;
+    let interval = null;
+    let speed = 80; // 初始速度（越小越快）
+    
+    /* 手机震动 */
+    function vibrate(ms = 10) {
+        if (navigator.vibrate) navigator.vibrate(ms);
+    }
+    
+    /* 修改数值（带范围 + 步长 + 吸附） */
+    function changeValue(delta) {
+        const min = Number(input.min) || -Infinity;
+        const max = Number(input.max) || Infinity;
+        const step = Number(input.step) || 1;
+        
+        let newValue = Number(input.value) + delta * step;
+        
+        // 限制范围
+        newValue = Math.min(max, Math.max(min, newValue));
+        
+        // 吸附到步长（比如 5 的倍数）
+        newValue = Math.round(newValue / step) * step;
+        
+        input.value = newValue;
+        vibrate();
+    }
+    
+    /* 点击一次 */
+    up.addEventListener("click", () => changeValue(+1));
+    down.addEventListener("click", () => changeValue(-1));
+    
+    /* 长按自动连加 / 连减（带加速） */
+    function startHold(delta) {
+        changeValue(delta);
+        
+        timer = setTimeout(() => {
+            interval = setInterval(() => {
+                changeValue(delta);
+                
+                // 加速：每次循环减少速度
+                speed = Math.max(20, speed - 5);
+                clearInterval(interval);
+                interval = setInterval(() => changeValue(delta), speed);
+                
+            }, speed);
+        }, 300);
+    }
+    
+    function stopHold() {
+        clearTimeout(timer);
+        clearInterval(interval);
+        speed = 80; // 重置速度
+    }
+    
+    /* 鼠标长按 */
+    up.addEventListener("mousedown", () => startHold(+1));
+    down.addEventListener("mousedown", () => startHold(-1));
+    document.addEventListener("mouseup", stopHold);
+    
+    /* 手机触摸长按 */
+    up.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(+1); });
+    down.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(-1); });
+    document.addEventListener("touchend", stopHold);
+    /* ↑↑上下箭头⚙️ 3. JS（长按、加速、震动、范围、步长全部整合）*/
+    
     const meta = document.getElementById("viewportMeta");
     const btn = document.getElementById("toggleModeBtn");
     
