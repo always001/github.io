@@ -1725,6 +1725,8 @@
             
             const voices = speechSynthesis.getVoices();
             const zhVoice = voices.find(v => 
+                v.name.includes("Ting") ||        /* 明确指定 Ting‑Ting */
+                v.name.includes("Ting-Ting") ||   /* 明确指定 Ting‑Ting */
                 v.lang.startsWith("zh") || 
                 v.name.includes("Chinese") || 
                 v.name.includes("Mandarin") ||
@@ -1745,6 +1747,17 @@
                 checkChineseVoice(); // ⭐ 提示用户安装中文语音
                 utter.voice = getClosestVoice(); // ⭐ 自动选择最接近中文的语音
             }
+            
+            /* 明确指定 Ting‑Ting */
+            const ting = loadedVoices.find(v => v.name === "Ting-Ting");
+            if (ting) {
+                utter.voice = ting;
+            //} else {
+                // fallback
+                //utter.voice = loadedVoices.find(v => v.lang === "zh-CN");
+            }
+            /* 明确指定 Ting‑Ting */
+            
             utter.rate = 1.0;
             utter.pitch = 1.0;
             //window.speechSynthesis.cancel();
