@@ -1752,11 +1752,21 @@
             const ting = loadedVoices.find(v => v.name === "Ting-Ting");
             if (ting) {
                 utter.voice = ting;
-            //} else {
+            } else {
                 // fallback
                 //utter.voice = loadedVoices.find(v => v.lang === "zh-CN");
+                // 自动选择最佳语音
+                const best = pickBestVoice(loadedVoices);
+                utter.voice = best;
             }
             /* 明确指定 Ting‑Ting */
+            
+            // 自动选择最佳语音
+            //const best = pickBestVoice(loadedVoices);
+            //utter.voice = best;
+            // D. 在 debugModal 显示当前使用的语音
+            // ⭐⭐ D. 在这里写入 debugModal（最正确的位置）
+            //debugLog("当前使用语音：" + best.lang + " - " + best.name);
             
             utter.rate = 1.0;
             utter.pitch = 1.0;
@@ -1765,6 +1775,29 @@
             speechSynthesis.cancel();
             speechSynthesis.speak(utter);
         }
+        
+        function pickBestVoice(voices) {
+            // A. 优先选择最自然的中文女声
+            const preferred = ["Ting-Ting", "Lili", "Lilian"];
+            for (let name of preferred) {
+                const v = voices.find(v => v.name.includes(name));
+                if (v) return v;
+            }
+
+            // B. 如果 Safari 正在使用 Eddy，提示用户
+            const eddy = voices.find(v => v.name === "Eddy" && v.lang.startsWith("zh"));
+            if (eddy) {
+                alert("⚠ 当前 Safari 正在使用 Eddy（英文男声）读中文，已自动切换到更自然的语音。");
+            }
+
+            // C. fallback：如果没有中文女声 → 用英文女声 Samantha
+            const englishFemale = voices.find(v => v.name.includes("Samantha"));
+            if (englishFemale) return englishFemale;
+
+            // D. 最后 fallback：随便找一个可用语音
+            return voices[0];
+        }
+
         
         /* 🟦 動的箭头逻辑放进一个函数：*/
         function bindNumberArrows(input, up, down) {
@@ -2253,7 +2286,7 @@
                                     <!-- <button type="button" class="btn-close" data-bs-dismiss="modal"></button>-->
                                     <!-- ⭐ 更明显的关闭按钮 -->
                                     <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">关闭 3 秒后自动关闭</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">关闭 1分钟后自动关闭</button>
 
                                 </div>
                                 <div class="modal-body">
@@ -2268,6 +2301,10 @@
             
             // ⭐ 关键：重新读取语音列表
             loadedVoices = speechSynthesis.getVoices();
+            
+            // ⭐ 先选出最佳语音（和 speak() 用同一套逻辑）
+            const best = pickBestVoice(loadedVoices);
+            
             // ⭐ 打开这个“HTML 版 alert”
             var modal = new bootstrap.Modal(document.getElementById('debugModal'));
             modal.show();
@@ -2276,6 +2313,9 @@
             document.getElementById("debug").textContent = "";
             // ⭐ 输出语音列表
             debugLog("语音列表加载完成，共 " + loadedVoices.length + " 个语音：");
+            /* 当前使用语音 */
+            debugLog("当前使用语音：" + best.lang + " - " + best.name);
+            /* 当前使用语音 */
             loadedVoices.forEach(v => {
                 debugLog(v.lang + " - " + v.name);
             });
@@ -2283,7 +2323,7 @@
             // ⭐ 3 秒后自动关闭
             setTimeout(() => {
                 modal.hide();
-            }, 3000);
+            }, 60000);
         }
         // ⭐ Debug 输出函数
         
