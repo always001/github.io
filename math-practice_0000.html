@@ -1673,7 +1673,7 @@
             bindNumberArrows(input, up, down);
             /*  自制上下箭头（替代原生箭头）  */
             
-                        // 加上自动判断监听器：
+            // 加上自动判断监听器：
             // ⭐⭐⭐ 自动判断答案（不按提交也能跳题）
             input.addEventListener("input", function () {
                 const val = input.value.trim();
@@ -1880,10 +1880,14 @@
             down.addEventListener("mousedown", () => startHold(-1));
             document.addEventListener("mouseup", stopHold);
             
-            // 触摸
-            up.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(+1); });
-            down.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(-1); });
+            // 触摸（必须 passive: false，并且调用startHold 时必须传arrow参数。）
+            //up.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(+1); });
+            //down.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(-1); });
+            up.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(+1, up); }, { passive: false });
+            down.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(-1, down); }, { passive: false });
+            // 触摸结束（必须绑定在 document）
             document.addEventListener("touchend", stopHold);
+            document.addEventListener("touchcancel", stopHold);
             
             // ⭐ 输入框自动全选
             input.addEventListener("focus", () => {
