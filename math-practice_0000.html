@@ -894,7 +894,25 @@
             pointer-events: none;
             z-index: 9999;
         }
-        
+        /* 倒计时显示 */
+        .countdown {
+            font-size: 32px;
+            font-weight: bold;
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        /* 红色闪烁 */
+        .flash-wrong {
+            animation: flashWrong 0.5s ease-in-out 4;
+        }
+        @keyframes flashWrong {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(255,0,0,0.3); }
+            100% { background-color: transparent; }
+        }
+
     </style>
 </head>
 <body>
@@ -985,6 +1003,8 @@
             <div class="progress-container">
                 <div id="progress-bar" class="progress-bar"></div>
             </div>
+            <!-- ✅ 一、先加一个倒计时显示区域（HTML）-->
+            <div id="countdown" class="countdown"></div>
             <!-- 自制上下箭头（替代原生箭头） -->
             <div class="question-text" id="questionText"></div>
             <div id="answerArea"></div>
@@ -1929,11 +1949,36 @@
             //}
         //}
         
+        /* ✅ 二、答对时播放鼓励语音（自动）*/
+        function playEncourageVoice(isPerfect = false) {
+            let text = isPerfect
+                ? "太厉害了！你全部答对了！你真的是数学小天才！"
+                : "太棒了！继续加油！";
+
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = "zh-CN";
+            
+            // ⭐ 全对时放慢语速，让语音更长、更有仪式感
+            // 普通鼓励语音 → 正常速度（rate = 1）
+            // 全对语音 → 放慢速度（rate = 0.8 或 0.7）
+            // 这样语音自然会变长，而且听起来更像“庄重的满分祝贺”
+            // 0.5 太慢，会像机器人
+            // 0.8 稍微慢一点，但不够“满分仪式感”
+            // 0.75 是最自然的“庄重慢速”小朋友听起来也更舒服
+            // 0.7、0.8，根据孩子的感觉调整。
+            msg.rate = isPerfect ? 0.75 : 1.0; 
+
+            // ⭐ 也可以稍微加一点音量（可选）
+            msg.volume = 1.0;
+            speechSynthesis.speak(msg);
+        }
+        
         function submitAnswer() {
             var input = $('answerInput');
             if (!input) return;
             
-            var feedback = $('feedback');   // ⭐ 必须加上
+            var feedback = $('feedback'); // ⭐ 必须加上
+            var countdown = $('countdown'); // ⭐ 倒计时区域
             
             const userValue = input.value.trim();
             const q = gameState.questions[gameState.currentIndex];
@@ -1963,7 +2008,7 @@
             }
             
             // ⭐ 到这里说明答案有效 → 可以跳题了,计分 + 反馈
-            let delay = 800;  // ⭐ 默认答对题 0.8 秒跳题
+            let delay = 3800;  // ⭐ 默认答对题 0.8 秒跳题
             if (userAnswer === correct) {
                 gameState.correctCount++;   // ⭐ 计分
                 feedback.textContent = '🎉 答对啦！';
@@ -1973,6 +2018,14 @@
                 setTimeout(() => feedback.classList.remove("flash"), 600);
                 
                 playCorrectSound();
+                
+                // ⭐ 判断是否是最后一题 & 全对
+                const isLast = (gameState.currentIndex === gameState.totalCount - 1);
+                const isPerfect = (gameState.correctCount === gameState.totalCount);
+
+                // ⭐ 普通鼓励 or 全对语音
+                playEncourageVoice(isLast && isPerfect); // ⭐ 自动播放鼓励语音
+                
             } else {
                 feedback.textContent = '❌ 答错了，正确答案是 ' + correct;
                 feedback.className = 'feedback wrong';
@@ -1983,7 +2036,25 @@
                 playWrongSound();
                 addWrongQuestion(q, userAnswer); // ⭐ 错题本、
                 
-                delay = 3600;   // ⭐ 答错题 → 延迟 3.6 秒跳下一题
+                delay = 5600;   // ⭐ 答错题 → 延迟 5.6 秒跳下一题
+                
+                // ⭐ 题目区域红色闪烁
+                $('questionArea').classList.add("flash-wrong");
+                setTimeout(() => $('questionArea').classList.remove("flash-wrong"), 2000);
+
+                // ⭐ 倒计时动画（5 → 1）
+                let t = 5;
+                countdown.style.display = "block";
+                countdown.textContent = t;
+
+                let cdTimer = setInterval(() => {
+                    t--;
+                    countdown.textContent = t;
+                    if (t <= 0) {
+                        clearInterval(cdTimer);
+                        countdown.style.display = "none";
+                    }
+                }, 1000);
             }
             
             // ⭐ 统一跳题逻辑（不会被 return 阻断）
@@ -1991,6 +2062,7 @@
             $('submitBtn').disabled = true;
             
             setTimeout(function() {
+                countdown.style.display = "none"; // ⭐ 防止残留
                 gameState.currentIndex++;
                 if (gameState.currentIndex < gameState.totalCount) {
                     $('submitBtn').disabled = false;
