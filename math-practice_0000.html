@@ -1777,27 +1777,33 @@
         }
         
         function pickBestVoice(voices) {
+            // ⭐ 1. 如果是在微信内置浏览器 → 强制使用英文女声（比 Eddy 好听）
+            if (navigator.userAgent.includes("MicroMessenger")) {
+                const englishFemale = voices.find(v => v.name.includes("Samantha"));
+                if (englishFemale) return englishFemale;
+            }
+            
+            // ⭐ 2. 正常设备（Safari / Edge / Chrome）走原来的逻辑
             // A. 优先选择最自然的中文女声
             const preferred = ["Ting-Ting", "Lili", "Lilian"];
             for (let name of preferred) {
                 const v = voices.find(v => v.name.includes(name));
                 if (v) return v;
             }
-
+            
             // B. 如果 Safari 正在使用 Eddy，提示用户
             const eddy = voices.find(v => v.name === "Eddy" && v.lang.startsWith("zh"));
             if (eddy) {
                 alert("⚠ 当前 Safari 正在使用 Eddy（英文男声）读中文，已自动切换到更自然的语音。");
             }
-
+            
             // C. fallback：如果没有中文女声 → 用英文女声 Samantha
             const englishFemale = voices.find(v => v.name.includes("Samantha"));
             if (englishFemale) return englishFemale;
-
+            
             // D. 最后 fallback：随便找一个可用语音
             return voices[0];
         }
-
         
         /* 🟦 動的箭头逻辑放进一个函数：*/
         function bindNumberArrows(input, up, down) {
