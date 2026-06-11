@@ -1480,12 +1480,12 @@
         
         function generateAddition() {
             var a = Math.floor(Math.random() * 23);
-            var b = Math.floor(Math.random() * (23 - a));
+            var b = Math.floor(Math.random() * (44 - a));
             return { text: a + ' + ' + b + ' = ?', answer: a + b, numberA: a, numberB: b, operator: '+' };
         }
         
         function generateSubtraction() {
-            var a = Math.floor(Math.random() * 22) + 1;
+            var a = Math.floor(Math.random() * 44) + 1;
             var b = Math.floor(Math.random() * (a + 1));
             return { text: a + ' - ' + b + ' = ?', answer: a - b, numberA: a, numberB: b, operator: '-' };
         }
@@ -1880,14 +1880,21 @@
             down.addEventListener("mousedown", () => startHold(-1));
             document.addEventListener("mouseup", stopHold);
             
-            // 触摸（必须 passive: false，并且调用startHold 时必须传arrow参数。）
+            // 触摸（必须 passive: false，并且调用startHold 时必须传arrow参数。⭐微信可能吞掉 touchstart）
             //up.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(+1); });
             //down.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(-1); });
             up.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(+1, up); }, { passive: false });
             down.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(-1, down); }, { passive: false });
+            
+            // ⭐ 微信最关键：pointerdown（不会被吞）
+            //up.addEventListener("pointerdown", () => startHold(+1, up));
+            //down.addEventListener("pointerdown", () => startHold(-1, down));
+            
             // 触摸结束（必须绑定在 document）
             document.addEventListener("touchend", stopHold);
             document.addEventListener("touchcancel", stopHold);
+            // ⭐ 微信结束事件
+            //document.addEventListener("pointerup", stopHold);
             
             // ⭐ 输入框自动全选
             input.addEventListener("focus", () => {
