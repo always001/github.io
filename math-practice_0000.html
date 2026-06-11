@@ -355,6 +355,26 @@
         .stat-item:last-child { border-bottom: none; }
         .evaluation { font-size: 20px; padding: 15px; background: #ffeaa7; border-radius: 15px; margin-top: 15px; }
         
+        <!-- /* 🏅 2. 全对时显示“满分奖章”*/ -->
+        .perfect-badge {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: gold;
+            text-shadow: 0 0 10px orange;
+            display: none;
+            z-index: 999999; /* ⭐ 必须非常高 */
+            animation: popIn 0.6s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: translateX(-50%) scale(0.2); opacity: 0; }
+            100% { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+        <!-- /* 🏅 2. 全对时显示“满分奖章”*/ -->
+        
         .hidden { display: none !important; }
         
         .page-nav, .notebook-nav { text-align: left; margin-bottom: 15px; }
@@ -890,10 +910,14 @@
         /* 🌈 完成后烟花动画 */
         #fireworksCanvas {
             position: fixed;
-            inset: 0;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
             pointer-events: none;
             z-index: 9999;
         }
+
         /* 倒计时显示 */
         .countdown {
             font-size: 32px;
@@ -1012,7 +1036,7 @@
             <div class="feedback" id="feedback"></div>
             <button class="btn btn-submit" id="submitBtn">提交答案 ✅</button>
         </div>
-        <!-- <div id="debug" style="white-space:pre-wrap; font-size:14px; color:#333;"></div>-->
+        <!-- <div id="debug" style="white-space:pre-wrap; font-size:14px; color:#333;"></div> -->
         <div id="resultArea" class="result hidden">
             <div class="page-nav">
                 <button class="btn-back" id="backFromResult">← 返回主菜单</button>
@@ -1021,6 +1045,11 @@
             <div class="score-circle" id="scoreCircle">0%</div>
             <div class="stats" id="stats"></div>
             <div class="evaluation" id="evaluation"></div>
+            <div class="perfect-badge" id="perfectBadge" >满分！🎖️</div>
+            <canvas id="certificateCanvas" width="600" height="600" style="display:none;"></canvas>
+            <img id="certificateImage" style="width:100%; display:none;" />
+            <audio id="perfectMusic" src="perfect.mp3"></audio>
+            <!-- <audio id="perfectMusic" src=" https://www.bilibili.com/video/BV1tk4y1B78Z?t=104.9"></audio> -->
             <button class="btn btn-primary" id="retryBtn">🔄 再来一次</button>
             <button class="btn btn-secondary" id="openNotebookFromResult">📚 查看错题本</button>
             
@@ -1626,6 +1655,40 @@
             input.value = cleanNum;
             sanitizeAnswer(input);
         }
+        // 📜 3. 全对时自动生成“满分证书”（可保存）
+        function generateCertificate() {
+            const canvas = document.getElementById("certificateCanvas");
+            const ctx = canvas.getContext("2d");
+
+            ctx.fillStyle = "#fffbe6";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#d4a017";
+            ctx.font = "48px serif";
+            ctx.textAlign = "center";
+            ctx.fillText("满 分 证 书", 300, 120);
+
+            ctx.fillStyle = "#333";
+            ctx.font = "28px sans-serif";
+            ctx.fillText("恭喜你全部答对！", 300, 260);
+            ctx.fillText("你真的是数学小天才！", 300, 320);
+
+            ctx.font = "20px sans-serif";
+            ctx.fillText("颁发给：颜已杰小朋友", 300, 420);
+            ctx.fillText("日期：" + new Date().toLocaleDateString(), 300, 480);
+
+            const img = document.getElementById("certificateImage");
+            img.src = canvas.toDataURL("image/png");
+            img.style.display = "block";
+        }
+        
+        // 🎵 4. 全对时播放背景音乐（轻快 or 庄重
+        function playPerfectMusic() {
+            const music = document.getElementById("perfectMusic");
+            //music.volume = 1.0;
+            music.currentTime = 0;
+            music.play(); // ⭐ 必须在同步代码里
+        }
         
         function showQuestion() {
             var q = gameState.questions[gameState.currentIndex];
@@ -2023,8 +2086,16 @@
                 const isLast = (gameState.currentIndex === gameState.totalCount - 1);
                 const isPerfect = (gameState.correctCount === gameState.totalCount);
 
-                // ⭐ 普通鼓励 or 全对语音
+                // ⭐ 播放普通或满分语音（同步触发）
                 playEncourageVoice(isLast && isPerfect); // ⭐ 自动播放鼓励语音
+                
+                // ⭐ 全对庆祝（同步触发）
+                if (isLast && isPerfect) {
+                    startFireworks();      // 彩色烟花（自动停止）
+                    showPerfectBadge();    // 满分奖章
+                    playPerfectMusic();    // 背景音乐
+                    generateCertificate(); // 满分证书
+                }
                 
             } else {
                 feedback.textContent = '❌ 答错了，正确答案是 ' + correct;
@@ -2036,7 +2107,7 @@
                 playWrongSound();
                 addWrongQuestion(q, userAnswer); // ⭐ 错题本、
                 
-                delay = 5600;   // ⭐ 答错题 → 延迟 5.6 秒跳下一题
+                delay = 5600;   // ⭐ 答错题 → 延迟 3.6 秒跳下一题
                 
                 // ⭐ 题目区域红色闪烁
                 $('questionArea').classList.add("flash-wrong");
@@ -2085,55 +2156,80 @@
             saveWrongQuestions(wrong);
         }
         
-        // JS：简单示意（伪烟花，可以以后换成库）：
+        // JS：简单示意（伪烟花，可以以后换成库）⇒ 🎆 1. 全对时播放烟花动画（彩色粒子爆炸）：
+        let fireworkTimer = null;
+        let fireworkInterval = null;
         function startFireworks() {
             const canvas = document.getElementById("fireworksCanvas");
             const ctx = canvas.getContext("2d");
+
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            
+
             let particles = [];
-            
-            function spawn() {
-                for (let i = 0; i < 80; i++) {
+
+            function createFirework() {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height * 0.5;
+
+                for (let i = 0; i < 60; i++) {
                     particles.push({
-                        x: canvas.width / 2,
-                        y: canvas.height / 3,
-                        vx: (Math.random() - 0.5) * 6,
-                        vy: (Math.random() - 0.5) * 6,
-                        life: 60,
+                        x,
+                        y,
+                        angle: Math.random() * Math.PI * 2,
+                        speed: Math.random() * 4 + 2,
+                        radius: Math.random() * 3 + 2,
+                        alpha: 1,
                         color: `hsl(${Math.random() * 360}, 100%, 60%)`
                     });
                 }
             }
-            
-            function loop() {
+
+            function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.05;
-                    p.life--;
+
+                particles.forEach((p, i) => {
+                    p.x += Math.cos(p.angle) * p.speed;
+                    p.y += Math.sin(p.angle) * p.speed;
+                    p.alpha -= 0.015;
+
+                    if (p.alpha <= 0) particles.splice(i, 1);
+
+                    ctx.globalAlpha = p.alpha;
                     ctx.fillStyle = p.color;
                     ctx.beginPath();
-                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                     ctx.fill();
                 });
-                particles = particles.filter(p => p.life > 0);
-                if (particles.length > 0) {
-                    requestAnimationFrame(loop);
-                } else {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
+
+                fireworkTimer = requestAnimationFrame(animate);
             }
-            
-            spawn();
-            loop();
+
+            createFirework();
+            fireworkInterval = setInterval(createFirework, 600);
+            animate();
+
+            // ⭐ 自动停止
+            setTimeout(() => {
+                clearInterval(fireworkInterval);
+                cancelAnimationFrame(fireworkTimer);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }, 5000);
         }
         
+        // 🏅 2. 全对时显示“满分奖章”
+        function showPerfectBadge() {
+            const badge = document.getElementById("perfectBadge");
+            badge.style.display = "block";
+            setTimeout(() => badge.style.display = "none", 14000);
+            //❗ 奖章显示 4 秒 → 页面被 showResult() 清空 → 奖章被删掉
+            //❗ 奖章显示 14 秒 → 页面清空后又重新显示结果 → 奖章刚好能看到
+            //换句话说：👉 奖章出现了，但被 showResult() 覆盖掉了。(大于5000)
+        }
+
         function showResult() {
             // 原来的结果显示...
-            startFireworks();
+            //startFireworks();
             var rate = (gameState.correctCount / gameState.totalCount * 100).toFixed(1);
             var elapsed = Math.floor((new Date() - gameState.startTime) / 1000);
             var minutes = Math.floor(elapsed / 60);
@@ -2170,7 +2266,7 @@
                 height: 200
             });
             // ⭐ 播放烟花
-            startFireworks();
+            //startFireworks();
         }
         
         // 🌈 错题本生成二维码
