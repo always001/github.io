@@ -14,6 +14,24 @@
           user-select: none;         /* 标准写法 */
         `;
     };
+    
+    // ⭐ Debug 输出函数
+    // ⭐ 必须放在 main.js 最顶部
+    let loadedVoices = [];
+    speechSynthesis.onvoiceschanged = function () {
+        loadedVoices = speechSynthesis.getVoices();
+    };
+    
+    // ⭐ iPhone 必须监听 voiceschanged 才能拿到语音列表
+    speechSynthesis.onvoiceschanged = function () {
+        const voices = speechSynthesis.getVoices();
+        debugLog("语音列表加载完成，共 " + voices.length + " 个语音：");
+        voices.forEach(v => {
+            debugLog(v.lang + " - " + v.name);
+        });
+    };
+    // ⭐ Debug 输出函数
+    
     // ⭐ 全局变量：保存可用语音
     let availableVoices = [];
     // ⭐ 初始化语音（必须在页面加载后执行）
@@ -974,7 +992,7 @@
             <div class="feedback" id="feedback"></div>
             <button class="btn btn-submit" id="submitBtn">提交答案 ✅</button>
         </div>
-        
+        <!-- <div id="debug" style="white-space:pre-wrap; font-size:14px; color:#333;"></div>-->
         <div id="resultArea" class="result hidden">
             <div class="page-nav">
                 <button class="btn-back" id="backFromResult">← 返回主菜单</button>
@@ -2199,11 +2217,62 @@
             $('themeModal').classList.remove('hidden');
         }
         
-        function showVoiceCheckModal() {
-            alert("時間がある時に実装します！！！")
-            var modal = new bootstrap.Modal(document.getElementById('voiceCheckModal'));
-            modal.show();
+        // ⭐ Debug 输出函数
+        function debugLog(msg) {
+            const el = document.getElementById("debug");
+            if (el) el.textContent += msg + "\n";
+            //alert(msg)
         }
+        
+        function showVoiceCheckModal() {
+            alert("時間がある時に実装します！！！");
+            //var modal = new bootstrap.Modal(document.getElementById('voiceCheckModal'));
+
+
+            // ⭐ 如果 debugModal 不存在，就创建一次
+            if (!document.getElementById("debugModal")) {
+                var html = `
+                    <div class="modal fade" id="debugModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Debug 信息</h5>
+                                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal"></button>-->
+                                    <!-- ⭐ 更明显的关闭按钮 -->
+                                    <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">关闭 3 秒后自动关闭</button>
+
+                                </div>
+                                <div class="modal-body">
+                                    <div id="debug" style="white-space:pre-wrap; font-size:14px; color:#333;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML("beforeend", html);
+            }
+            
+            // ⭐ 关键：重新读取语音列表
+            loadedVoices = speechSynthesis.getVoices();
+            // ⭐ 打开这个“HTML 版 alert”
+            var modal = new bootstrap.Modal(document.getElementById('debugModal'));
+            modal.show();
+            // ⭐ 输出 debug 内容
+            // ⭐ 清空旧内容
+            document.getElementById("debug").textContent = "";
+            // ⭐ 输出语音列表
+            debugLog("语音列表加载完成，共 " + loadedVoices.length + " 个语音：");
+            loadedVoices.forEach(v => {
+                debugLog(v.lang + " - " + v.name);
+            });
+            
+            // ⭐ 3 秒后自动关闭
+            setTimeout(() => {
+                modal.hide();
+            }, 3000);
+        }
+        // ⭐ Debug 输出函数
         
         function selectTheme(theme) {
             playClickSound();
@@ -3141,10 +3210,9 @@
             document.documentElement.innerHTML = "<h2>❌ Base64 解码失败</h2>";
         }
     });
+    
     </script>
     
-    
-
     <!-- 放在这里：页面最底部 -->
     <canvas id="fireworksCanvas"></canvas>
     <!-- ✔ Bootstrap JS 必须放在 Modal 后面 -->
