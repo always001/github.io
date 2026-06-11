@@ -1963,6 +1963,7 @@
             }
             
             // ⭐ 到这里说明答案有效 → 可以跳题了,计分 + 反馈
+            let delay = 800;  // ⭐ 默认答对题 0.8 秒跳题
             if (userAnswer === correct) {
                 gameState.correctCount++;   // ⭐ 计分
                 feedback.textContent = '🎉 答对啦！';
@@ -1980,7 +1981,9 @@
                 setTimeout(() => feedback.classList.remove("shake"), 400);
                 
                 playWrongSound();
-                addWrongQuestion(q, userAnswer); // ⭐ 错题本
+                addWrongQuestion(q, userAnswer); // ⭐ 错题本、
+                
+                delay = 3600;   // ⭐ 答错题 → 延迟 3.6 秒跳下一题
             }
             
             // ⭐ 统一跳题逻辑（不会被 return 阻断）
@@ -1995,7 +1998,7 @@
                 } else {
                     showResult();
                 }
-            }, 800);
+            }, delay);
         }
         
         function markAsMasteredSilent(id) {
@@ -2303,7 +2306,7 @@
                                     <!-- <button type="button" class="btn-close" data-bs-dismiss="modal"></button>-->
                                     <!-- ⭐ 更明显的关闭按钮 -->
                                     <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">关闭 1分钟后自动关闭</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">关闭 3秒后自动关闭</button>
 
                                 </div>
                                 <div class="modal-body">
@@ -2340,7 +2343,7 @@
             // ⭐ 3 秒后自动关闭
             setTimeout(() => {
                 modal.hide();
-            }, 60000);
+            }, 3000);
         }
         // ⭐ Debug 输出函数
         
