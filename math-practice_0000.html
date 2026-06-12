@@ -361,17 +361,18 @@
             top: 30%;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 48px;
+            font-size: 60px;
             font-weight: bold;
             color: gold;
-            text-shadow: 0 0 10px orange;
+            text-shadow: 0 0 20px orange, 0 0 40px yellow;
             display: none;
             z-index: 999999; /* ⭐ 必须非常高 */
             animation: popIn 0.6s ease-out;
         }
-        @keyframes popIn {
-            0% { transform: translateX(-50%) scale(0.2); opacity: 0; }
-            100% { transform: translateX(-50%) scale(1); opacity: 1; }
+        @keyframes spinFlash {
+            0% { transform: translateX(-50%) scale(0.2) rotate(0deg); opacity: 0; }
+            50% { transform: translateX(-50%) scale(1.2) rotate(360deg); opacity: 1; }
+            100% { transform: translateX(-50%) scale(1) rotate(720deg); opacity: 1; }
         }
         <!-- /* 🏅 2. 全对时显示“满分奖章”*/ -->
         
@@ -1046,7 +1047,7 @@
             <div class="stats" id="stats"></div>
             <div class="evaluation" id="evaluation"></div>
             <div class="perfect-badge" id="perfectBadge" >满分！🎖️</div>
-            <canvas id="certificateCanvas" width="600" height="600" style="display:none;"></canvas>
+            <canvas id="certificateCanvas" width="520" height="520" style="display:none;"></canvas>
             <img id="certificateImage" style="width:100%; display:none;" />
             <audio id="perfectMusic" src="perfect.mp3"></audio>
             <!-- <audio id="perfectMusic" src=" https://www.bilibili.com/video/BV1tk4y1B78Z?t=104.9"></audio> -->
@@ -1470,8 +1471,41 @@
             renderNotebook();
         }
         
+        function resetCelebration() {
+            // 隐藏奖章
+            const badge = document.getElementById("perfectBadge");
+            if (badge) badge.style.display = "none";
+            // 清空证书 canvas
+            const cert = document.getElementById("certificateCanvas");
+            if (cert) {
+                const ctx = cert.getContext("2d");
+                ctx.clearRect(0, 0, cert.width, cert.height); // ⭐ 必须清空像素
+                cert.style.display = "none";
+            }
+            // ⭐⭐ 最关键：清空证书图片 ⭐⭐
+            const certImg = document.getElementById("certificateImage");
+            if (certImg) {
+                certImg.src = "";          // ← 必须清空
+                certImg.style.display = "none";
+            }
+            // 清除烟花
+            const canvas = document.getElementById("fireworksCanvas");
+            if (canvas) {
+                const ctx = canvas.getContext("2d");
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            // 停止音乐
+            const music = document.getElementById("perfectMusic");
+            if (music) {
+                music.pause();
+                music.currentTime = 0;
+            }
+        }
+        
         function goHome() {
             showPage('settings');
+            // ✔ 在“返回主页”时重置所有庆祝元素
+            resetCelebration();
         }
         
         // ============ 输入验证 ============
@@ -1542,10 +1576,12 @@
         function generateQuestion() {
             if (gameState.type === 'add') return generateAddition();
             if (gameState.type === 'sub') return generateSubtraction();
-            return Math.random() < 0.5 ? generateAddition() : generateSubtraction();
+            // 45%加法
+            return Math.random() < 0.45 ? generateAddition() : generateSubtraction();
         }
         
         function startGame() {
+        	resetCelebration();
             try {
                 playClickSound();
                 gameState.totalCount = safeGetQuestionCount();
@@ -1660,34 +1696,76 @@
             const canvas = document.getElementById("certificateCanvas");
             const ctx = canvas.getContext("2d");
 
-            ctx.fillStyle = "#fffbe6";
+            // 背景
+            ctx.fillStyle = "#fff8e7";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "#d4a017";
+            // 金边
+            ctx.strokeStyle = "gold";
+            ctx.lineWidth = 12;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+            // 标题
             ctx.font = "48px serif";
+            ctx.fillStyle = "#b8860b";
             ctx.textAlign = "center";
-            ctx.fillText("满 分 证 书", 300, 120);
+            ctx.fillText("满 分 证 书", canvas.width / 2, 120);
 
+            // 内容
+            ctx.font = "28px serif";
             ctx.fillStyle = "#333";
-            ctx.font = "28px sans-serif";
-            ctx.fillText("恭喜你全部答对！", 300, 260);
-            ctx.fillText("你真的是数学小天才！", 300, 320);
+            //ctx.fillText("恭喜颜已杰小朋友在本次练习中取得满分成绩！", canvas.width / 2, 240);
+            ctx.fillText("恭喜颜已杰小朋友", canvas.width / 2, 200);
+            ctx.fillText("在本次练习中取得满分成绩！", canvas.width / 2,250);
+            ctx.fillText("日期：" + new Date().toLocaleDateString(), canvas.width / 2 + 100, 380);
+            
+            // 红色印章
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(400, 380, 50, 0, Math.PI * 2);
+            ctx.stroke();
 
-            ctx.font = "20px sans-serif";
-            ctx.fillText("颁发给：颜已杰小朋友", 300, 420);
-            ctx.fillText("日期：" + new Date().toLocaleDateString(), 300, 480);
-
+            ctx.font = "32px serif";
+            ctx.fillStyle = "red";
+            ctx.fillText("优 秀", 400, 395);
+            
             const img = document.getElementById("certificateImage");
             img.src = canvas.toDataURL("image/png");
             img.style.display = "block";
         }
+
+        // JS（淡入）
+        function fadeIn(audio, duration = 2000) {
+            audio.volume = 0;
+            audio.play();
+            let step = 0.02;
+            let interval = setInterval(() => {
+                audio.volume = Math.min(1, audio.volume + step);
+                if (audio.volume >= 1) clearInterval(interval);
+            }, duration * step);
+        }
+        // JS（淡出）
+        function fadeOut(audio, duration = 2000) {
+            let step = 0.02;
+            let interval = setInterval(() => {
+                audio.volume = Math.max(0, audio.volume - step);
+                if (audio.volume <= 0) {
+                    audio.pause();
+                    clearInterval(interval);
+                }
+            }, duration * step);
+        }
         
         // 🎵 4. 全对时播放背景音乐（轻快 or 庄重
         function playPerfectMusic() {
+            // 🟡 4. 背景音乐淡入淡出（超丝滑）
+            fadeIn(document.getElementById("perfectMusic"));
             const music = document.getElementById("perfectMusic");
             //music.volume = 1.0;
             music.currentTime = 0;
             music.play(); // ⭐ 必须在同步代码里
+            //fadeOut(document.getElementById("perfectMusic"));
         }
         
         function showQuestion() {
@@ -2085,6 +2163,7 @@
                 // ⭐ 判断是否是最后一题 & 全对
                 const isLast = (gameState.currentIndex === gameState.totalCount - 1);
                 const isPerfect = (gameState.correctCount === gameState.totalCount);
+                const correct = gameState.correctCount;
 
                 // ⭐ 播放普通或满分语音（同步触发）
                 playEncourageVoice(isLast && isPerfect); // ⭐ 自动播放鼓励语音
@@ -2092,9 +2171,16 @@
                 // ⭐ 全对庆祝（同步触发）
                 if (isLast && isPerfect) {
                     startFireworks();      // 彩色烟花（自动停止）
-                    showPerfectBadge();    // 满分奖章
+                    
                     playPerfectMusic();    // 背景音乐
-                    generateCertificate(); // 满分证书
+                    // ⭐ 满分 + 答对 >= 8 → 证书
+                    if (correct >= 8) {
+                    	generateCertificate(); // 满分证书
+                    }
+                    // ⭐ 满分 + 答对 >= 5 → 奖章
+                    if (correct >= 5) {
+                    	showPerfectBadge();// 满分奖章
+                    }                     
                 }
                 
             } else {
@@ -2156,6 +2242,21 @@
             saveWrongQuestions(wrong);
         }
         
+        // 🟡 3. 烟花：爱心形状 / 星星形状
+        function heartShape(t) {
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+            return { x, y };
+        }
+        function starShape(t) {
+            const spikes = 5;
+            const outer = 1;
+            const inner = 0.4;
+            const angle = Math.PI / spikes;
+            const r = (t % (2 * angle) < angle) ? outer : inner;
+            return { x: r * Math.cos(t), y: r * Math.sin(t) };
+        }
+        
         // JS：简单示意（伪烟花，可以以后换成库）⇒ 🎆 1. 全对时播放烟花动画（彩色粒子爆炸）：
         let fireworkTimer = null;
         let fireworkInterval = null;
@@ -2172,6 +2273,7 @@
                 const x = Math.random() * canvas.width;
                 const y = Math.random() * canvas.height * 0.5;
 
+                // ⭐⭐⭐⭐⭐ 这里就是“粒子生成处” ⭐⭐⭐⭐⭐
                 for (let i = 0; i < 60; i++) {
                     particles.push({
                         x,
@@ -2183,6 +2285,7 @@
                         color: `hsl(${Math.random() * 360}, 100%, 60%)`
                     });
                 }
+                // ⭐⭐⭐⭐⭐ 到这里结束 ⭐⭐⭐⭐⭐
             }
 
             function animate() {
@@ -2191,6 +2294,8 @@
                 particles.forEach((p, i) => {
                     p.x += Math.cos(p.angle) * p.speed;
                     p.y += Math.sin(p.angle) * p.speed;
+                    //p.x += p.vx;
+                    //p.y += p.vy;
                     p.alpha -= 0.015;
 
                     if (p.alpha <= 0) particles.splice(i, 1);
@@ -2214,7 +2319,7 @@
                 clearInterval(fireworkInterval);
                 cancelAnimationFrame(fireworkTimer);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }, 5000);
+            }, 12600);
         }
         
         // 🏅 2. 全对时显示“满分奖章”
