@@ -199,8 +199,9 @@
             width: 100%;
         }
         
+        <!-- h2 { text-align: center; color: #e17055; font-size: 28px; margin-bottom: 10px; } -->
         h1 { text-align: center; color: #e17055; font-size: 28px; margin-bottom: 10px; }
-        .subtitle { text-align: center; color: #636e72; margin-bottom: 30px; font-size: 14px; }
+        .subtitle { text-align: center; color: /* #636e72 */ blue; margin-bottom: 30px; font-size: 14px; }
         
         .settings {
             background: #f8f9fa;
@@ -990,7 +991,7 @@
                 cursor:pointer;
                 font-size:18px;
             ">
-                📊 难度仪表盘（点击展开/收起）
+                📊难度仪表盘(点击展开/收起)
             </div>
 
             <div id="difficultyDashboard" style="
@@ -1001,13 +1002,12 @@
                 margin-top:6px;
                 display:none;
             ">
-                <div><b>📘 今日题量：</b><span id="dashQuestions">0</span></div>
-                <div><b>🔥 今日难度等级：</b><span id="dashLevel">-</span></div>
-                <div><b>🏆 连续满分天数：</b><span id="dashStreak">0</span></div>
-                <div><b>➕➖ 当前加法/减法比例：</b><span id="dashRatio">-</span></div>
-
+                <div><b>📘今日题量：</b><span id="dashQuestions">0</span></div>
+                <div><b>🔥今日难度等级：</b><span id="dashLevel">-</span></div>
+                <div><b>🏆连续满分天数：</b><span id="dashStreak">0</span></div>
+                <div><b>➕➖当前加法/减法比例：</b><span id="dashRatio">-</span></div>
                 <div style="margin-top:10px;">
-                    <b>🎯 今日目标：20 题</b>
+                    <b>🎯今日目标：20 题</b>
                     <div style="background:#ddd; height:10px; border-radius:5px; margin-top:4px;">
                         <div id="dashProgress" style="
                             height:10px;
@@ -1017,19 +1017,17 @@
                         "></div>
                     </div>
                 </div>
-
                 <div style="margin-top:10px;">
-                    <b>📈 过去 7 天难度趋势</b>
+                    <b>📈过去 7 天难度趋势</b>
                     <canvas id="difficultyChart" width="300" height="120"></canvas>
                 </div>
-
                 <div style="margin-top:10px;">
-                    <b>🥇 连续满分奖励：</b>
-                    <span id="dashMedal">（未达成）</span>
+                    <b>🥇连续满分奖励：</b>
+                    <span id="dashMedal">(未达成)</span>
                 </div>
             </div>
         </div>
-        <h1>🎓 小学1年级 算数练习</h1>
+        <h2>🎓小学1年级算数练习</h2>
         <p class="subtitle">加油！你是最棒的！💪</p>
         
         <div id="settings" class="settings">
