@@ -1049,7 +1049,7 @@
             <div class="perfect-badge" id="perfectBadge" >满分！🎖️</div>
             <canvas id="certificateCanvas" width="520" height="520" style="display:none;"></canvas>
             <img id="certificateImage" style="width:100%; display:none;" />
-            <audio id="perfectMusic" src="perfect.mp3"></audio>
+            <audio id="perfectMusic" src="https://always001.github.io/github.io/perfect.mp3"></audio>
             <!-- <audio id="perfectMusic" src=" https://www.bilibili.com/video/BV1tk4y1B78Z?t=104.9"></audio> -->
             <button class="btn btn-primary" id="retryBtn">🔄 再来一次</button>
             <button class="btn btn-secondary" id="openNotebookFromResult">📚 查看错题本</button>
@@ -1573,11 +1573,56 @@
             return { text: a + ' - ' + b + ' = ?', answer: a - b, numberA: a, numberB: b, operator: '-' };
         }
         
+        // 🟩 ⭐ 最终版：三合一难度系统
+        function getSmartDifficultyRatio() {
+            const today = new Date();
+            const weekday = today.getDay(); // 0=周日, 1=周一, ... 6=周六
+
+            // ① 按星期的基础难度（每天不同）
+            let baseRatio;
+            switch (weekday) {
+                case 1: baseRatio = 0.5; break; // 周一：加法 80%
+                case 2: baseRatio = 0.4; break; // 周二：加法 70%
+                case 3: baseRatio = 0.3; break; // 周三：加法 60%
+                case 4: baseRatio = 0.2; break; // 周四：加法 50%
+                case 5: baseRatio = 0.1; break; // 周五：加法 40%
+                case 6: baseRatio = 0.2; break; // 周六：加法 50%
+                case 0: baseRatio = 0.2; break; // 周日：加法 50%
+            }
+
+            // ② 连续满分天数（越多越难）
+            // 你需要在满分时更新 gameState.streak++
+            let streakRatio;
+            const streak = gameState.streak || 0;
+
+            if (streak >= 3) streakRatio = 0.05;   // 连续3天满分 → 加法 20%
+            else if (streak >= 2) streakRatio = 0.1;  // 40%
+            else if (streak >= 1) streakRatio = 0.15; // 60%
+            else streakRatio = 0.5;               // 没连续满分 → 加法 80%
+
+            // ③ 今天做题数量（越做越难）
+            // 你需要在每次生成题目时更新 gameState.questionsToday++
+            const count = gameState.questionsToday || 0;
+            let countRatio;
+
+            if (count < 3) countRatio = 0.5;      // 前5题简单加法 80%
+            else if (count < 8) countRatio = 0.3;  // 前10题简单加法 60%
+            else if (count < 10) countRatio = 0.1;  // 前20题简单加法 40%
+            else countRatio = 0.05;                // 做多了自动变难20%
+
+            // ⭐⭐⭐ 最终综合难度（取三者平均）⭐⭐⭐
+            const finalRatio = (baseRatio + streakRatio + countRatio) / 3;
+
+            return finalRatio;
+        }
+
         function generateQuestion() {
             if (gameState.type === 'add') return generateAddition();
             if (gameState.type === 'sub') return generateSubtraction();
             // 45%加法
-            return Math.random() < 0.45 ? generateAddition() : generateSubtraction();
+            //return Math.random() < 0.45 ? generateAddition() : generateSubtraction();
+            const ratio = getSmartDifficultyRatio();
+            return Math.random() < ratio ? generateAddition() : generateSubtraction();
         }
         
         function startGame() {
@@ -1585,13 +1630,44 @@
             try {
                 playClickSound();
                 gameState.totalCount = safeGetQuestionCount();
+                
+                // ⭐ 从本地读取今日题量
+                gameState.questionsToday = Number(localStorage.getItem("questionsToday")) || 0;
+                gameState.lastDate = localStorage.getItem("lastDate") || "";
+                
+                const today = new Date().toDateString();
+
+                // ⭐ 每天第一次进入游戏时清零今日题量
+                if (today !== gameState.lastDate) {
+                    gameState.questionsToday = 0;
+                    gameState.lastDate = today;
+                    // 写回本地
+                    localStorage.setItem("questionsToday", 0);
+                    localStorage.setItem("lastDate", today);
+                }
+                
+                // ⭐ streak 初始化（只在第一次进入游戏时执行）
+                //gameState.streak = gameState.streak || 0;
+                //gameState.lastPerfectDate = gameState.lastPerfectDate || "";
+                // ⭐ 从本地读取 streak ⭐ streak 初始化（连续满分天数）
+                gameState.streak = Number(localStorage.getItem("streak")) || 0;
+                gameState.lastPerfectDate = localStorage.getItem("lastPerfectDate") || "";
+                // ⭐ 每天清零今日题量（只在开始游戏时检查）
+                //if (new Date().toDateString() !== gameState.lastDate) {
+                //    gameState.questionsToday = 0;
+                //    gameState.lastDate = new Date().toDateString();
+                //}
+
+                // 初始化答题状态
                 gameState.currentIndex = 0;
                 gameState.correctCount = 0;
+                
                 gameState.questions = [];
                 gameState.startTime = new Date();
                 gameState.isReviewMode = false;
                 
                 for (var i = 0; i < gameState.totalCount; i++) {
+                    // 生成题目
                     gameState.questions.push(generateQuestion());
                 }
                 
@@ -1769,6 +1845,10 @@
         }
         
         function showQuestion() {
+            // 🟦 ⭐ 如何更新今天做题数量
+            // ⭐ 每次出现新题目 → 今日题量 +1
+            gameState.questionsToday = (gameState.questionsToday || 0) + 1;
+            localStorage.setItem("questionsToday", gameState.questionsToday);            
             var q = gameState.questions[gameState.currentIndex];
             gameState.currentAnswer = q.answer;
             gameState.currentQuestionData = q;
@@ -2170,12 +2250,39 @@
                 
                 // ⭐ 全对庆祝（同步触发）
                 if (isLast && isPerfect) {
+                    
+                    // 🟩 ⭐ 更新 streak（连续满分天数）
+                    //if (isPerfect) {
+                        //gameState.streak = (gameState.streak || 0) + 1;
+                        
+                        // 写回本地
+                        //localStorage.setItem("streak", gameState.streak);
+                        //localStorage.setItem("lastPerfectDate", today);                       
+                    //} else {
+                        //gameState.streak = 0;
+                    //}
+                    // ⭐ 更新 streak（连续满分天数）
+                    const today = new Date().toDateString();
+                    if (gameState.lastPerfectDate === today) {
+                        // 今天已经满分过，不重复加
+                    } else {
+                        // 今天第一次满分
+                        gameState.streak = (gameState.streak || 0) + 1;
+                        gameState.lastPerfectDate = today;
+                        
+                        // 写回本地
+                        localStorage.setItem("streak", gameState.streak);
+                        localStorage.setItem("lastPerfectDate", today);
+                    }
+
                     startFireworks();      // 彩色烟花（自动停止）
                     
                     playPerfectMusic();    // 背景音乐
+                    // ⭐ 满分奖励逻辑
                     // ⭐ 满分 + 答对 >= 8 → 证书
                     if (correct >= 8) {
-                    	generateCertificate(); // 满分证书
+                        generateCertificate(); // 满分证书
+                        //document.getElementById("certificateImage").style.display = "block";
                     }
                     // ⭐ 满分 + 答对 >= 5 → 奖章
                     if (correct >= 5) {
