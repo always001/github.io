@@ -15,6 +15,13 @@
         `;
     };
     
+    // ✔ JS：折叠功能
+    function toggleDashboard() {
+        const dash = document.getElementById("difficultyDashboard");
+        dash.style.display = dash.style.display === "none" ? "block" : "none";
+    }
+
+    
     // ⭐ Debug 输出函数
     // ⭐ 必须放在 main.js 最顶部
     let loadedVoices = [];
@@ -970,8 +977,58 @@
         <button class="icon-btn" id="notebookBtn" title="错题本">📚<span class="badge" id="notebookBadge"></span></button>
         <button class="icon-btn" id="settingsBtn" title="设置">⚙️</button>
     </div>
-    
+
     <div class="container">
+        <!-- 🟦 1. 可折叠仪表盘（Difficulty Dashboard）-->
+        <!-- 🟦 第 1 部分：HTML（放在页面任意位置，例如顶部或底部 -->
+        <div id="dashboardWrapper" style="margin:10px 0;">
+            <div onclick="toggleDashboard()" style="
+                background:#4a90e2;
+                color:white;
+                padding:10px;
+                border-radius:8px;
+                cursor:pointer;
+                font-size:18px;
+            ">
+                📊 难度仪表盘（点击展开/收起）
+            </div>
+
+            <div id="difficultyDashboard" style="
+                background:#f0f8ff;
+                padding:12px;
+                border-radius:8px;
+                border:1px solid #cce7ff;
+                margin-top:6px;
+                display:none;
+            ">
+                <div><b>📘 今日题量：</b><span id="dashQuestions">0</span></div>
+                <div><b>🔥 今日难度等级：</b><span id="dashLevel">-</span></div>
+                <div><b>🏆 连续满分天数：</b><span id="dashStreak">0</span></div>
+                <div><b>➕➖ 当前加法/减法比例：</b><span id="dashRatio">-</span></div>
+
+                <div style="margin-top:10px;">
+                    <b>🎯 今日目标：20 题</b>
+                    <div style="background:#ddd; height:10px; border-radius:5px; margin-top:4px;">
+                        <div id="dashProgress" style="
+                            height:10px;
+                            width:0%;
+                            background:#4caf50;
+                            border-radius:5px;
+                        "></div>
+                    </div>
+                </div>
+
+                <div style="margin-top:10px;">
+                    <b>📈 过去 7 天难度趋势</b>
+                    <canvas id="difficultyChart" width="300" height="120"></canvas>
+                </div>
+
+                <div style="margin-top:10px;">
+                    <b>🥇 连续满分奖励：</b>
+                    <span id="dashMedal">（未达成）</span>
+                </div>
+            </div>
+        </div>
         <h1>🎓 小学1年级 算数练习</h1>
         <p class="subtitle">加油！你是最棒的！💪</p>
         
@@ -1661,10 +1718,13 @@
                 // 初始化答题状态
                 gameState.currentIndex = 0;
                 gameState.correctCount = 0;
-                
                 gameState.questions = [];
                 gameState.startTime = new Date();
                 gameState.isReviewMode = false;
+                
+                <!-- /* 🟦 第 3 部分：在哪里调用 updateDashboard？ */ -->
+                // ①✔ 在 startGame() 里调用一次（初始化）
+                updateDashboard();
                 
                 for (var i = 0; i < gameState.totalCount; i++) {
                     // 生成题目
@@ -1844,11 +1904,91 @@
             //fadeOut(document.getElementById("perfectMusic"));
         }
         
+        <!-- /* 🟩 第 2 部分：更新仪表盘的函数（你直接复制） */ -->
+        <!-- 🟦 2. 今日目标：20 题进度条  -->
+        function updateDashboard() {
+            // 当前加法比例（0~1）
+            const ratio = getSmartDifficultyRatio();
+            
+            // 今日题量
+            $('dashQuestions').textContent = gameState.questionsToday || 0;
+            
+            // streak
+            $('dashStreak').textContent = gameState.streak || 0;
+            
+            // 加法/减法比例
+            const addPercent = Math.round(ratio * 100);
+            const subPercent = 100 - addPercent;
+            $('dashRatio').textContent = `${addPercent}% 加法 / ${subPercent}% 减法`;
+            // 今日难度等级（根据 ratio 自动判断）
+            let level = "";
+            if (ratio >= 0.25) level = "简单 😊";
+            else if (ratio >= 0.15) level = "中等 🙂";
+            else if (ratio >= 0.05) level = "稍难 😮";
+            else level = "困难 😵";
+            $('dashLevel').textContent = level;
+            
+            // 今日目标进度条
+            const progress = Math.min((gameState.questionsToday / 20) * 100, 100);
+            $('dashProgress').style.width = progress + "%";
+            // 连续满分奖励
+            if (gameState.streak >= 7) {
+                $('dashMedal').textContent = "🥇 金牌（连续 7 天满分）";
+            } else {
+                $('dashMedal').textContent = `（再满分 ${7 - gameState.streak} 天可获得金牌）`;
+            }
+            // 保存难度趋势
+            saveDailyDifficulty(ratio);
+            // 绘制折线图
+            drawDifficultyChart();
+        }
+        
+        <!-- /*🟦 3. 难度趋势折线图（过去 7 天） */ -->
+        <!-- /*你需要一个数组保存最近 7 天的 ratio： */ -->
+        function saveDailyDifficulty(ratio) {
+            let history = JSON.parse(localStorage.getItem("difficultyHistory") || "[]");
+            const today = new Date().toDateString();
+            // 如果今天已有记录 → 覆盖
+            if (history.length > 0 && history[history.length - 1].date === today) {
+                history[history.length - 1].ratio = ratio;
+            } else {
+                history.push({ date: today, ratio });
+            }
+            // 只保留 7 天
+            if (history.length > 7) history.shift();
+            localStorage.setItem("difficultyHistory", JSON.stringify(history));
+        }
+        
+        <!-- /* ✔ 在 updateDashboard() 最后绘制折线图 */ -->
+        function drawDifficultyChart() {
+            const canvas = document.getElementById("difficultyChart");
+            const ctx = canvas.getContext("2d");
+            const history = JSON.parse(localStorage.getItem("difficultyHistory") || "[]");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (history.length === 0) return;
+            ctx.beginPath();
+            ctx.strokeStyle = "#4a90e2";
+            ctx.lineWidth = 2;
+            history.forEach((item, i) => {
+                const x = (i / 6) * canvas.width;
+                const y = canvas.height - item.ratio * canvas.height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
         function showQuestion() {
             // 🟦 ⭐ 如何更新今天做题数量
             // ⭐ 每次出现新题目 → 今日题量 +1
             gameState.questionsToday = (gameState.questionsToday || 0) + 1;
-            localStorage.setItem("questionsToday", gameState.questionsToday);            
+            localStorage.setItem("questionsToday", gameState.questionsToday);
+            
+            <!-- /* 🟦 第 3 部分：在哪里调用 updateDashboard？ */ -->
+            // ②✔ 在 showQuestion() 里调用（每次出现新题目时更新）
+            // 更新仪表盘
+            updateDashboard();
+
             var q = gameState.questions[gameState.currentIndex];
             gameState.currentAnswer = q.answer;
             gameState.currentQuestionData = q;
@@ -2274,7 +2414,12 @@
                         localStorage.setItem("streak", gameState.streak);
                         localStorage.setItem("lastPerfectDate", today);
                     }
-
+                    
+                    <!-- /* 🟦 第 3 部分：在哪里调用 updateDashboard？ */ -->
+                    // ③✔ 在满分时 streak 更新后也调用一次
+                    // 更新仪表盘
+                    updateDashboard();
+                    
                     startFireworks();      // 彩色烟花（自动停止）
                     
                     playPerfectMusic();    // 背景音乐
@@ -3671,6 +3816,8 @@
     <!-- ✔ Bootstrap JS 必须放在 Modal 后面 -->
     <!-- 引入 Bootstrap JS（否则关闭按钮永远无效）-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+
 
 </body>
 </html>
