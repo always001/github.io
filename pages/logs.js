@@ -1,4 +1,7 @@
-import { sql } from "@vercel/postgres";
+//import { sql } from "@vercel/postgres";
+import { createPool } from "@vercel/postgres";
+
+const pool = createPool();
 
 export default async function Logs() {
   const { rows } = await sql`
