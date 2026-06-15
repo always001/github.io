@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   try {
     // 自动建表（如果不存在）
-    await sql`
+    await pool.sql`
       CREATE TABLE IF NOT EXISTS visit_logs (
         id SERIAL PRIMARY KEY,
         url TEXT,
