@@ -4,7 +4,7 @@ import { createPool } from "@vercel/postgres";
 const pool = createPool();
 
 export default async function Logs() {
-  const { rows } = await sql`
+  const { rows } = await pool.sql`
     SELECT * FROM visit_logs ORDER BY id DESC LIMIT 200
   `;
 
