@@ -1,0 +1,434 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Comic Sans MS', '微软雅黑', sans-serif;
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%);
+    min-height: 100vh;
+    color: #2d3436;
+}
+
+/* 顶部 */
+.header {
+    background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-box: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header h1 {
+    font-size: 28px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.score {
+    background: white;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff6b6b;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+/* 菜单 */
+.menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px);
+}
+
+.menu-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    background: white;
+    color: #6c5ce7;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.menu-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.menu-btn.active {
+    background: linear-gradient(135deg, #ff6b6b, #feca57);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* 主体 */
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+/* 卡片网格 */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px 15px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-8px) rotate(2deg);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+
+.card:active {
+    transform: scale(0.95);
+}
+
+.card .pinyin {
+    font-size: 42px;
+    font-weight: bold;
+    color: #6c5ce7;
+    margin-bottom: 10px;
+}
+
+.card .emoji {
+    font-size: 50px;
+    margin: 10px 0;
+    display: block;
+}
+
+.card .word {
+    font-size: 22px;
+    color: #2d3436;
+    font-weight: bold;
+}
+
+.card .sound-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #feca57;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 拼读学习页 */
+.study-area {
+    background: white;
+    border-radius: 30px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.big-character {
+    font-size: 150px;
+    font-weight: bold;
+    color: #6c5ce7;
+    text-shadow: 5px 5px 0 #ffeaa7;
+    margin: 20px 0;
+    user-select: none;
+}
+
+.big-emoji {
+    font-size: 120px;
+    margin: 20px 0;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #ff6b6b, #feca57);
+    color: white;
+    border: none;
+    padding: 18px 40px;
+    font-size: 22px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+    font-family: inherit;
+    font-weight: bold;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+.action-btn.sound {
+    background: linear-gradient(135deg, #48dbfb, #0abde3);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    font-size: 50px;
+    padding: 0;
+}
+
+.nav-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 10px;
+}
+
+.nav-btns .action-btn {
+    flex: 1;
+    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+}
+
+/* 声调 */
+.tone-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.tone-btn {
+    width: 80px;
+    height: 80px;
+    font-size: 36px;
+    border: 3px solid #6c5ce7;
+    background: white;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #6c5ce7;
+    transition: all 0.3s;
+}
+
+.tone-btn:hover {
+    background: #6c5ce7;
+    color: white;
+}
+
+.tone-btn.selected {
+    background: #00b894;
+    color: white;
+    border-color: #00b894;
+    transform: scale(1.1);
+}
+
+/* 拼读练习 */
+.pinyin-board {
+    background: white;
+    border-radius: 30px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.syllable-display {
+    font-size: 80px;
+    color: #6c5ce7;
+    margin: 20px 0;
+    letter-spacing: 20px;
+    font-weight: bold;
+}
+
+.syllable-display .blank {
+    display: inline-block;
+    width: 70px;
+    height: 80px;
+    border-bottom: 5px solid #6c5ce7;
+    margin: 0 5px;
+    vertical-align: bottom;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 30px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.option-btn {
+    padding: 20px;
+    font-size: 32px;
+    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    color: #2d3436;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.option-btn:hover {
+    transform: scale(1.05);
+}
+
+.option-btn.correct {
+    background: #00b894 !important;
+    color: white;
+}
+
+.option-btn.wrong {
+    background: #d63031 !important;
+    color: white;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* 汉字 */
+.hanzi-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.hanzi-display {
+    font-size: 180px;
+    color: #2d3436;
+    margin: 20px 0;
+    font-weight: bold;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    height: 200px;
+    line-height: 200px;
+    writing-mode: horizontal-tb;
+    user-select: none;
+}
+
+.hanzi-info {
+    background: #ffeaa7;
+    padding: 15px;
+    border-radius: 15px;
+    margin: 15px 0;
+    font-size: 20px;
+}
+
+.hanzi-pinyin {
+    font-size: 32px;
+    color: #6c5ce7;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* 测验 */
+.test-area {
+    background: white;
+    border-radius: 30px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.test-question {
+    font-size: 24px;
+    color: #2d3436;
+    margin: 20px 0;
+}
+
+.test-big {
+    font-size: 100px;
+    color: #6c5ce7;
+    margin: 30px 0;
+}
+
+/* 奖励 */
+.reward {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #feca57, #ff6b6b);
+    color: white;
+    padding: 40px 60px;
+    border-radius: 30px;
+    font-size: 40px;
+    font-weight: bold;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    z-index: 1000;
+    animation: pop 0.5s;
+}
+
+.reward.hidden {
+    display: none;
+}
+
+@keyframes pop {
+    0% { transform: translate(-50%, -50%) scale(0); }
+    50% { transform: translate(-50%, -50%) scale(1.2); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 装饰 */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.float {
+    animation: float 2s infinite;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+    .header h1 { font-size: 22px; }
+    .menu-btn { padding: 10px 16px; font-size: 14px; }
+    .card .pinyin { font-size: 32px; }
+    .big-character { font-size: 100px; }
+    .big-emoji { font-size: 80px; }
+    .syllable-display { font-size: 50px; }
+    .hanzi-display { font-size: 120px; }
+    .test-big { font-size: 60px; }
+}

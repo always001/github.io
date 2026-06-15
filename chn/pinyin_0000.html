@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌈 快乐语文 - 一年级拼音汉字学习</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <h1>🌈 快乐语文</h1>
+        <div class="score">⭐ <span id="score">0</span> 分</div>
+    </header>
+
+    <!-- 菜单 -->
+    <nav class="menu">
+        <button class="menu-btn active" data-page="shengmu">声母</button>
+        <button class="menu-btn" data-page="yunmu">韵母</button>
+        <button class="menu-btn" data-page="shengdiao">声调</button>
+        <button class="menu-btn" data-page="zhengti">整体认读</button>
+        <button class="menu-btn" data-page="pinpin">拼一拼</button>
+        <button class="menu-btn" data-page="hanzi">汉字</button>
+        <button class="menu-btn" data-page="test">小测验</button>
+    </nav>
+
+    <!-- 主体内容 -->
+    <main class="container" id="mainContent">
+        <!-- 内容动态加载 -->
+    </main>
+
+    <!-- 奖励动画 -->
+    <div id="reward" class="reward hidden">🎉 真棒！</div>
+
+    <script src="data.js"></script>
+    <script src="speech.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
