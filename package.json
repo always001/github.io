@@ -1,5 +1,7 @@
 {
+  "name": "vercel-api-test",
+  "version": "1.0.0",
   "dependencies": {
-    "@vercel/postgres": "latest"
+    "express": "4.18.2"
   }
 }
