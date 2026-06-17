@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>🎈 数学乐园</title>
 <style>
+/* 🟦 第二步：加 CSS，让整个页面放大125% */
+/*
+.rootScale {
+  transform: scale(1.25);
+  transform-origin: top center;
+  
+  width: 80%; /* 让缩放后更居中 */
+  margin: 0 auto;
+}
+*/
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   background:linear-gradient(135deg,#ffeaa7,#fab1a0 50%,#a8e6cf);overflow:hidden;user-select:none}
@@ -216,33 +227,112 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 }
 
 .border{
-	display: inline-block;         /* 打ち消し線と文字の幅を揃えられるようにする */
-	position: relative;            /* 打ち消し線の位置を調整する時の基準点になるようにする */
+    display: inline-block;         /* 打ち消し線と文字の幅を揃えられるようにする */
+    position: relative;            /* 打ち消し線の位置を調整する時の基準点になるようにする */
 }
 
 .border:before {
-	content: '';                	/* 擬似要素に実体を持たせる */
-	width: 100%;                	/* 打ち消し線の幅を指定する*/
-	height: 1px;                	/* 線を表示させるために1pxだけ高さを入れる */
-	border-top: solid 3px #F44336;  /* 二重線の上側になる線をひく */
-	position: absolute;            	/* 線の位置を自由に動かせるようにする */
-	left: 0 ;                    	/* 線の位置を左に揃える */
-	top: calc(50% - 4px) ;          /* 線の位置を真ん中から3px上にする */
+    content: '';                    /* 擬似要素に実体を持たせる */
+    width: 100%;                    /* 打ち消し線の幅を指定する*/
+    height: 1px;                    /* 線を表示させるために1pxだけ高さを入れる */
+    border-top: solid 3px #F44336;  /* 二重線の上側になる線をひく */
+    position: absolute;             /* 線の位置を自由に動かせるようにする */
+    left: 0 ;                       /* 線の位置を左に揃える */
+    top: calc(50% - 4px) ;          /* 線の位置を真ん中から3px上にする */
 }
 
 .border:after {
-	content: '';                		/* 擬似要素に実体を持たせる */
-	width: 100%;                		/* 打ち消し線の幅を指定する*/
-	height: 1px;                		/* 線を表示させるために1pxだけ高さを入れる */
-	border-bottom: solid 3px #F44336;   /* 二重線の下側になる線をひく */
-	position: absolute;           		/* 線の位置を自由に動かせるようにする */
-	left: 0 ;                    		/* 線の位置を左に揃える */
-	bottom: calc(50% - 4px);        	/* 線の位置を真ん中から3px下にする */
+    content: '';                        /* 擬似要素に実体を持たせる */
+    width: 100%;                        /* 打ち消し線の幅を指定する*/
+    height: 1px;                        /* 線を表示させるために1pxだけ高さを入れる */
+    border-bottom: solid 3px #F44336;   /* 二重線の下側になる線をひく */
+    position: absolute;                 /* 線の位置を自由に動かせるようにする */
+    left: 0 ;                           /* 線の位置を左に揃える */
+    bottom: calc(50% - 4px);            /* 線の位置を真ん中から3px下にする */
 }
+
+/* 星星基础样式：金色渐变 */
+.stars {
+  font-size: 22px;
+  letter-spacing: 2px;
+  background: linear-gradient(45deg, #ffcc33, #ff9900, #ffdd55);
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: starBlink 2.2s ease-in-out infinite;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 呼吸闪烁动画 */
+@keyframes starBlink {
+  0%   { opacity: 1;   transform: scale(1); }
+  50%  { opacity: 0.6; transform: scale(1.08); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+
+/* 鼠标悬停发光 */
+.stars:hover {
+  filter: drop-shadow(0 0 6px #ffcc33) brightness(1.2);
+  transform: scale(1.1);
+  transition: 0.25s;
+}
+
+/* 真·半星（左半渐变，右半空心） */
+.stars .half {
+  position: relative;
+  display: inline-block;
+  width: 1em;
+}
+
+.stars .half::before {
+  content: "★";
+  position: absolute;
+  width: 50%;
+  overflow: hidden;
+  background: linear-gradient(45deg, #ffcc33, #ff9900, #ffdd55);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.stars .half::after {
+  content: "☆";
+  color: transparent;
+  -webkit-text-stroke: 1px #ffcc33;
+}
+
+/* 缩放按钮（右上角悬浮） */
+.zoom-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 99999;
+  padding: 6px 12px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.zoom-btn:hover {
+  background: #357ab8;
+}
+
+/* 整个页面缩放容器 */
+.rootScale {
+  transform-origin: top center;
+  transition: transform 0.25s ease;
+}
+
+
 </style>
 </head>
 <body>
-<div id="app">
+<button id="zoomBtn" class="zoom-btn">125%</button>
+<div id="app" class="rootScale">
   <div class="screen home on" id="home">
     <div class="mascot">🦊</div>
     <h1>数学乐园</h1>
@@ -661,17 +751,33 @@ const Game={
     this.render(q);
   },
 
+  renderStars(diff) {
+    const full = Math.floor(diff);
+    const half = diff % 1 >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    // 难度越高越亮（1 → 0.6，5 → 1.0）
+    const brightness = 0.6 + (diff - 1) * 0.1;
+    let html = `<span class="stars" style="filter: brightness(${brightness});">`;
+    html += "★".repeat(full);
+    if (half) html += `<span class="half"></span>`;
+    html += "☆".repeat(empty);
+    html += "</span>";
+    return html;
+  },
+
   render(q){
     const body=document.getElementById('gBody');
     const diff=AI.getDiff(this.curLvl.type);
     body.innerHTML=`<div class="question">
-      <div class="q-title">第 ${this.idx+1} / ${this.total} 题 · 难度 ${'⭐'.repeat(diff)}${'☆'.repeat(5-diff)}</div>
+      <!-- <div class="q-title">第 ${this.idx+1} / ${this.total} 题 · 难度 ${'⭐'.repeat(diff)}${'☆'.repeat(5-diff)}</div> -->
+      <div class="q-title">第 ${this.idx+1} / ${this.total} 题 · 难度 ${this.renderStars(diff)}</div>
       <div class="q-main" id="qMain">${q.display}</div>
     </div>`;
     document.querySelectorAll('#qMain .box, #qMain .op').forEach((el,i)=>{
       el.addEventListener('click',()=>{this.currentBox=i;this.refreshInputs()});
     });
-    this.refreshInputs();this.renderKeys();
+    this.refreshInputs();
+    this.renderKeys();
   },
 
   refreshInputs(){
@@ -808,6 +914,25 @@ const Game={
   replay(){document.getElementById('modal').classList.remove('on');this.start(this.curLvl)},
   quit(){clearInterval(this.timer);document.getElementById('modal').classList.remove('on');App.go('home')}
 };
+
+  // 当前缩放比例
+  window.addEventListener("DOMContentLoaded", () => {
+    let zoomLevel = 1.25; // 初始 125%
+    const btn = document.getElementById("zoomBtn");
+    const root = document.querySelector(".rootScale");
+    if (!btn || !root) return; // 防止意外报错
+    btn.addEventListener("click", () => {
+      if (zoomLevel === 1) {
+        zoomLevel = 1.25;
+      } else if (zoomLevel === 1.25) {
+        zoomLevel = 1.5;
+      } else {
+        zoomLevel = 1;
+      }
+      root.style.transform = `scale(${zoomLevel})`;
+      btn.textContent = Math.round(zoomLevel * 100) + "%";
+    });
+  });
 
 function shake(sel){document.querySelectorAll(sel).forEach(b=>{b.style.animation='shake .4s';setTimeout(()=>b.style.animation='',400)})}
 function beep(f,d){try{const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator(),g=a.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d)}catch(e){}}
