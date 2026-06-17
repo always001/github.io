@@ -343,11 +343,15 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   transform-origin: top center;
   transition: transform 0.25s ease;
 }
+
+.btn-hidden{
+    display:none ; /* 非表示 */
+}
 </style>
 </head>
 <body>
 <div class="fab-container">
-  <button id="zoomFab" class="fab">100%</button>
+  <button id="zoomFab" class="fab btn-hidden">100%</button>
   <div class="fab-menu">
     <button class="fab-item" id="zoom100">100%</button>
     <button class="fab-item" id="zoom125">125%</button>
@@ -646,7 +650,7 @@ const Gen={
 
 /* ============ AI ============ */
 const AI={
-  getDiff(type){return Store.data.difficulty.perType[type]||Store.data.difficulty.global},
+  //getDiff(type){return Store.data.difficulty.perType[type]||Store.data.difficulty.global},
   evaluate(){
     const s=Store.data.stats,d=Store.data.difficulty;
     if(s.total>=5){
@@ -664,6 +668,20 @@ const AI={
       }
     });
     Store.save();return d;
+  },
+  getDiff(type){return Store.data.difficulty.perType[type]||Store.data.difficulty.global},
+  suggest(){
+    const s=Store.data.stats,d=Store.data.difficulty;
+    const acc=s.total?(s.correct/s.total*100).toFixed(0):0;
+    const tips=[];
+    if(acc>=90)tips.push('🎉 太棒了！建议挑战更高难度');
+    else if(acc>=70)tips.push('👍 保持当前难度，多练几种题型');
+    else if(s.total>0)tips.push('💪 建议从基础关卡开始');
+    const weak=Object.entries(s.typeStats).filter(([k,v])=>v.total>=3)
+      .sort((a,b)=>a[1].correct/a[1].total-b[1].correct/b[1].total).slice(0,2)
+      .map(([k])=>typeName(k));
+    if(weak.length)tips.push('📌 重点练习：'+weak.join('、'));
+    return {acc,level:d.global,tips};
   }
 };
 
@@ -858,7 +876,8 @@ const Game={
 
   // 当前缩放比例
   window.addEventListener("DOMContentLoaded", () => {
-    let zoomLevel = Number(localStorage.getItem("zoomLevel")) || 1.25;
+    //let zoomLevel = Number(localStorage.getItem("zoomLevel")) || 1.25;
+    let zoomLevel = Number(localStorage.getItem("zoomLevel")) || 1.00;
     const fab = document.getElementById("zoomFab");
     const menu = document.querySelector(".fab-container");
     const root = document.querySelector(".rootScale");
@@ -1018,22 +1037,32 @@ const App={
   },
   renderAI(){
     const sg=AI.suggest(),d=Store.data.difficulty;
-    document.getElementById('aBody').innerHTML=`<div class="stat-card" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7);color:#fff">
-      <h3 style="color:#fff">🧠 AI 评估</h3>
-      <p>正确率 <b>${sg.acc}%</b></p>
-      <p>推荐 ${'⭐'.repeat(sg.level)}${'☆'.repeat(5-sg.level)}</p></div>
-      <div class="stat-card"><h3>📊 题型难度</h3>
-      ${Object.keys(d.perType).length?Object.entries(d.perType).map(([t,l])=>{
-        const ts=Store.data.stats.typeStats[t]||{correct:0,total:0};
-        const a=ts.total?(ts.correct/ts.total*100).toFixed(0):0;
-        return `<p>${typeName(t)} <span class="difficulty-badge">Lv.${l}</span>
-          <span style="float:right">${a}%</span></p>
-          <div class="bar"><div class="bar-fill" style="width:${a}%"></div></div>`;
-      }).join(''):'<p style="color:#999">玩几关后 AI 智能调档</p>'}</div>
-      <div class="stat-card"><h3>⚙️ 手动</h3>
-      <button class="difficulty-badge" id="aiDown">➖ 降档</button>
-      <button class="difficulty-badge" id="aiUp">➕ 升档</button>
-      <button class="difficulty-badge" style="background:#d63031" id="aiReset">🗑 重置</button></div>`;
+    document.getElementById('aBody').innerHTML=`
+      <div class="stat-card" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7);color:#fff">
+        <h3 style="color:#fff">🧠 AI 评估</h3>
+        <p>正确率 <b>${sg.acc}%</b></p>
+        <p>推荐 ${'⭐'.repeat(sg.level)}${'☆'.repeat(5-sg.level)}</p>
+      </div>
+      <div class="stat-card">
+        <h3>📊 题型难度</h3>
+        ${Object.keys(d.perType).length?Object.entries(d.perType).map(([t,l])=>{
+          const ts=Store.data.stats.typeStats[t]||{correct:0,total:0};
+          const a=ts.total?(ts.correct/ts.total*100).toFixed(0):0;
+          return `<p>${typeName(t)} <span class="difficulty-badge">Lv.${l}</span>
+            <span style="float:right">${a}%</span></p>
+            <div class="bar"><div class="bar-fill" style="width:${a}%"></div></div>`;
+        }).join(''):'<p style="color:#999">玩几关后 AI 智能调档</p>'}
+      </div>
+      <div class="stat-card">
+        <h3>💡 建议</h3>
+        ${sg.tips.map(t=>`<p>${t}</p>`).join('')||'<p>开始闯关获取建议</p>'}
+      </div>
+      <div class="stat-card">
+        <h3>⚙️ 手动</h3>
+        <button class="difficulty-badge" onclick="Store.data.difficulty.global=Math.max(1,Store.data.difficulty.global-1);Store.save();App.renderAI()">➖ 降档</button>
+        <button class="difficulty-badge" onclick="Store.data.difficulty.global=Math.min(5,Store.data.difficulty.global+1);Store.save();App.renderAI()">➕ 升档</button>
+        <button class="difficulty-badge" style="background:#d63031" onclick="if(confirm('重置所有数据？')){localStorage.clear();location.reload()}">🗑 重置</button>
+      </div>`;
   }
 };
 // 给 AI 页面添加建议显示
