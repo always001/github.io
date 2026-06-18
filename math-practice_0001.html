@@ -123,7 +123,21 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   transition:all .1s;font-family:inherit}
 .key:active{transform:translateY(2px);box-shadow:0 1px 0 #dfe6e9;background:#ffeaa7}
 .key.op{background:linear-gradient(180deg,#a29bfe,#6c5ce7);color:#fff;box-shadow:0 3px 0 #4834d4}
-.key.del{background:linear-gradient(180deg,#ff7675,#d63031);color:#fff;box-shadow:0 3px 0 #a71d1d}
+/* .key.del{background:linear-gradient(180deg,#ff7675,#d63031);color:#fff;box-shadow:0 3px 0 #a71d1d} */
+.key.del{background:linear-gradient(180deg,#ff7675,#d63031);color:#fff;
+    font-size: 32px !important;        /* 字体变大 */
+    font-weight: bold;      /* 加粗 */
+    transition: background-color 0.15s, color 0.15s;
+    padding: 8px 12px;      /* 按钮更好按  padding: 8px 12px; */
+    line-height: 1;         /* 避免按钮变太高 */
+    box-shadow:0 3px 0 #a71d1d;
+}
+/* 按下时变红 */
+.key.del:active {
+    background-color: #d63031; /* 深红  /浅红#ff7675; /*/
+    color: white;
+    transform: scale(0.92);
+}
 .key.ok{background:linear-gradient(180deg,#00b894,#00cec9);color:#fff;box-shadow:0 3px 0 #008a73}
 
 .modal{position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
@@ -509,7 +523,12 @@ const Gen={
       //isDesc = true;
       hintHTML = `<div class="hint">💡 后面的数 = 前面的数 <span style="color:#d63031">−2</span></div>`;
       title1 = `相邻三个数的和是 <span style="color:#d63031">${a*5-20}</span>`;
-      title2 = `填相邻数`;
+      <!-- title2 = `按<span style="border-bottom:3px dotted #000;padding-bottom:3px;font-weight:bold;color:#d63031">规律</span>填数`;-->
+      title2 = `按<span style="color:#d63031;padding-bottom:10px;
+                    font-weight:bold;font-size:22px;
+                    background-image: radial-gradient(circle, #d63031 4px, transparent 4px);  /* 6px⇒4px */
+                    background-size: 1em 10px;   /* 每个汉字下面一个点 */
+                    background-repeat: repeat-x;background-position: bottom left;">规律</span>填数`;
       answer = [a-2, a-4, a-6];
       right = a + step*4;
       // 第一行：
