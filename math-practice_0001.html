@@ -361,6 +361,28 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 .btn-hidden{
     display:none ; /* 非表示 */
 }
+
+/* 加一个“正确时”的绿色闪烁即可。*/
+.box.correct, .op.correct {
+  animation: correctFlash 0.4s ease;
+}
+
+@keyframes correctFlash {
+  0%   { background-color: #c8f7c5; }
+  100% { background-color: transparent; }
+}
+
+/* ⭐ 3. 数字飞入格子的动画  */
+/* CSS 里准备一个飞行动画： */
+.fly-num {
+  position: fixed;
+  z-index: 9999;
+  font-size: 24px;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  pointer-events: none;
+}
+
+
 </style>
 </head>
 <body>
@@ -745,6 +767,8 @@ const Gen={
       <div class="hint">${hintHTML}</div>`,
       <!-- <div class="hint">💡 把第二个数拆开，让第一个数先凑成 10</div>`, -->
       
+      readText: `颜已杰小朋友，今天，我们来学习凑十法，要算 ${a} 加 ${b} 等于多少。那么，首先我们得先把 ${splitTarget} 分成 ${need} 和 ${left}，先想办法让 ${firstAdd} 凑成 10。`,  /* 语音读题 */
+      
       /* answer:[a+b,need,left,need,left,a+b]}; */
       
       answer: [
@@ -993,6 +1017,8 @@ const Game={
     this.inputs = Array(baseAnswer.length).fill('');                           //·增加了这行
     this.box=0;
     this.render(q);
+    // 调用一个 speakQuestion(q) ⇒⭐ 4. 自动读题（speechSynthesis）
+    this.speakQuestion(q);                                                     //·这行增加了读题機能
   },
 
   render(q){
@@ -1002,6 +1028,33 @@ const Game={
       <div class="q-main" id="qMain">${q.display}</div></div>`;
     this.drawInputs();
     this.renderKeys();
+  },
+  
+  speakQuestion(q){
+    if(!('speechSynthesis' in window)) return;
+    
+    // 避免上一次语音没播完
+    speechSynthesis.cancel();
+    
+    const u = new SpeechSynthesisUtterance();
+    // 简单版：直接读 display 里的文字
+    // 如果你有更结构化的数据，可以自己拼更自然的句子
+    // u.text = q.readText || q.display.replace(/<[^>]+>/g, '');
+    // u.text = q.readText || q.display.replace(/<[^>]+>/g, '');
+    
+    // 优先读 q.readText（我们在 make10 里生成的）
+    if(q.readText){
+      u.text = q.readText;
+    }else{
+      // 兜底：把 display 里的文字读出来（去掉 HTML 标签）
+      u.text = q.display.replace(/<[^>]+>/g, '');
+    }
+
+    u.lang = 'zh-CN'; // 或 'ja-JP' / 'en-US' 看你题目语言
+    u.rate = 0.7;
+    u.pitch = 1;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
   },
 
   drawInputs(){
@@ -1037,10 +1090,38 @@ const Game={
         <button class="key ok" data-key="ok">✅</button>`;
     }
   },
-
-  inputN(n){
+  /* 现在的 inputN(n) 需要多一个参数 evt（事件对象），*
+  /* 在 HTML 里改成：onclick="game.inputN(1, event)" 这种形式。*/
+  inputN(n,evt){
+//inputN(n){                                                    // 元ソースコード
     if(!this.active||this.opMode)return;
     //const max = String(this.current.answer[this.box]).length; //·删除了这行
+    
+      // 1. 创建飞行元素
+      const fly = document.createElement('div');                //·创建飞行元素这行START
+      fly.className = 'fly-num';
+      fly.textContent = n;
+      // 起点：数字键的位置
+      const rectFrom = evt.target.getBoundingClientRect();
+      fly.style.left = rectFrom.left + rectFrom.width/2 + 'px';
+      fly.style.top  = rectFrom.top  + rectFrom.height/2 + 'px';
+      document.body.appendChild(fly);
+      // 终点：当前格子的位置
+      const sel = this.opMode ? '#qMain .op' : '#qMain .box';
+      const items = document.querySelectorAll(sel);
+      const toRect = items[this.box].getBoundingClientRect();
+      const dx = toRect.left + toRect.width/2  - (rectFrom.left + rectFrom.width/2);
+      const dy = toRect.top  + toRect.height/2 - (rectFrom.top  + rectFrom.height/2);
+      // 触发动画
+      requestAnimationFrame(()=>{
+        fly.style.transform = `translate(${dx}px, ${dy}px) scale(0.6)`;
+        fly.style.opacity = '0';
+      });
+      // 动画结束后移除
+      setTimeout(()=>fly.remove(), 250);                        //·动画结束这行END
+    
+    
+    
     
     // ⭐ max 必须基于“一套答案”的长度，而不是二维数组
     // ⭐ 取一套答案（兼容一维/二维）
@@ -1128,10 +1209,18 @@ const Game={
       ans.forEach((v,i)=>{
         if(String(this.inputs[i]) !== String(v)){
           if(items[i]){
+            // 错误时的红色闪烁动画：
             items[i].classList.add('wrong');
             setTimeout(()=>items[i] && items[i].classList.remove('wrong'),600);
           }
         }
+      });
+    }
+    // ⭐ 2. 输入正确时绿色闪烁动画
+    if (correct) {
+      items.forEach(el => {
+        el.classList.add('correct');
+        setTimeout(()=>el.classList.remove('correct'), 400);
       });
     }
     
@@ -1442,7 +1531,8 @@ document.getElementById('gKeys').addEventListener('click',e=>{
   else if(k==='ok')Game.ok();
   else if(k==='+')Game.inputOp('+');
   else if(k==='-')Game.inputOp('-');
-  else Game.inputN(parseInt(k,10));
+  //else Game.inputN(parseInt(k,10));
+  else Game.inputN(parseInt(k,10), event);  // 多一个参数 evt（事件对象）⭐ 3. 数字飞入格子的动画
 });
 
 // 弹窗（用事件委托，因为弹窗内容每次重新生成）
