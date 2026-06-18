@@ -610,7 +610,21 @@ const Gen={
   // 2. 凑十法（结果≥11）
   make10(diff){
     // ✔ left 是 b 的剩余部分
-    const a=rand(1,9),need=10-a,left=rand(1,9-need),b=need+left; // left ∈ [1, 9 - need]
+    // const a=rand(1,9),need=10-a,left=rand(1,9-need),b=need+left; // left ∈ [1, 9 - need]
+    
+    // ① 先选一个“好拆”的 b
+    const goodB = [5,6,7,8,9];
+    const b = goodB[rand(0, goodB.length - 1)];
+
+    // ② 再选一个合理的 a（必须能凑十）
+    let a, need;
+    do {
+      a = rand(2, 9);
+      need = 10 - a;
+    } while (need >= b);   // b 必须能拆出 need
+
+    // ③ 计算 left
+    const left = b - need;
     return{type:'make10',
       display:`<div style="font-size:26px;font-weight:bold;line-height:1.8">
         <span class="make10-known">${a}</span><span></span>
