@@ -615,9 +615,10 @@ const Gen={
     //// ① 先选一个“好拆”的 b
     // 先生成两个好看的数
     const goodB = [5,6,7,8,9];
-    let a = rand(2,9);
+    //let a = rand(2,9);
     //const b = goodB[rand(0, goodB.length - 1)];
-    let b = goodB[rand(0, goodB.length - 1)];
+    //let b = goodB[rand(0, goodB.length - 1)];
+    let a, b, splitFirst, need, left;
 
     //// ② 再选一个合理的 a（必须能凑十）
     //let a, need;
@@ -629,46 +630,93 @@ const Gen={
     //const left = b - need;
     
     // 决定拆哪个数
-    let splitFirst = false;
-    if(a < b) splitFirst = true;
-    if(a === b) splitFirst = rand(0,1) === 0;
+    //let splitFirst = false;
+    //if(a < b) splitFirst = true;
+    //if(a === b) splitFirst = rand(0,1) === 0;
 
-    let need, left;
+    //let need, left;
 
-    if(splitFirst){
-      // 拆 a → 让 b 先凑十
-      need = 10 - b;              // 让 b 先凑十
-      if(need <= 0 || need >= a){ // 不合理则强制拆 b
-        splitFirst = false;
+    //if(splitFirst){
+    //  // 拆 a → 让 b 先凑十
+    //  need = 10 - b;              // 让 b 先凑十
+    //  if(need <= 0 || need >= a){ // 不合理则强制拆 b
+    //    splitFirst = false;
+    //  }
+    //}
+
+    //if(splitFirst){
+    //  // 真正拆 a
+    //  need = 10 - b;
+    //  left = a - need;
+    //} else {
+    //  // 拆 b（原逻辑）
+    //  need = 10 - a;
+    //  left = b - need;
+    //}
+    
+    while (true) {
+      // ① 随机生成 a、b
+      a = rand(2, 9);
+      b = goodB[rand(0, goodB.length - 1)];
+
+      // ② 必须满足：10 < a+b ≤ 28
+      const sum = a + b;
+      if (sum <= 10) continue;   // 避免 4+6=10 这种
+      if (sum > 28) continue;    // 避免太大
+
+      // ③ 决定拆哪个数
+      splitFirst = false;
+      if (a < b) splitFirst = true;
+      if (a === b) splitFirst = rand(0,1) === 0;
+
+      need = undefined;
+      left = undefined;
+
+      if (splitFirst) {
+        // 拆 a → 让 b 先凑十
+        need = 10 - b;
+        if (need <= 0 || need >= a) {
+          splitFirst = false; // 不合理 → 改拆 b
+        }
       }
-    }
 
-    if(splitFirst){
-      // 真正拆 a
-      need = 10 - b;
-      left = a - need;
-    } else {
-      // 拆 b（原逻辑）
-      need = 10 - a;
-      left = b - need;
+      if (splitFirst) {
+        // 真正拆 a
+        need = 10 - b;
+        left = a - need;
+      } else {
+        // 拆 b（原逻辑）
+        need = 10 - a;
+        left = b - need;
+      }
+
+      // ④ need 和 left 必须都是 1～9 的正整数
+      if (need > 0 && left > 0 && need <= 9 && left <= 9) {
+        break; // 题目合格
+      }
     }
 
     // UI：显示拆哪个
     const splitTarget = splitFirst ? a : b;
     // 提示文字（含红色“一”“二”）
     //const hintHTML = splitFirst
-    //  ? `💡 把第<span style="color:#d63031">一</span>个数拆开，让第<span style="color:#d63031">二</span>个数先凑成 10`
+    //  ? `💡 把第<span style="color:#d63031;font-weight: bold;">一</span>个数拆开，让第<span style="color:#d63031;font-weight: bold;">二</span>个数先凑成 10`
     //  : `💡 把第<span style="color:#d63031">二</span>个数拆开，让第<span style="color:#d63031">一</span>个数先凑成 10`;
     let hintHTML;
     if(a === b){
       // a == b 的特殊提示
       hintHTML = splitFirst
-        ? `💡 这两个数一样大，拆哪个都可以。我们这次把第<span style="color:#d63031">一</span>个数拆开，让第<span style="color:#d63031">二</span>个数先凑成 10`
-        : `💡 这两个数一样大，拆哪个都可以。我们这次把第<span style="color:#d63031">二</span>个数拆开，让第<span style="color:#d63031">一</span>个数先凑成 10`;
+        ? `💡 这两个数一样大，拆哪个都可以。我们这次把第
+        <span style="color:#d63031;
+                    font-weight:900;               /* ✅ 方案 2：使用 font-weight:900（比 bold 更粗）把font-weight:bold改为900;*/
+                    font-size:1.0em;               /* ✅ 方案 1：直接加大字体（最简单、最有效）*/
+                    text-shadow: 0 0 1px #d63031;  /* ✅ 方案 3：加一点 text-shadow（让字更厚）1.3em;*/
+                    ">一</span>个数拆开，让第<span style="color:#d63031;font-weight:900;font-size:1.0em;text-shadow: 0 0 1px #d63031;">二</span>个数先凑成 10`
+        : `💡 这两个数一样大，拆哪个都可以。我们这次把第<span style="color:">二</span>个数拆开，让第<span style="color:">一</span>个数先凑成 10`;
     } else {
       hintHTML = splitFirst
-        ? `💡 把第<span style="color:#d63031">一</span>个数拆开，让第<span style="color:#d63031">二</span>个数先凑成 10`
-        : `💡 把第<span style="color:#d63031">二</span>个数拆开，让第<span style="color:#d63031">一</span>个数先凑成 10`;
+        ? `💡 把第<span style="color:#d63031;font-weight:900;font-size:1.0em;text-shadow: 0 0 1px #d63031;">一</span>个数拆开，让第<span style="color:#d63031;font-weight:900;font-size:1.0em;text-shadow: 0 0 1px #d63031;">二</span>个数先凑成 10`
+        : `💡 把第<span>二</span>个数拆开，让第<span>一</span>个数先凑成 10`;
     }
 
     // 先凑十的表达式
@@ -680,24 +728,30 @@ const Gen={
         <span class="make10-eq">+</span>
         <span class="make10-known">${b}</span><span></span>
         <span class="make10-eq">=</span>
-        <span class="make10-known" style="color:#d63031">${a+b}</span></div>
+        <b class="box empty" data-i="0"></b></div>
       <div class="make10-split" style="font-size:18px;color:#636e72">
         把<b style="color:#d63031">${splitTarget}</b>分成
-        <b class="box empty" data-i="0"></b>和<b class="box empty" data-i="1"></b>
+        <b class="box empty" data-i="1"></b>和<b class="box empty" data-i="2"></b>
       </div>
       <div class="make10-row">
         先算：<span class="make10-known">${firstAdd}</span><span class="make10-eq">+</span>
-        <b class="box empty" data-i="2"></b><span class="make10-eq">=</span>10
+        <b class="box empty" data-i="3"></b><span class="make10-eq">=</span>10
       </div>
       <div class="make10-row">
         再算：<span class="make10-known"> 10 </span><span class="make10-eq">+</span>
-        <b class="box empty" data-i="3"></b><span class="make10-eq">=</span>
-        <span class="make10-known" style="color:#d63031">${a+b}</span>
+        <b class="box empty" data-i="4"></b><span class="make10-eq">=</span>
+        <b class="box empty" data-i="5"></b>
       </div>
       <div class="hint">${hintHTML}</div>`,
       <!-- <div class="hint">💡 把第二个数拆开，让第一个数先凑成 10</div>`, -->
-
-      answer:[need,left,need,left]};
+      
+      answer:[a+b,need,left,need,left,a+b]};
+      
+      /* answer: [
+        [a+b, need, left, need, left, a+b],  // 正常顺序
+        [a+b, left, need, need, left, a+b]   // 拆分互换
+      ]};
+      */
   },
   symbol(diff){
     for(let i=0;i<60;i++){
@@ -1011,16 +1065,60 @@ const Game={
 
   ok(){
     if(!this.active||!this.current)return;
-    for(let i=0;i<this.inputs.length;i++)if(!this.inputs[i]){shake();return}
+    // 检查是否所有输入都填了
+    //for(let i=0;i<this.inputs.length;i++)if(!this.inputs[i]){shake();return}
+    // ⭐ 修复：0 也算有效输入
+    for(let i=0;i<this.inputs.length;i++){
+      if(this.inputs[i] === null || this.inputs[i] === undefined || this.inputs[i] === ""){
+        shake();
+        return;
+      }
+    }
     const sel=this.opMode?'#qMain .op':'#qMain .box';
     const items=document.querySelectorAll(sel);
-    let correct=true;
-    this.current.answer.forEach((a,i)=>{
-      if(String(this.inputs[i])!==String(a)){
-        correct=false;
-        if(items[i]){items[i].classList.add('wrong');setTimeout(()=>items[i]&&items[i].classList.remove('wrong'),600)}
-      }
-    });
+    
+    // ⭐ 新增：取出两套正确答案（二维数组）
+    //const answers = this.current.answer;
+    // ⭐ 完整兼容所有情况的一维/二维答案处理
+    let answers;
+    if (Array.isArray(this.current.answer) && Array.isArray(this.current.answer[0])) {
+      // 二维数组（如 make10 的两套答案）
+      answers = this.current.answer;
+    } else if (Array.isArray(this.current.answer)) {
+      // 一维数组（普通题型）
+      answers = [this.current.answer];
+    } else {
+      // 单个数字或其他情况
+      answers = [[this.current.answer]];
+    }
+
+    // ⭐ 新增：多答案判定（支持 need/left 互换）
+    const correct = answers.some(ans =>
+      ans.every((v, i) => String(v) === String(this.inputs[i]))
+    );
+    
+    //let correct=true;
+    //this.current.answer.forEach((a,i)=>{
+    //  if(String(this.inputs[i])!==String(a)){
+    //    correct=false;
+    //    if(items[i]){items[i].classList.add('wrong');setTimeout(()=>items[i]&&items[i].classList.remove('wrong'),600)}
+    //  }
+    //});
+
+    // ⭐ 修改：错误高亮逻辑（只对第一套答案做高亮）
+    if(!correct){
+      const ans = answers[0]; // 用第一套答案做高亮参考
+      ans.forEach((v,i)=>{
+        if(String(this.inputs[i]) !== String(v)){
+          if(items[i]){
+            items[i].classList.add('wrong');
+            setTimeout(()=>items[i] && items[i].classList.remove('wrong'),600);
+          }
+        }
+      });
+    }
+    
+    // 记录成绩
     this.record(correct);
     if(correct){
       beep(880,0.1);this.curStars++;
