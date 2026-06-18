@@ -745,13 +745,13 @@ const Gen={
       <div class="hint">${hintHTML}</div>`,
       <!-- <div class="hint">💡 把第二个数拆开，让第一个数先凑成 10</div>`, -->
       
-      answer:[a+b,need,left,need,left,a+b]};
+      /* answer:[a+b,need,left,need,left,a+b]}; */
       
-      /* answer: [
+      answer: [
         [a+b, need, left, need, left, a+b],  // 正常顺序
         [a+b, left, need, need, left, a+b]   // 拆分互换
       ]};
-      */
+      
   },
   symbol(diff){
     for(let i=0;i<60;i++){
@@ -986,7 +986,11 @@ const Game={
     const diff=AI.getDiff(this.curLvl.type);
     const q=Gen[this.curLvl.type](diff);
     this.current=q;this.opMode=!!q.op;
-    this.inputs=Array(q.answer.length).fill('');
+    //this.inputs=Array(q.answer.length).fill('');                             //·删除了这行
+    // ⭐ 修复：输入框数量由 HTML 决定，而不是答案长度
+    // ⭐ 关键：✅ 用「一套答案」的长度来初始化 inputs
+    const baseAnswer = Array.isArray(q.answer[0]) ? q.answer[0] : q.answer;    //·增加了这行
+    this.inputs = Array(baseAnswer.length).fill('');                           //·增加了这行
     this.box=0;
     this.render(q);
   },
@@ -1036,12 +1040,25 @@ const Game={
 
   inputN(n){
     if(!this.active||this.opMode)return;
-    const max=String(this.current.answer[this.box]).length;
+    //const max = String(this.current.answer[this.box]).length; //·删除了这行
+    
+    // ⭐ max 必须基于“一套答案”的长度，而不是二维数组
+    // ⭐ 取一套答案（兼容一维/二维）
+    const baseAnswer = Array.isArray(this.current.answer[0])
+      ? this.current.answer[0]
+      : this.current.answer;                                    //·增加了这行
+    // ⭐ 当前格子的正确答案
+    const correctValue = baseAnswer[this.box];                  //·增加了这行
+    // ⭐ 该格子允许输入的最大长度（例如 11 → 2 位）
+    const max = String(correctValue).length;                    //·增加了这行
+
     let s=this.inputs[this.box]||'';
+    // ⭐ 输入满了 → 自动跳格
     if(s.length>=max){
       if(this.box+1<this.inputs.length){this.box++;s=String(n)}else return;
     }else s+=String(n);
     this.inputs[this.box]=s;
+    //  ⭐ 输入满了 → 再跳一次
     if(s.length>=max)this.box=Math.min(this.box+1,this.inputs.length-1);
     this.drawInputs();
   },
