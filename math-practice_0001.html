@@ -125,7 +125,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 .key.op{background:linear-gradient(180deg,#a29bfe,#6c5ce7);color:#fff;box-shadow:0 3px 0 #4834d4}
 /* .key.del{background:linear-gradient(180deg,#ff7675,#d63031);color:#fff;box-shadow:0 3px 0 #a71d1d} */
 .key.del{background:linear-gradient(180deg,#ff7675,#d63031);color:#fff;
-    font-size: 32px !important;        /* 字体变大 */
+    font-size: 34px !important;        /* 字体变大 */
     font-weight: bold;      /* 加粗 */
     transition: background-color 0.15s, color 0.15s;
     padding: 8px 12px;      /* 按钮更好按  padding: 8px 12px; */
@@ -609,22 +609,25 @@ const Gen={
   },
   // 2. 凑十法（结果≥11）
   make10(diff){
-    const a=rand(2,8),need=10-a,left=rand(1,9-need),b=need+left;
+    // ✔ left 是 b 的剩余部分
+    const a=rand(1,9),need=10-a,left=rand(1,9-need),b=need+left; // left ∈ [1, 9 - need]
     return{type:'make10',
       display:`<div style="font-size:26px;font-weight:bold;line-height:1.8">
-        <span class="make10-known">${a}</span><span class="make10-eq">+</span>
-        <span class="make10-known">${b}</span><span class="make10-eq">=</span>
+        <span class="make10-known">${a}</span><span></span>
+        <span class="make10-eq">+</span>
+        <span class="make10-known">${b}</span><span></span>
+        <span class="make10-eq">=</span>
         <span class="make10-known" style="color:#d63031">${a+b}</span></div>
       <div class="make10-split" style="font-size:18px;color:#636e72">
-        把 <b style="color:#d63031">${b}</b> 分成
-        <b class="box empty" data-i="0"></b> 和 <b class="box empty" data-i="1"></b>
+        把<b style="color:#d63031">${b}</b>分成
+        <b class="box empty" data-i="0"></b>和<b class="box empty" data-i="1"></b>
       </div>
       <div class="make10-row">
         先算：<span class="make10-known">${a}</span><span class="make10-eq">+</span>
-        <b class="box empty" data-i="2"></b><span class="make10-eq">=</span> 10
+        <b class="box empty" data-i="2"></b><span class="make10-eq">=</span>10
       </div>
       <div class="make10-row">
-        再算：10<span class="make10-eq">+</span>
+        再算：<span class="make10-known">10</span><span class="make10-eq">+</span>
         <b class="box empty" data-i="3"></b><span class="make10-eq">=</span>
         <span class="make10-known" style="color:#d63031">${a+b}</span>
       </div>
