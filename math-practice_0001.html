@@ -612,19 +612,68 @@ const Gen={
     // ✔ left 是 b 的剩余部分
     // const a=rand(1,9),need=10-a,left=rand(1,9-need),b=need+left; // left ∈ [1, 9 - need]
     
-    // ① 先选一个“好拆”的 b
+    //// ① 先选一个“好拆”的 b
+    // 先生成两个好看的数
     const goodB = [5,6,7,8,9];
-    const b = goodB[rand(0, goodB.length - 1)];
+    let a = rand(2,9);
+    //const b = goodB[rand(0, goodB.length - 1)];
+    let b = goodB[rand(0, goodB.length - 1)];
 
-    // ② 再选一个合理的 a（必须能凑十）
-    let a, need;
-    do {
-      a = rand(2, 9);
+    //// ② 再选一个合理的 a（必须能凑十）
+    //let a, need;
+    //do {
+    //  a = rand(2, 9);
+    //  need = 10 - a;
+    //} while (need >= b);   // b 必须能拆出 need
+    //// ③ 计算 left
+    //const left = b - need;
+    
+    // 决定拆哪个数
+    let splitFirst = false;
+    if(a < b) splitFirst = true;
+    if(a === b) splitFirst = rand(0,1) === 0;
+
+    let need, left;
+
+    if(splitFirst){
+      // 拆 a → 让 b 先凑十
+      need = 10 - b;              // 让 b 先凑十
+      if(need <= 0 || need >= a){ // 不合理则强制拆 b
+        splitFirst = false;
+      }
+    }
+
+    if(splitFirst){
+      // 真正拆 a
+      need = 10 - b;
+      left = a - need;
+    } else {
+      // 拆 b（原逻辑）
       need = 10 - a;
-    } while (need >= b);   // b 必须能拆出 need
+      left = b - need;
+    }
 
-    // ③ 计算 left
-    const left = b - need;
+    // UI：显示拆哪个
+    const splitTarget = splitFirst ? a : b;
+    // 提示文字（含红色“一”“二”）
+    //const hintHTML = splitFirst
+    //  ? `💡 把第<span style="color:#d63031">一</span>个数拆开，让第<span style="color:#d63031">二</span>个数先凑成 10`
+    //  : `💡 把第<span style="color:#d63031">二</span>个数拆开，让第<span style="color:#d63031">一</span>个数先凑成 10`;
+    let hintHTML;
+    if(a === b){
+      // a == b 的特殊提示
+      hintHTML = splitFirst
+        ? `💡 这两个数一样大，拆哪个都可以。我们这次把第<span style="color:#d63031">一</span>个数拆开，让第<span style="color:#d63031">二</span>个数先凑成 10`
+        : `💡 这两个数一样大，拆哪个都可以。我们这次把第<span style="color:#d63031">二</span>个数拆开，让第<span style="color:#d63031">一</span>个数先凑成 10`;
+    } else {
+      hintHTML = splitFirst
+        ? `💡 把第<span style="color:#d63031">一</span>个数拆开，让第<span style="color:#d63031">二</span>个数先凑成 10`
+        : `💡 把第<span style="color:#d63031">二</span>个数拆开，让第<span style="color:#d63031">一</span>个数先凑成 10`;
+    }
+
+    // 先凑十的表达式
+    const firstAdd = splitFirst ? b : a;
+
     return{type:'make10',
       display:`<div style="font-size:26px;font-weight:bold;line-height:1.8">
         <span class="make10-known">${a}</span><span></span>
@@ -633,19 +682,21 @@ const Gen={
         <span class="make10-eq">=</span>
         <span class="make10-known" style="color:#d63031">${a+b}</span></div>
       <div class="make10-split" style="font-size:18px;color:#636e72">
-        把<b style="color:#d63031">${b}</b>分成
+        把<b style="color:#d63031">${splitTarget}</b>分成
         <b class="box empty" data-i="0"></b>和<b class="box empty" data-i="1"></b>
       </div>
       <div class="make10-row">
-        先算：<span class="make10-known">${a}</span><span class="make10-eq">+</span>
+        先算：<span class="make10-known">${firstAdd}</span><span class="make10-eq">+</span>
         <b class="box empty" data-i="2"></b><span class="make10-eq">=</span>10
       </div>
       <div class="make10-row">
-        再算：<span class="make10-known">10</span><span class="make10-eq">+</span>
+        再算：<span class="make10-known"> 10 </span><span class="make10-eq">+</span>
         <b class="box empty" data-i="3"></b><span class="make10-eq">=</span>
         <span class="make10-known" style="color:#d63031">${a+b}</span>
       </div>
-      <div class="hint">💡 把第二个数拆开，让第一个数先凑成 10</div>`,
+      <div class="hint">${hintHTML}</div>`,
+      <!-- <div class="hint">💡 把第二个数拆开，让第一个数先凑成 10</div>`, -->
+
       answer:[need,left,need,left]};
   },
   symbol(diff){
