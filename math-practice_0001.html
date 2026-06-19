@@ -1165,7 +1165,7 @@ const Game={
     if(!this.active||!this.current)return;
     // 检查是否所有输入都填了
     //for(let i=0;i<this.inputs.length;i++)if(!this.inputs[i]){shake();return}
-    // ⭐ 修复：0 也算有效输入
+    // ⭐ 检查是否所有输入都填了（⭐ 修复：0 也算有效输入
     for(let i=0;i<this.inputs.length;i++){
       if(this.inputs[i] === null || this.inputs[i] === undefined || this.inputs[i] === ""){
         shake();
@@ -1181,13 +1181,13 @@ const Game={
     let answers;
     if (Array.isArray(this.current.answer) && Array.isArray(this.current.answer[0])) {
       // 二维数组（如 make10 的两套答案）
-      answers = this.current.answer;
+      answers = this.current.answer;     // 二维（多套答案）
     } else if (Array.isArray(this.current.answer)) {
       // 一维数组（普通题型）
-      answers = [this.current.answer];
+      answers = [this.current.answer];   // 一维（单套答案）
     } else {
       // 单个数字或其他情况
-      answers = [[this.current.answer]];
+      answers = [[this.current.answer]]; // 单值
     }
 
     // ⭐ 新增：多答案判定（支持 need/left 互换）
@@ -1204,6 +1204,7 @@ const Game={
     //});
 
     // ⭐ 修改：错误高亮逻辑（只对第一套答案做高亮）
+    /*
     if(!correct){
       const ans = answers[0]; // 用第一套答案做高亮参考
       ans.forEach((v,i)=>{
@@ -1215,7 +1216,27 @@ const Game={
           }
         }
       });
+    }*/
+    // ⭐ BUG修改：只亮错的格子
+    if (!correct) {
+      // 1. 构建每个格子可接受的值（支持多套答案）
+      const len = answers[0].length;
+      const acceptable = Array.from({ length: len }, () => new Set());
+
+      answers.forEach(ans => {
+        ans.forEach((v, i) => acceptable[i].add(String(v))); // 统一转成字符串
+      });
+
+      // 2. 逐格判定
+      this.inputs.forEach((v, i) => {
+        const ok = acceptable[i].has(String(v));
+        if (!ok && items[i]) {
+          items[i].classList.add('wrong');
+          setTimeout(() => items[i] && items[i].classList.remove('wrong'), 600);
+        }
+      });
     }
+
     // ⭐ 2. 输入正确时绿色闪烁动画
     if (correct) {
       items.forEach(el => {
@@ -1224,7 +1245,7 @@ const Game={
       });
     }
     
-    // 记录成绩
+    // ⭐ 记录成绩 + 跳题逻辑
     this.record(correct);
     if(correct){
       beep(880,0.1);this.curStars++;
