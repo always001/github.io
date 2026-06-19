@@ -69,6 +69,12 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 .box.wrong{border-color:#d63031;background:#ffe8e8;animation:shake .4s}
 .box.d2{min-width:78px}
 
+.box.fixed {
+  color: #0984e3; /* 蓝色 */
+  border-style: solid;
+}
+
+
 .op{display:inline-flex;align-items:center;justify-content:center;border:3px solid #a29bfe;border-radius:10px;
   background:#f3f0ff;color:#6c5ce7;font-weight:bold;vertical-align:middle;cursor:pointer;
   min-width:44px;height:44px;padding:0 4px;font-size:22px;margin:0 2px;transition:all .15s;font-family:inherit}
@@ -382,6 +388,37 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   pointer-events: none;
 }
 
+/* 🎯 二、倒计时数字缩放动画（CSS 动画）*/
+@keyframes countdownScale {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* ⚡ 二、倒计时结束时闪一下（白光闪烁） */
+@keyframes flashOnce {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* 一、进度条颜色动态变化（蓝 → 紫 → 红）*/
+#progressBar {
+  height: 100%;
+  width: 100%;
+  border-radius: 5px;
+  transition: width 0.5s linear, background-color 0.5s linear;
+}
+
+/* 🌫 三、正确答案卡片淡出动画（fade-out）*/
+.fadeOut {
+  animation: fadeOutAnim 0.6s forwards;
+}
+
+@keyframes fadeOutAnim {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
 
 </style>
 </head>
@@ -429,6 +466,21 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
       </span>
     </div>
     <div class="game-body" id="gBody"></div>
+    <!-- ⭐永远不被 render() 覆盖的正确答案显示区（新增） -->
+    <div id="correctAnswerBox" style="display:none; margin:15px 0; padding:10px; font-size:22px; color:#e74c3c; text-align:center; background:#fff5f5; border-radius:8px;">
+        <div id="correctText"></div>
+        <div id="countdown" style="margin-top:10px; font-size:26px; color:#2d3436;"></div>
+        <!-- ⭐ 进度条（新增）（渐变色：蓝 → 红 + 平滑动画） -->
+        <div id="progressBar" 
+             style="
+               height:100%;
+               width:100%;
+               background: linear-gradient(90deg, #74b9ff, #ff7675);
+               border-radius:5px;
+               transition: width 0.5s linear;   /* ⭐ 平滑动画 */
+             ">
+        </div>
+    </div>
     <div class="keypad" id="gKeys"></div>
   </div>
 
@@ -757,7 +809,8 @@ const Gen={
       </div>
       <div class="make10-row">
         先算：<span class="make10-known">${firstAdd}</span><span class="make10-eq">+</span>
-        <b class="box empty" data-i="3"></b><span class="make10-eq">=</span>10
+        <b class="box empty" data-i="3"></b><span class="make10-eq">=</span>
+        <b class="box fixed">10</b>
       </div>
       <div class="make10-row">
         再算：<span class="make10-known"> 10 </span><span class="make10-eq">+</span>
@@ -1025,7 +1078,8 @@ const Game={
     const diff=AI.getDiff(this.curLvl.type);
     document.getElementById('gBody').innerHTML=`<div class="question">
       <div class="q-title">第 ${this.idx+1} / ${this.total} 题 · 难度 ${'⭐'.repeat(diff)}${'☆'.repeat(5-diff)}</div>
-      <div class="q-main" id="qMain">${q.display}</div></div>`;
+      <div class="q-main" id="qMain">${q.display}</div>
+      </div>`;
     this.drawInputs();
     this.renderKeys();
   },
@@ -1060,11 +1114,31 @@ const Game={
   drawInputs(){
     const sel=this.opMode?'#qMain .op':'#qMain .box';
     document.querySelectorAll(sel).forEach((el,i)=>{
-      const v=this.inputs[i]||'';
+      // ⭐ 跳过没有 data-i 的固定格子（例如固定显示 10 的 box）
+      //if (!el.dataset.i) return;
+      // ⭐ 关键：没有 data-i 的 box 是固定数字，不处理
+      //if (el.classList.contains('fixed')) return; // ⭐ 固定格子永远不处理★
+
+      // ⭐ 固定格子：不覆盖内容、不加 empty、不加 filled
+      //if (el.classList.contains('fixed')) {
+        //el.classList.remove('empty', 'filled', 'active');
+        //return;
+      //}
+      // ⭐ 输入格子：用 data-i 作为索引 ■
+      //const idx = el.dataset.i;       //■
+      //if (idx === undefined) return;  //■
+      
+      // ⭐ 固定格子跳过
+      if (!el.dataset.i) return;
+      const idx = Number(el.dataset.i); // ← 用 data-i，而不是 DOM 顺序 i
+      const v = this.inputs[idx] || '';
+      
+      //const v=this.inputs[i]||'';
       el.textContent=v;
       el.classList.toggle('empty',!v);
       el.classList.toggle('filled',!!v);
-      el.classList.toggle('active',i===this.box);
+      //el.classList.toggle('active',i===this.box);
+      el.classList.toggle('active',idx===this.box);  // idx ← 关键修复
     });
   },
 
@@ -1107,8 +1181,13 @@ const Game={
       fly.style.top  = rectFrom.top  + rectFrom.height/2 + 'px';
       document.body.appendChild(fly);
       // 终点：当前格子的位置
-      const sel = this.opMode ? '#qMain .op' : '#qMain .box';
-      const items = document.querySelectorAll(sel);
+      //const sel = this.opMode ? '#qMain .op' : '#qMain .box';
+      const sel = this.opMode ? '#qMain .op' : '#qMain .box[data-i]';  // ■inputN 必须只选“可输入格子”，不能选所有 .box。
+      //const items = document.querySelectorAll(sel);                  // ■删掉这行
+      // ⭐ DOM 顺序不可靠 → 必须按 data-i 排序
+      const items = Array.from(document.querySelectorAll(sel))         
+        .sort((a, b) => Number(a.dataset.i) - Number(b.dataset.i));    // ■增加这行
+      // ⭐ 现在 items[this.box] 永远是正确的格子
       const toRect = items[this.box].getBoundingClientRect();
       const dx = toRect.left + toRect.width/2  - (rectFrom.left + rectFrom.width/2);
       const dy = toRect.top  + toRect.height/2 - (rectFrom.top  + rectFrom.height/2);
@@ -1172,7 +1251,7 @@ const Game={
         return;
       }
     }
-    const sel=this.opMode?'#qMain .op':'#qMain .box';
+    const sel=this.opMode?'#qMain .op':'#qMain .box'; // ■box⇒box[data-i]
     const items=document.querySelectorAll(sel);
     
     // ⭐ 新增：取出两套正确答案（二维数组）
@@ -1226,8 +1305,12 @@ const Game={
       answers.forEach(ans => {
         ans.forEach((v, i) => acceptable[i].add(String(v))); // 统一转成字符串
       });
+      
+      // ⭐ 只选可输入格子，并按 data-i 排序
+      const items = Array.from(document.querySelectorAll('#qMain .box[data-i]'))
+        .sort((a, b) => Number(a.dataset.i) - Number(b.dataset.i));   // ■
 
-      // 2. 逐格判定
+      // 2. 逐格判定（按 data-i 对齐）+ 错误动画
       this.inputs.forEach((v, i) => {
         const ok = acceptable[i].has(String(v));
         if (!ok && items[i]) {
@@ -1235,11 +1318,122 @@ const Game={
           setTimeout(() => items[i] && items[i].classList.remove('wrong'), 600);
         }
       });
+      
+      // 4. 显示正确答案（数字键盘上方）
+      const box = document.getElementById('correctAnswerBox');
+      
+      // 🟩 最终版：10 秒倒计时动画 
+      const text = document.getElementById('correctText');
+      const countdown = document.getElementById('countdown');
+      const bar = document.getElementById('progressBar');   // ⭐ 进度条
+      // 🟩 最终版：10 秒倒计时动画 
+      
+      box.style.display = 'block';
+      //box.textContent = '正确答案：' + answers[0].join('、');
+      //text.textContent = '正确答案：' + answers[0].join('、'); // ⭐正确写法是text不是box
+      
+      // ⭐ 智能显示答案（自动判断一维 / 二维）
+      if (answers.length === 1) {
+        // 只有一套答案 → 按原来方式显示
+        text.textContent = '正确答案：' + answers[0].join('、');
+      } else {
+        // 多套答案 → 显示全部
+        let html = '正确答案：<br>';
+        answers.forEach((ans, idx) => {
+          html += `（${idx + 1}） ${ans.join('、')}<br>`;
+        });
+        text.innerHTML = html;
+      }
+      
+      countdown.textContent = '';                              // 清空旧倒计时
+      bar.style.width = '100%';   // ⭐ 重置进度条
+      // 5. 停顿 2 分钟后进入下一题
+      // ⭐ 关键：禁止刷新题目
+      this.active = false;
+
+// 🟩 最终版：10 秒倒计时动画 
+// ⭐ 10 秒倒计时
+let t = 10;
+countdown.textContent = `将在 ${t} 秒后进入下一题`;
+//countdown.textContent = t;
+// 数字缩放动画
+countdown.style.animation = 'countdownScale 0.5s ease';
+const timer = setInterval(() => {
+    t--;
+    //countdown.textContent = `将在 ${t} 秒后进入下一题`;
+    
+    // 🎯 二、倒计时数字缩放动画（CSS 动画）
+    countdown.textContent = t;
+    // ⭐ 数字缩放动画（每秒跳动）
+    countdown.style.animation = 'none';
+    countdown.offsetHeight; // 强制重绘
+    countdown.style.animation = 'countdownScale 0.5s ease';
+    // ⭐ 进度条缩短（平滑 + 渐变）
+    // ⭐ 每秒更新一次进度条（从 100% → 0%）
+    bar.style.width = (t * 10) + '%';
+    
+    /*
+    效果：t=10 → rgb(0,100,255) 蓝
+          t=5 → rgb(127,100,127) 紫
+          t=0 → rgb(255,100,0) 红
+    */
+    // ⭐ 动态颜色（蓝 → 紫 → 红）
+    // t 从 10 → 0
+    // 计算颜色（蓝 → 紫 → 红）
+	const r = Math.floor(255 * (1 - t / 10));     // 0 → 255
+	const g = 100;                                 // 固定一点绿色，保持柔和
+	const b = Math.floor(255 * (t / 10));          // 255 → 0
+	bar.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+    if (t <= 0) {
+        clearInterval(timer);
+        
+        // ⭐ 叮提示音
+        this.ding();
+
+// 🟩 最终版：10 秒倒计时动画
+ 
+      // 6. 2 分钟后：隐藏答案 + 记错题 + 跳下一题
+      //setTimeout(() => {          // 註釈  🟩 最终版：10 秒倒计时动画
+        //this.active = true;
+        
+        //box.style.display = 'none'; // 清除答案显示
+        
+        // ⭐ 倒计时闪一下
+        countdown.style.animation = 'flashOnce 0.3s ease';
+
+        // ⭐ 正确答案卡片淡出
+        box.classList.add('fadeOut');
+        setTimeout(() => {
+            box.style.display = 'none';
+            box.classList.remove('fadeOut');
+        }, 600);
+        
+        // 🟩 最终版：10 秒倒计时动画 
+        countdown.textContent = '';
+        
+        bar.style.width = '0%';//■新規
+        
+        this.active = true;
+        // 记录成绩（错）
+        this.record(false);
+        beep(220, 0.2);
+        // 保持你原来的节奏：idx++ 然后 next()
+        this.idx++;
+        this.next();
+     }                              // 註釈  🟩 最终版：10 秒倒计时动画
+        //this.nextQuestion();        // ⭐ 现在才刷新题目
+      }, 1000);   // ← ⭐ 每秒执行一次
+      return; // ❗ 阻止继续执行正确逻辑
+      
     }
 
     // ⭐ 2. 输入正确时绿色闪烁动画
     if (correct) {
-      items.forEach(el => {
+      // ⭐ 2. 输入正确时绿色闪烁动画（只闪 data-i 的输入格子）
+      const inputBoxes = document.querySelectorAll('#qMain .box[data-i]');
+      inputBoxes.forEach(el => {
+      //items.forEach(el => {
         el.classList.add('correct');
         setTimeout(()=>el.classList.remove('correct'), 400);
       });
@@ -1254,6 +1448,19 @@ const Game={
     }else{
       beep(220,0.2);this.idx++;setTimeout(()=>this.next(),900);
     }
+  },
+  
+  /* 🎯 三、“叮”提示音（非常轻量）*/
+  ding() {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 1200;  // 叮
+    gain.gain.value = 0.2;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
   },
 
   record(correct){
