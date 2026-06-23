@@ -547,11 +547,12 @@ const Gen={
     // ====== 先决定 a 的范围（难度 1 和 2 不同） ======
     let a;
     if(diff === 1){
-      a = rand(1, 4 + diff * 2);   // 难度 1
+      //a = rand(1, 4 + diff * 2);   // 难度 1
+      a = rand(1, 20);           // 难度 1
     } else {
       a = rand(12, 35);            // 难度 2~5
     }
-
+    //alert(diff);
     let step = 1;        // 步长
     //let isDesc = false;  // 是否递减
     let showHint = true; // 是否显示提示
@@ -561,6 +562,9 @@ const Gen={
     let answer = [];     // 正确答案数组
     let left = a;
     let right = a + 4;
+    
+    // ⭐⭐ 关键：先声明一个默认的 middleFixed（避免未定义）★
+    let middleFixed = [null, null, null];   // 默认 3 格（适配 diff=1～5）
 
     // ====== 难度 1 & 2：递增 +1 ======
     if(diff === 1 || diff === 2){
@@ -653,11 +657,160 @@ const Gen={
       left = L;
       right = R;
     }
+    
+    // ====== 难度 6：已知相邻4个数的和，求中间2个数（数学合理版） ======
+    /*
+    if(diff === 6){
+      // ① 生成左端 L
+      const L = rand(5, 20);
+      // ② 右端 R = L + 3
+      const R = L + 3;
+      // ③ 四个相邻数的和
+      const S = L + (L+1) + (L+2) + (L+3);
+      // ④ 中间两个数
+      const A = L + 1;
+      const B = L + 2;
+      // ⑤ 题目显示
+      title1 = `
+        <div style="font-size:22px;font-weight:bold">
+          相邻四个数的和是 <span style="color:#d63031">${S}</span>
+        </div>
+      `;
+      title2 = `
+        <div class="border" style="font-size:22px;font-weight:bold">
+          填相邻数
+        </div>
+      `;
+      // ⑥ 不显示提示
+      showHint = false;
+      // ⑦ 答案
+      answer = [A, B];
+      // ⑧ 左右端显示
+      left = L;
+      right = R;
+    }
+    */
+    // ====== 难度 6：已知相邻4个数的和，求中间3个数（数学合理 + 难度提升） ======
+    /*
+    if(diff === 6){
+      // ① 随机生成 x（第一个数）
+      const x = rand(5, 20);
+      // ② 四个相邻数的和
+      const S = x + (x+1) + (x+2) + (x+3);
+      // ③ 中间三个数
+      const A = x + 1;
+      const B = x + 2;
+      const C = x + 3;
+      // ④ 题目显示（不显示左右端）
+      title1 = `
+        <div style="font-size:22px;font-weight:bold">
+          相邻四个数的和是 <span style="color:#d63031">${S}</span>
+        </div>
+      `;
+      title2 = `
+        <div class="border" style="font-size:22px;font-weight:bold">
+          填相邻数
+        </div>
+      `;
+      // ⑤ 不显示提示
+      showHint = false;
+      // ⑥ 答案
+      answer = [A, B, C];
+      // ⑦ 左右端不显示
+      left = "";
+      right = "";
+    }
+    */
+    
+    // ====== 难度 6：已知相邻4个数的和，滑动窗口3组，填4个数 ======
+    if(diff === 6){
+      // ① 生成 L 和 R
+      const L = rand(5, 15);
+      const R = rand(5, 15);
+      
+      // ② 随机生成 c（中间第三个数）★
+      const c = rand(5, 20);
+      
+      // ② 生成 S（相邻四数的和）
+      // S 必须 > L + R，否则 b+c 会变负
+      //const S = rand(L + R + 5, L + R + 20);
+      
+      // ③ 生成 S（必须 > L + R + c）★
+      const S = rand(L + R + c + 5, L + R + c + 20);
+      
+      // ③ 计算中间四个数
+      //const a = R;        // 从方程组推导
+      //const d = L;        // 从方程组推导
+      //const bc = S - (a + d);
+      //const b = Math.floor(bc / 2);
+      //const c = bc - b;
+      
+      // ④ 推导唯一解★
+      const a = R;
+      const d = L;
+      const b = S - (a + d + c);
+      
+      // ② middleFixed：决定 UI 结构
+      middleFixed = [null, null, c, null];
+  
+      // ④ 题目显示
+      title1 = `
+        <div style="font-size:22px;font-weight:bold">
+          相邻四个数的和都是 <span style="color:#d63031">${S}</span>
+        </div>
+      `;
+      /*
+      title2 = `
+        <div class="border" style="font-size:22px;font-weight:bold">
+          按规律填数（共有三组相邻四数）
+        </div>
+      `;
+      */
+      title2 = `
+        <div style="font-size:22px;font-weight:bold">
+          已知第<span style="color:#d63031"> 1 </span>个、第<span style="color:#d63031"> 4 </span>个、第 <span style="color:#d63031">6</span> 个数，请填空
+        </div>
+      `
+      showHint = false;
+      // ⑤ 答案（填 4 个）
+      answer = [a, b, d];
+      // ⑥ 左右端显示
+      left = L;
+      right = R;
+
+    }
 
     // ====== 左右两端数字 ======
     //const left = a;
     //const right = a + step*4;
 
+    // =========================
+    // ⭐⭐ boxes 必须写在这里（return 之前）
+    // =========================
+    let inputIndex = 0;
+    const boxes = middleFixed.map(v => {
+      if (v === null) {
+        const html = `<b class="box empty" data-i="${inputIndex}"></b>`;
+        inputIndex++;
+        return html;
+      } else {
+        return `<span class="known">${v}</span>`;
+      }
+    }).join("");
+
+
+    // 根据 answer 数量动态生成空格
+    /*
+    const boxes = answer.map((_, i) =>
+      `<b class="box empty" data-i="${i}"></b>`
+    ).join("");
+    
+    ${answer.map((_, i) => `<b class="box empty" data-i="${i}"></b>`).join("")}
+    */
+    
+    // =========================
+    // ⭐⭐ return 放在最后
+    // =========================    
     return{type:'neighbor',
       display:`
         ${title1}
@@ -666,9 +819,11 @@ const Gen={
       <div style="font-size:22px;font-weight:bold">${title2}</div> -->
       <div class="neighbor-line">
         <span class="known">${left}</span>
-        <b class="box empty" data-i="0"></b>
-        <b class="box empty" data-i="1"></b>
-        <b class="box empty" data-i="2"></b>
+        <!-- <b class="box empty" data-i="0"></b> -->
+        <!-- <b class="box empty" data-i="1"></b> -->
+        <!-- <b class="box empty" data-i="2"></b> -->
+
+        ${boxes}
         <span class="known">${right}</span>
       </div>
       <!--
@@ -994,7 +1149,7 @@ const AI={
     const s=Store.data.stats,d=Store.data.difficulty;
     if(s.total>=5){
       const acc=s.correct/s.total;
-      if(acc>=0.9&&d.global<5)d.global++;
+      if(acc>=0.9&&d.global<6)d.global++;
       else if(acc<0.5&&d.global>1)d.global--;
     }
     Object.keys(s.typeStats).forEach(t=>{
@@ -1002,7 +1157,7 @@ const AI={
       if(ts.total>=4){
         const a=ts.correct/ts.total;
         d.perType[t]=d.perType[t]||1;
-        if(a>=0.85&&d.perType[t]<5)d.perType[t]++;
+        if(a>=0.85&&d.perType[t]<6)d.perType[t]++;
         else if(a<0.5&&d.perType[t]>1)d.perType[t]--;
       }
     });
@@ -1013,6 +1168,24 @@ const AI={
     const s=Store.data.stats,d=Store.data.difficulty;
     const acc=s.total?(s.correct/s.total*100).toFixed(0):0;
     const tips=[];
+    
+    // ⭐ 自动调档逻辑（核心）
+    let level = d.global;
+
+    // 自动升级
+    //if(s.total >= 5){               // 做够 5 题才开始调档
+      //if(acc >= 90) level++;        // 正确率高 → 升档
+      //else if(acc < 50) level--;    // 正确率低 → 降档
+    //}
+
+    // ⭐ 限制在 1~6 星(限制范围（你想扩到多少就写多少）)
+    //level = Math.max(1, Math.min(6, level));
+
+    // ⭐ 保存回 Store
+    //d.global = level;
+    //Store.save();
+
+    // ⭐ 提示逻辑保持不变
     if(acc>=90)tips.push('🎉 太棒了！建议挑战更高难度');
     else if(acc>=70)tips.push('👍 保持当前难度，多练几种题型');
     else if(s.total>0)tips.push('💪 建议从基础关卡开始');
@@ -1076,8 +1249,9 @@ const Game={
 
   render(q){
     const diff=AI.getDiff(this.curLvl.type);
+    //const diff = Store.data.difficulty.global;
     document.getElementById('gBody').innerHTML=`<div class="question">
-      <div class="q-title">第 ${this.idx+1} / ${this.total} 题 · 难度 ${'⭐'.repeat(diff)}${'☆'.repeat(5-diff)}</div>
+      <div class="q-title">第 ${this.idx+1} / ${this.total} 题 · 难度 ${'⭐'.repeat(diff)}${'☆'.repeat(6-diff)}</div>
       <div class="q-main" id="qMain">${q.display}</div>
       </div>`;
     this.drawInputs();
@@ -1681,7 +1855,8 @@ const App={
       <div class="stat-card" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7);color:#fff">
         <h3 style="color:#fff">🧠 AI 评估</h3>
         <p>正确率 <b>${sg.acc}%</b></p>
-        <p>推荐 ${'⭐'.repeat(sg.level)}${'☆'.repeat(5-sg.level)}</p>
+        <p>推荐 ${'⭐'.repeat(sg.level)}${'☆'.repeat(6-sg.level)}</p>
+        <!-- <p>推荐 ${'⭐'.repeat(Store.data.difficulty.global)}${'☆'.repeat(6-Store.data.difficulty.global)}</p> -->
       </div>
       <div class="stat-card">
         <h3>📊 题型难度</h3>
@@ -1700,7 +1875,7 @@ const App={
       <div class="stat-card">
         <h3>⚙️ 手动</h3>
         <button class="difficulty-badge" onclick="Store.data.difficulty.global=Math.max(1,Store.data.difficulty.global-1);Store.save();App.renderAI()">➖ 降档</button>
-        <button class="difficulty-badge" onclick="Store.data.difficulty.global=Math.min(5,Store.data.difficulty.global+1);Store.save();App.renderAI()">➕ 升档</button>
+        <button class="difficulty-badge" onclick="Store.data.difficulty.global=Math.min(6,Store.data.difficulty.global+1);Store.save();App.renderAI()">➕ 升档</button>
         <button class="difficulty-badge" style="background:#d63031" onclick="if(confirm('重置所有数据？')){localStorage.clear();location.reload()}">🗑 重置</button>
       </div>`;
   }
@@ -1783,7 +1958,7 @@ document.getElementById('aBody').addEventListener('click',e=>{
   const el=e.target.closest('button');
   if(!el)return;
   if(el.id==='aiDown'){Store.data.difficulty.global=Math.max(1,Store.data.difficulty.global-1);Store.save()}
-  else if(el.id==='aiUp'){Store.data.difficulty.global=Math.min(5,Store.data.difficulty.global+1);Store.save()}
+  else if(el.id==='aiUp'){Store.data.difficulty.global=Math.min(6,Store.data.difficulty.global+1);Store.save()}
   else if(el.id==='aiReset'){if(confirm('重置所有数据？')){localStorage.clear();location.reload()}}
   App.renderAI();
 });
