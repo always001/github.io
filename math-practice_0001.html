@@ -552,7 +552,7 @@ const Gen={
     } else {
       a = rand(12, 35);            // 难度 2~5
     }
-    //alert(diff);
+    alert(diff);
     let step = 1;        // 步长
     //let isDesc = false;  // 是否递减
     let showHint = true; // 是否显示提示
@@ -571,7 +571,7 @@ const Gen={
       step = 1;
       //isDesc = false;
       hintHTML = `<div class="hint">💡 后面的数 = 前面的数 <span style="color:#0984e3">+1</span></div>`;
-      title1 = `相邻三个数的和是 <span style="color:#d63031">${a*5+10}</span>`;
+      title1 = `任意相邻三个数字的和都是 <span style="color:#d63031">${a*5+10}</span>`;
       title2 = `填相邻数`;
       answer = [a+1, a+2, a+3];
       // 第一行：
@@ -585,7 +585,7 @@ const Gen={
       step = -1;
       //isDesc = true;
       hintHTML = `<div class="hint">💡 后面的数 = 前面的数 <span style="color:#d63031">−1</span></div>`;
-      title1 = `相邻三个数的和是 <span style="color:#d63031">${a*5-10}</span>`;
+      title1 = `任意相邻三个数字的和都是 <span style="color:#d63031">${a*5-10}</span>`;
       title2 = `填相邻数`;
       answer = [a-1, a-2, a-3];
       right = a + step*4;
@@ -600,7 +600,7 @@ const Gen={
       step = -2;
       //isDesc = true;
       hintHTML = `<div class="hint">💡 后面的数 = 前面的数 <span style="color:#d63031">−2</span></div>`;
-      title1 = `相邻三个数的和是 <span style="color:#d63031">${a*5-20}</span>`;
+      title1 = `任意相邻三个数字的和都是 <span style="color:#d63031">${a*5-20}</span>`;
       <!-- title2 = `按<span style="border-bottom:3px dotted #000;padding-bottom:3px;font-weight:bold;color:#d63031">规律</span>填数`;-->
       title2 = `按<span style="color:#d63031;padding-bottom:10px;
                     font-weight:bold;font-size:22px;
@@ -633,13 +633,14 @@ const Gen={
       // ③ 计算中间数
       const M = S - (L + R);
       // 第二行双下划线
-      //title1 = `相邻三个数的和是 <span style="color:#d63031">${S}</span>`;
-      title2 = `<span style="border-bottom:3px double #000;padding-bottom:3px;">填相邻数</span>`;
+      //title1 = `任意相邻三个数字的和都是 <span style="color:#d63031">${S}</span>`;
+      //title2 = `<span style="border-bottom:3px double #000;padding-bottom:3px;">填相邻数</span>`;
+      title2 = `<span>填相邻数</span>`;
       
       // 第一行：正常粗体
       title1 = `
         <div style="font-size:22px;font-weight:bold">
-          相邻三个数的和是 <span style="color:#d63031">${S}</span>
+          <span style="border-bottom:3px double #000;padding-bottom:3px;">任意相邻三个数字的和都是<span style="color:#d63031">${S}</span></span>
         </div>
       `;
       // 第二行：整行双下划线（完全还原你截图）
@@ -1555,10 +1556,10 @@ const timer = setInterval(() => {
     // ⭐ 动态颜色（蓝 → 紫 → 红）
     // t 从 10 → 0
     // 计算颜色（蓝 → 紫 → 红）
-	const r = Math.floor(255 * (1 - t / 10));     // 0 → 255
-	const g = 100;                                 // 固定一点绿色，保持柔和
-	const b = Math.floor(255 * (t / 10));          // 255 → 0
-	bar.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+    const r = Math.floor(255 * (1 - t / 10));     // 0 → 255
+    const g = 100;                                 // 固定一点绿色，保持柔和
+    const b = Math.floor(255 * (t / 10));          // 255 → 0
+    bar.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 
     if (t <= 0) {
         clearInterval(timer);
