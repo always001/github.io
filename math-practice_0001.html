@@ -441,9 +441,9 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     <button class="btn btn-4" id="btnStats">📊 学习报告</button>
     <button class="btn btn-3" id="btnAI">🤖 AI 调难度</button>
     <div class="stats">
-      <div class="chip">⭐ <b id="hStar">0</b></div>
-      <div class="chip">🔥 <b id="hStreak">0</b>天</div>
-      <div class="chip">🎯 Lv.<b id="hLevel">1</b></div>
+      <div class="chip">⭐ 星星: <b id="hStar">0</b></div>
+      <div class="chip">🔥 连续: <b id="hStreak">0</b>天</div>
+      <div class="chip">🎯 等级: Lv.<b id="hLevel">1</b></div>
     </div>
   </div>
 
@@ -547,8 +547,8 @@ const Gen={
     // ====== 先决定 a 的范围（难度 1 和 2 不同） ======
     let a;
     if(diff === 1){
-      //a = rand(1, 4 + diff * 2);   // 难度 1
-      a = rand(1, 20);           // 难度 1
+      a = rand(1, 5 + diff * 2);   // 难度 1
+      //a = rand(1, 20);  // 难度 1
     } else {
       a = rand(12, 35);            // 难度 2~5
     }
@@ -1149,7 +1149,7 @@ const AI={
     const s=Store.data.stats,d=Store.data.difficulty;
     if(s.total>=5){
       const acc=s.correct/s.total;
-      if(acc>=0.9&&d.global<6)d.global++;
+      if(acc>=0.9&&d.global<6)d.global++; //★升档6
       else if(acc<0.5&&d.global>1)d.global--;
     }
     Object.keys(s.typeStats).forEach(t=>{
@@ -1157,7 +1157,7 @@ const AI={
       if(ts.total>=4){
         const a=ts.correct/ts.total;
         d.perType[t]=d.perType[t]||1;
-        if(a>=0.85&&d.perType[t]<6)d.perType[t]++;
+        if(a>=0.85&&d.perType[t]<6)d.perType[t]++; //★升档6
         else if(a<0.5&&d.perType[t]>1)d.perType[t]--;
       }
     });
@@ -1250,6 +1250,7 @@ const Game={
   render(q){
     const diff=AI.getDiff(this.curLvl.type);
     //const diff = Store.data.difficulty.global;
+    // ★升档6
     document.getElementById('gBody').innerHTML=`<div class="question">
       <div class="q-title">第 ${this.idx+1} / ${this.total} 题 · 难度 ${'⭐'.repeat(diff)}${'☆'.repeat(6-diff)}</div>
       <div class="q-main" id="qMain">${q.display}</div>
@@ -1851,6 +1852,7 @@ const App={
   },
   renderAI(){
     const sg=AI.suggest(),d=Store.data.difficulty;
+    //★升档6
     document.getElementById('aBody').innerHTML=`
       <div class="stat-card" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7);color:#fff">
         <h3 style="color:#fff">🧠 AI 评估</h3>
@@ -1869,18 +1871,20 @@ const App={
         }).join(''):'<p style="color:#999">玩几关后 AI 智能调档</p>'}
       </div>
       <div class="stat-card">
-        <h3>💡 建议</h3>
+        <h3>💡 学习建议</h3>
         ${sg.tips.map(t=>`<p>${t}</p>`).join('')||'<p>开始闯关获取建议</p>'}
       </div>
       <div class="stat-card">
         <h3>⚙️ 手动</h3>
         <button class="difficulty-badge" onclick="Store.data.difficulty.global=Math.max(1,Store.data.difficulty.global-1);Store.save();App.renderAI()">➖ 降档</button>
+        <!-- //★升档6 -->
         <button class="difficulty-badge" onclick="Store.data.difficulty.global=Math.min(6,Store.data.difficulty.global+1);Store.save();App.renderAI()">➕ 升档</button>
         <button class="difficulty-badge" style="background:#d63031" onclick="if(confirm('重置所有数据？')){localStorage.clear();location.reload()}">🗑 重置</button>
       </div>`;
   }
 };
 // 给 AI 页面添加建议显示
+/*
 const oldRenderAI = App.renderAI;
 App.renderAI = function(){
   oldRenderAI.call(this);
@@ -1892,6 +1896,7 @@ App.renderAI = function(){
     document.getElementById('aBody').appendChild(div);
   }
 };
+*/
 
 /* ============ 事件绑定（一次绑定，永不丢失） ============ */
 
@@ -1958,6 +1963,7 @@ document.getElementById('aBody').addEventListener('click',e=>{
   const el=e.target.closest('button');
   if(!el)return;
   if(el.id==='aiDown'){Store.data.difficulty.global=Math.max(1,Store.data.difficulty.global-1);Store.save()}
+  // ★升档6
   else if(el.id==='aiUp'){Store.data.difficulty.global=Math.min(6,Store.data.difficulty.global+1);Store.save()}
   else if(el.id==='aiReset'){if(confirm('重置所有数据？')){localStorage.clear();location.reload()}}
   App.renderAI();
