@@ -552,7 +552,7 @@ const Gen={
     } else {
       a = rand(12, 35);            // 难度 2~5
     }
-    alert(diff);
+    //alert(diff);
     let step = 1;        // 步长
     //let isDesc = false;  // 是否递减
     let showHint = true; // 是否显示提示
@@ -1665,7 +1665,8 @@ const timer = setInterval(() => {
     if(stars>lv.stars){Store.data.stars+=(stars-lv.stars);lv.stars=stars}
     if(t<lv.best)lv.best=t;
     if(right>=5)Store.data.level=Math.max(Store.data.level,this.curLvl.id);
-    if(stars>=2)Store.data.stars+=this.curLvl.id;
+    //if(right >= 5) Store.data.level += 1;
+    //if(stars>=2)Store.data.stars+=this.curLvl.id;
     Store.save();
     const emoji=stars===3?'🏆':stars===2?'🎉':stars===1?'😊':'💪';
     const msgs=['继续加油！','不错哦！','很棒！','完美通关！'][stars]||'加油~';
