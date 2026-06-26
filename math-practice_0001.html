@@ -547,8 +547,13 @@ const Gen={
     // ====== 先决定 a 的范围（难度 1 和 2 不同） ======
     let a;
     if(diff === 1){
-      a = rand(1, 5 + diff * 2);   // 难度 1
-      //a = rand(1, 20);  // 难度 1
+      // 生成不重复的 a
+      do {
+        a = rand(1, 5 + diff * 2);   // 1~7
+        //a = rand(1, 20);  // 难度 1
+      } while (a === lastA_diff1);
+
+      lastA_diff1 = a;  // 记住这次的 a   
     } else {
       a = rand(12, 35);            // 难度 2~5
     }
