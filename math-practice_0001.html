@@ -440,6 +440,8 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     <button class="btn btn-2" id="btnCheckin">📅 每日打卡</button>
     <button class="btn btn-4" id="btnStats">📊 学习报告</button>
     <button class="btn btn-3" id="btnAI">🤖 AI 调难度</button>
+    <button class="btn btn-1" id="btnDailyPractice">📝 今日练习（10题）</button>
+    <button class="btn btn-3" id="btnWrongPractice">❌ 错题重练</button>
     <div class="stats">
       <div class="chip">⭐ 星星: <b id="hStar">0</b></div>
       <div class="chip">🔥 连续: <b id="hStreak">0</b>天</div>
@@ -523,6 +525,29 @@ const Store={
   save(){localStorage.setItem('mathPark_v6',JSON.stringify(this.data))}
 };
 Store.load();
+
+
+// 专门给 math-report.html 用的练习记录存储
+function savePracticeRecord(correctCount, totalCount) {
+  try {
+    const key = "mp_records_v1";
+    const raw = localStorage.getItem(key);
+    const data = raw ? JSON.parse(raw) : { days: [] };
+
+    data.days.push({
+      time: Date.now(),
+      total: totalCount,
+      correct: Math.round((correctCount / totalCount) * 100),
+      wrong: totalCount - correctCount
+    });
+
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {
+    console.warn("无法保存练习记录：", e);
+  }
+}
+
+
 
 const WORLDS=[
   {name:'🌱 萌芽岛',levels:[
@@ -1725,6 +1750,9 @@ const timer = setInterval(() => {
     //if(right >= 5) Store.data.level += 1;
     //if(stars>=2)Store.data.stars+=this.curLvl.id;
     Store.save();
+    // ⭐ 在这里加一行，给报告页用
+    // ⭐⭐⭐ 在这里插入（不会破坏任何功能）
+    savePracticeRecord(right, this.total);
     const emoji=stars===3?'🏆':stars===2?'🎉':stars===1?'😊':'💪';
     const msgs=['继续加油！','不错哦！','很棒！','完美通关！'][stars]||'加油~';
     document.getElementById('modalCard').innerHTML=
