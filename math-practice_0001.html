@@ -546,17 +546,69 @@ const Gen={
     // 统一范围
     // ====== 先决定 a 的范围（难度 1 和 2 不同） ======
     let a;
-    if(diff === 1){
-      // 生成不重复的 a
-      do {
-        a = rand(1, 5 + diff * 2);   // 1~7
-        //a = rand(1, 20);  // 难度 1
-      } while (a === lastA_diff1);
-
-      lastA_diff1 = a;  // 记住这次的 a   
-    } else {
-      a = rand(12, 35);            // 难度 2~5
+    // ===== diff=1 终极出题系统 =====
+    let diff1Pool = [];        // 当前轮的题库（洗牌后）
+    let diff1History = [];     // 最近做过的题（避免短期重复）
+    const diff1Range = [1,2,3,4,5,6,7];  // diff=1 的题目范围
+    /* ✅ 第 2 步：把洗牌函数也放到全局（必须）*/
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
     }
+
+
+    if(diff === 1){
+
+      // ① 如果题库空了 → 重新洗牌生成一轮
+      if(diff1Pool.length === 0){
+        diff1Pool = shuffle([...diff1Range]);   // 洗牌
+      }
+
+      let candidate = null;
+
+      // ② 从题库里依次取题，但要满足“不相似、不重复”
+      while(diff1Pool.length > 0){
+        const tryA = diff1Pool[0];  // 看看下一题是什么（不立即取出）
+
+        const last = diff1History[diff1History.length - 1];
+
+        // ③ 智能避免相似题（避免 ±1）
+        const tooSimilar = (last !== undefined && Math.abs(tryA - last) <= 1);
+
+        // ④ 最近 5 题不重复
+        const inRecent = diff1History.includes(tryA);
+
+        if(!tooSimilar && !inRecent){
+          candidate = tryA;
+          diff1Pool.shift();  // 真正取出
+          break;
+        } else {
+          // 不合适 → 把它放到队尾（避免死循环）
+          diff1Pool.push(diff1Pool.shift());
+        }
+      }
+
+      // ⑤ 如果实在挑不到（极端情况）→ 强制取一个
+      if(candidate === null){
+        candidate = diff1Pool.shift();
+      }
+
+      // ⑥ 更新历史记录（只保留最近 5 题）
+      diff1History.push(candidate);
+      if(diff1History.length > 5){
+        diff1History.shift();
+      }
+
+      // ⑦ 最终的 a
+      a = candidate;
+
+    } else {
+      a = rand(12, 35);  // 难度 2~5
+    }
+
     //alert(diff);
     let step = 1;        // 步长
     //let isDesc = false;  // 是否递减
