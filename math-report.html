@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>练习报告 · 数学乐园</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      padding: 20px;
+      background: #f9fafb;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* 图表容器 */
+    #chart {
+      margin-top: 30px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    #chart canvas {
+      width: 100%;
+      height: 200px;
+    }
+
+    /* 学习建议 */
+    #advice {
+      margin-top: 30px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>练习报告 · 数学乐园</h1>
+  <div class="subtitle">以下是最近 30 天的练习情况（本机数据）</div>
+
+  <table id="report-table">
+    <thead>
+      <tr>
+        <th>日期</th>
+        <th>题目数</th>
+        <th>正确率</th>
+        <th>错题数</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="chart">
+    <h2 style="font-size:18px; margin-bottom:10px;">正确率趋势图</h2>
+    <canvas id="accuracyChart"></canvas>
+  </div>
+
+  <div id="advice">
+    <h2 style="font-size:18px; margin-bottom:10px;">学习建议</h2>
+    <div id="advice-text">正在分析数据…</div>
+  </div>
+
+  <script>
+    const MP_STORAGE_KEY = "mp_records_v1";
+
+    function loadReport() {
+      try {
+        const raw = localStorage.getItem(MP_STORAGE_KEY);
+        if (!raw) return [];
+        const data = JSON.parse(raw);
+        return data.days.slice(-30); // 最近 30 天
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function renderTable(records) {
+      const tbody = document.querySelector("#report-table tbody");
+      tbody.innerHTML = "";
+
+      records.forEach(item => {
+        const tr = document.createElement("tr");
+        const d = new Date(item.time);
+        const dateStr = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+        tr.innerHTML = `
+          <td>${dateStr}</td>
+          <td>${item.total}</td>
+          <td>${item.correct}%</td>
+          <td>${item.wrong}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderChart(records) {
+      const canvas = document.getElementById("accuracyChart");
+      const ctx = canvas.getContext("2d");
+
+      const labels = records.map(r => {
+        const d = new Date(r.time);
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      });
+
+      const values = records.map(r => r.correct);
+
+      // 纯原生绘图，不依赖任何库
+      const W = canvas.width;
+      const H = canvas.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // 坐标轴
+      ctx.strokeStyle = "#d1d5db";
+      ctx.beginPath();
+      ctx.moveTo(40, 10);
+      ctx.lineTo(40, H - 30);
+      ctx.lineTo(W - 10, H - 30);
+      ctx.stroke();
+
+      // 折线图
+      ctx.strokeStyle = "#3b82f6";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      values.forEach((v, i) => {
+        const x = 40 + (i * (W - 60) / (values.length - 1));
+        const y = (H - 30) - (v / 100) * (H - 50);
+
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+
+        // 点
+        ctx.fillStyle = "#3b82f6";
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.stroke();
+    }
+
+    function generateAdvice(records) {
+      if (!records.length) {
+        return "暂无练习记录，请先在数学乐园完成一组练习。";
+      }
+
+      const avg = records.reduce((a, b) => a + b.correct, 0) / records.length;
+      const last = records[records.length - 1].correct;
+
+      if (avg >= 90) {
+        return "整体表现非常优秀，建议继续保持每日练习，适当挑战更高难度。";
+      } else if (avg >= 70) {
+        return "表现良好，可以适当增加每日练习量，并重点复习错题。";
+      } else {
+        return "建议每天坚持练习，并重点进行错题重练，逐步提升正确率。";
+      }
+    }
+
+    // 主流程
+    const records = loadReport();
+    renderTable(records);
+    renderChart(records);
+
+    document.getElementById("advice-text").textContent = generateAdvice(records);
+  </script>
+
+</body>
+</html>
