@@ -1182,71 +1182,82 @@ const Gen={
     return{type:'grid',display:'',answer:[3,5,10,3]};
   },
   break10_add(diff){
-  	console.log("✅ 现在运行的是我改过的新版 break10_add");
-  	console.log("使用的是新版 break10_add");
-    // 生成一个两位数 a = 10x + y
-    const ten = rand(2, 5 + diff);   // 十位
-    const one = rand(1, 9);          // 个位
-    const a = ten * 10 + one;
+    while(true){
+      // 生成
+      // ① 生成一个两位数 a = 10x + y （两位数，个位必须 1~9）
+      const ten = rand(2, 9);          // 十位 20~90
+      const one = rand(1, 9);          // 个位 1~9
+      const a = ten * 10 + one;
 
-    // 计算补数 need
-    const need = 10 - one;
+      // ② 计算补数 need（必须 1~9）
+      const need = 10 - one;
+      if(need <= 0 || need >= 10) continue;
+      
+      // ③ 生成第二个数 b（必须满足 b >= need，且不能导致 left=0）
+      //const b = rand(need, need + 5 + diff);
+      // b 必须 >= need，且不能是 10（反教材）
+      //let b = rand(need, need + 5 + diff);
+      let b = rand(need + 1, need + 20);   // 扩大范围，支持更大 sum
+      //if(b === 10) return null;
+      if(b === 10) continue;               // 避免教材不推荐的 10
+      //if(b < need) return null;
+      const left = b - need;               // 剩余部分
+      if(left <= 0 || left >= 20) continue;
 
-    // 生成第二个数 b，必须满足 b >= need
-    //const b = rand(need, need + 5 + diff);
-    // b 必须 >= need，且不能是 10（反教材）
-    let b = rand(need, need + 5 + diff);
-    if(b === 10) return null;
-    if(b < need) return null;
+      // ④ sum 必须在合理区间（你要求 ≤108）
+      const sum = a + b;
+      if(sum <= 10 || sum > 108) continue;
 
-    const left = b - need;           // 剩余部分
-    const sum = a + b;
+      // ⑤ 排除“天然凑十”的题（例如 34+6）
+      if(one + b === 10) continue;
 
-    return {
-        type: "break10_add",
-        display:
-        '<div style="font-size:26px;font-weight:bold;line-height:1.8">' +
-            '<span class="break-known">' + a + '</span>' +
-            '<span class="break-op">+</span>' +
-            '<span class="break-known">' + b + '</span>' +
-            '<span class="break-op">=</span>' +
-            '<span class="break-known" style="color:#d63031">' + sum + '</span>' +
-        '</div>' +
+      // ⑥ 题目合格
+      return {
+          type: "break10_add",
+          display:
+          '<div style="font-size:26px;font-weight:bold;line-height:1.8">' +
+              '<span class="break-known">' + a + '</span>' +
+              '<span class="break-op">+</span>' +
+              '<span class="break-known">' + b + '</span>' +
+              '<span class="break-op">=</span>' +
+              '<span class="break-known" style="color:#d63031">' + sum + '</span>' +
+          '</div>' +
 
-        '<div class="break-row" style="font-size:17px;color:#636e72">' +
-            '拆 <b style="color:#d63031">' + b + '</b>：' +
-            '<b class="box empty" data-i="0"></b>' +
-            '<span class="break-op">+</span>' +
-            '<b class="box empty" data-i="1"></b>' +
-        '</div>' +
+          '<div class="break-row" style="font-size:17px;color:#636e72">' +
+              '拆 <b style="color:#d63031">' + b + '</b>：' +
+              '<b class="box empty" data-i="0"></b>' +
+              '<span class="break-op">+</span>' +
+              '<b class="box empty" data-i="1"></b>' +
+          '</div>' +
 
-        '<div class="break-row">' +
-            '先算 <span class="break-known">' + one + '</span>' +
-            '<span class="break-op">+</span>' +
-            '<span class="break-known">' + need + '</span>' +
-            '<span class="break-op">=</span>' +
-            '<span class="break-known" style="color:#d63031">10</span>' +
-            '<span class="break-op">→</span>' +
-            '<b class="box empty" data-i="2"></b>' +
-        '</div>' +
+          '<div class="break-row">' +
+              '先算 <span class="break-known">' + one + '</span>' +
+              '<span class="break-op">+</span>' +
+              '<span class="break-known">' + need + '</span>' +
+              '<span class="break-op">=</span>' +
+              '<span class="break-known" style="color:#d63031">10</span>' +
+              '<span class="break-op">→</span>' +
+              '<b class="box empty" data-i="2"></b>' +
+          '</div>' +
 
-        '<div class="break-row">' +
-            '再算 <span class="break-known">' + a + '</span>' +
-            '<span class="break-op">+</span>' +
-            '<span class="break-known">' + b + '</span>' +
-            '<span class="break-op">=</span>' +
-            '<b class="box empty" data-i="3"></b>' +
-        '</div>' +
-        '<div class="hint">💡 拆第二个数，使个位先凑成 10，再加剩下的部分</div>' +
-        '<div class="hint">💡 拆分顺序可互换：两种拆法都算对</div>',
-        answer: [
-            [need, left, left, sum],   // 标准拆法
-            [left, need, left, sum],   // 拆分互换
-            [need, left, sum],         // 精简版（有些孩子只填最终结果）
-            [left, need, sum]          // 精简互换版
-        ],
-        readText: a + ' 加 ' + b + '，先用 ' + need + ' 凑十，再加剩下的 ' + left
-    };
+          '<div class="break-row">' +
+              '再算 <span class="break-known">' + a + '</span>' +
+              '<span class="break-op">+</span>' +
+              '<span class="break-known">' + b + '</span>' +
+              '<span class="break-op">=</span>' +
+              '<b class="box empty" data-i="3"></b>' +
+          '</div>' +
+          '<div class="hint">💡 拆第二个数，使个位先凑成 10，再加剩下的部分</div>' +
+          '<div class="hint">💡 拆分顺序可互换：两种拆法都算对</div>',
+          answer: [
+              [need, left, left, sum],   // 标准拆法
+              [left, need, left, sum],   // 拆分互换
+              [need, left, sum],         // 精简版（有些孩子只填最终结果）
+              [left, need, sum]          // 精简互换版
+          ],
+          readText: a + ' 加 ' + b + '，先用 ' + need + ' 凑十，再加剩下的 ' + left
+      };
+    }
   },
   break10_sub(diff){
     const ten=rand(2,5+diff),one=rand(2,8),sub=rand(one+1,9);
