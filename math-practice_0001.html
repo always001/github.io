@@ -440,8 +440,8 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     <button class="btn btn-2" id="btnCheckin">📅 每日打卡</button>
     <button class="btn btn-4" id="btnStats">📊 学习报告</button>
     <button class="btn btn-3" id="btnAI">🤖 AI 调难度</button>
-    <button class="btn btn-1" id="btnDailyPractice">📝 今日练习（10题）</button>
-    <button class="btn btn-3" id="btnWrongPractice">❌ 错题重练</button>
+    <button class="btn btn-1" id="btnDaily">📝 今日练习（10题）</button>
+    <button class="btn btn-3" id="btnWrong">❌ 错题重练</button>
     <div class="stats">
       <div class="chip">⭐ 星星: <b id="hStar">0</b></div>
       <div class="chip">🔥 连续: <b id="hStreak">0</b>天</div>
@@ -506,6 +506,22 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     <div class="topbar">
       <span class="back" id="backAI">←</span>
       <span class="title">🤖 AI 调难度</span>
+    </div>
+    <div class="stats-page" id="aBody"></div>
+  </div>
+  
+  <div class="screen" id="ai">
+    <div class="topbar">
+      <span class="back" id="backDaily">←</span>
+      <span class="title">📝 今日练习</span>
+    </div>
+    <div class="stats-page" id="aBody"></div>
+  </div>
+  
+  <div class="screen" id="ai">
+    <div class="topbar">
+      <span class="back" id="backWrong">←</span>
+      <span class="title">❌ 错题重练</span>
     </div>
     <div class="stats-page" id="aBody"></div>
   </div>
@@ -893,7 +909,7 @@ const Gen={
     
     // =========================
     // ⭐⭐ return 放在最后
-    // =========================    
+    // ========================= 
     return{type:'neighbor',
       display:`
         ${title1}
@@ -1166,30 +1182,71 @@ const Gen={
     return{type:'grid',display:'',answer:[3,5,10,3]};
   },
   break10_add(diff){
-    const ten=rand(2,5+diff),one=rand(3,9),add=rand(2,9-one+5);
-    const carry=one+add,sum=ten*10+carry,borrow=10-one,right=add-borrow;
-    return{type:'break10_add',
-      display:`<div style="font-size:26px;font-weight:bold;line-height:1.8">
-        <span class="break-known">${ten*10+one}</span><span class="break-op">+</span>
-        <span class="break-known">${add}</span><span class="break-op">=</span>
-        <span class="break-known" style="color:#d63031">${sum}</span></div>
-      <div class="break-row" style="font-size:17px;color:#636e72">
-        拆 <b style="color:#d63031">${add}</b>：
-        <b class="box empty" data-i="0"></b><span class="break-op">+</span><b class="box empty" data-i="1"></b>
-      </div>
-      <div class="break-row">
-        先算 <span class="break-known">${one}</span><span class="break-op">+</span>
-        <span class="break-known">${add}</span><span class="break-op">=</span>
-        1<span style="color:#d63031">0</span><span class="break-op">+</span>
-        <b class="box empty" data-i="2"></b>
-      </div>
-      <div class="break-row">
-        再算 <span class="break-known">${ten*10+one}</span><span class="break-op">+</span>
-        <span class="break-known">${add}</span><span class="break-op">=</span>
-        <b class="box empty" data-i="3"></b>
-      </div>
-      <div class="hint">💡 拆小数，先算个位加个位（结果≥10）</div>`,
-      answer:[borrow,right,carry-10,sum]};
+  	console.log("✅ 现在运行的是我改过的新版 break10_add");
+  	console.log("使用的是新版 break10_add");
+    // 生成一个两位数 a = 10x + y
+    const ten = rand(2, 5 + diff);   // 十位
+    const one = rand(1, 9);          // 个位
+    const a = ten * 10 + one;
+
+    // 计算补数 need
+    const need = 10 - one;
+
+    // 生成第二个数 b，必须满足 b >= need
+    //const b = rand(need, need + 5 + diff);
+    // b 必须 >= need，且不能是 10（反教材）
+    let b = rand(need, need + 5 + diff);
+    if(b === 10) return null;
+    if(b < need) return null;
+
+    const left = b - need;           // 剩余部分
+    const sum = a + b;
+
+    return {
+        type: "break10_add",
+        display:
+        '<div style="font-size:26px;font-weight:bold;line-height:1.8">' +
+            '<span class="break-known">' + a + '</span>' +
+            '<span class="break-op">+</span>' +
+            '<span class="break-known">' + b + '</span>' +
+            '<span class="break-op">=</span>' +
+            '<span class="break-known" style="color:#d63031">' + sum + '</span>' +
+        '</div>' +
+
+        '<div class="break-row" style="font-size:17px;color:#636e72">' +
+            '拆 <b style="color:#d63031">' + b + '</b>：' +
+            '<b class="box empty" data-i="0"></b>' +
+            '<span class="break-op">+</span>' +
+            '<b class="box empty" data-i="1"></b>' +
+        '</div>' +
+
+        '<div class="break-row">' +
+            '先算 <span class="break-known">' + one + '</span>' +
+            '<span class="break-op">+</span>' +
+            '<span class="break-known">' + need + '</span>' +
+            '<span class="break-op">=</span>' +
+            '<span class="break-known" style="color:#d63031">10</span>' +
+            '<span class="break-op">→</span>' +
+            '<b class="box empty" data-i="2"></b>' +
+        '</div>' +
+
+        '<div class="break-row">' +
+            '再算 <span class="break-known">' + a + '</span>' +
+            '<span class="break-op">+</span>' +
+            '<span class="break-known">' + b + '</span>' +
+            '<span class="break-op">=</span>' +
+            '<b class="box empty" data-i="3"></b>' +
+        '</div>' +
+        '<div class="hint">💡 拆第二个数，使个位先凑成 10，再加剩下的部分</div>' +
+        '<div class="hint">💡 拆分顺序可互换：两种拆法都算对</div>',
+        answer: [
+            [need, left, left, sum],   // 标准拆法
+            [left, need, left, sum],   // 拆分互换
+            [need, left, sum],         // 精简版（有些孩子只填最终结果）
+            [left, need, sum]          // 精简互换版
+        ],
+        readText: a + ' 加 ' + b + '，先用 ' + need + ' 凑十，再加剩下的 ' + left
+    };
   },
   break10_sub(diff){
     const ten=rand(2,5+diff),one=rand(2,8),sub=rand(one+1,9);
@@ -1285,6 +1342,136 @@ const Game={
   curLvl:null,idx:0,total:5,startTime:0,timer:null,
   current:null,inputs:[],box:0,opMode:false,active:false,
   curStars:0,
+  
+  // ⭐ 1. 今日练习模式（10题）
+  startDailyPractice(){
+    this.stop();
+    this.curLvl = { id: 999, name: "今日练习", type: "daily" };
+    this.idx = 0;
+    this.total = 10;
+    this.curStars = 0;
+    this.startTime = Date.now();
+    this.active = true;
+
+    document.getElementById('gTitle').textContent = "今日练习";
+    document.getElementById('gStar').textContent = "0";
+    document.getElementById('gTime').textContent = "0";
+
+    this.timer = setInterval(()=>{
+      if(this.active){
+        document.getElementById('gTime').textContent =
+          Math.floor((Date.now()-this.startTime)/1000);
+      }
+    },200);
+
+    App.go('game');
+    this.nextDaily();
+  },
+  
+  // ⭐ 2. 今日练习的 nextDaily（随机题型）
+  nextDaily(){
+    if(this.idx >= this.total){
+      this.finish();
+      return;
+    }
+
+    const types = ["neighbor","make10","symbol","tree","shape","grid","break10_add","break10_sub"];
+    const type = types[Math.floor(Math.random()*types.length)];
+
+    const diff = AI.getDiff(type);
+    const q = Gen[type](diff);
+    
+    // ⭐ 如果题目生成失败（返回 null）→ 自动换题
+    if(!q){
+        return this.nextDaily();
+    }
+
+    this.current = q;
+    this.opMode = !!q.op;
+
+    const baseAnswer = Array.isArray(q.answer[0]) ? q.answer[0] : q.answer;
+    this.inputs = Array(baseAnswer.length).fill('');
+
+    this.box = 0;
+    this.render(q);
+  },
+
+  // ⭐ 3. 错题重练模式
+  startWrongPractice(){
+    const wrongList = Store.data.stats.wrongList || [];
+
+    if(wrongList.length === 0){
+      alert("当前没有错题记录，请先做几关练习。");
+      return;
+    }
+
+    this.stop();
+    this.curLvl = { id: 998, name: "错题重练", type: "wrong" };
+    this.idx = 0;
+    this.total = wrongList.length;
+    this.curStars = 0;
+    this.startTime = Date.now();
+    this.active = true;
+
+    document.getElementById('gTitle').textContent = "错题重练";
+    document.getElementById('gStar').textContent = "0";
+    document.getElementById('gTime').textContent = "0";
+
+    this.timer = setInterval(()=>{
+      if(this.active){
+        document.getElementById('gTime').textContent =
+          Math.floor((Date.now()-this.startTime)/1000);
+      }
+    },200);
+
+    App.go('game');
+    this.nextWrong();
+  },
+
+  // ⭐ 4. 错题重练的 nextWrong
+  nextWrong(){
+    const wrongList = Store.data.stats.wrongList || [];
+
+    if(this.idx >= wrongList.length){
+      this.finish();
+      return;
+    }
+
+    const q = wrongList[this.idx];
+
+    this.current = q;
+    this.opMode = !!q.op;
+
+    const baseAnswer = Array.isArray(q.answer[0]) ? q.answer[0] : q.answer;
+    this.inputs = Array(baseAnswer.length).fill('');
+
+    this.box = 0;
+    this.render(q);
+  },
+  
+  // 🟢 增加一个完全兼容多组答案的判题逻辑（可直接用）， ok() 函数调用它即可
+  check(){
+    const user = this.inputs;
+    // 多组答案情况
+    if(Array.isArray(this.current.answer[0])){
+      for(const ans of this.current.answer){
+        if(ans.length === user.length){
+          let ok = true;
+          for(let i=0;i<ans.length;i++){
+            if(ans[i] != user[i]) ok = false;
+          }
+          if(ok) return true;
+        }
+      }
+      return false;
+    }
+
+    // 单组答案情况
+    for(let i=0;i<this.current.answer.length;i++){
+      if(this.current.answer[i] != user[i]) return false;
+    }
+    return true;
+  },
 
   findLvl(id){for(const w of WORLDS)for(const l of w.levels)if(l.id===id)return l;return null},
 
@@ -1499,6 +1686,7 @@ const Game={
   selectBox(i){this.box=i;this.drawInputs()},
 
   ok(){
+  	const isCorrect = this.check(); // ok()函数调用函数check()
     if(!this.active||!this.current)return;
     // 检查是否所有输入都填了
     //for(let i=0;i<this.inputs.length;i++)if(!this.inputs[i]){shake();return}
@@ -1649,8 +1837,7 @@ const timer = setInterval(() => {
         // ⭐ 叮提示音
         this.ding();
 
-// 🟩 最终版：10 秒倒计时动画
- 
+      // 🟩 最终版：10 秒倒计时动画
       // 6. 2 分钟后：隐藏答案 + 记错题 + 跳下一题
       //setTimeout(() => {          // 註釈  🟩 最终版：10 秒倒计时动画
         //this.active = true;
@@ -1702,9 +1889,27 @@ const timer = setInterval(() => {
     if(correct){
       beep(880,0.1);this.curStars++;
       document.getElementById('gStar').textContent=this.curStars;
-      this.idx++;setTimeout(()=>this.next(),500);
+      this.idx++;
+      setTimeout(()=>{
+          if(this.curLvl.type === "daily"){
+              this.nextDaily();     // ⭐ 今日练习
+          }else if(this.curLvl.type === "wrong"){
+              this.nextWrong();     // ⭐ 错题重练
+          }else{
+              this.next();          // ⭐ 正常关卡
+          }
+      },500);
     }else{
-      beep(220,0.2);this.idx++;setTimeout(()=>this.next(),900);
+      beep(220,0.2);this.idx++;
+      setTimeout(()=>{
+          if(this.curLvl.type === "daily"){
+              this.nextDaily();     // ⭐ 今日练习
+          }else if(this.curLvl.type === "wrong"){
+              this.nextWrong();     // ⭐ 错题重练
+          }else{
+              this.next();          // ⭐ 正常关卡
+          }
+      },900);
     }
   },
   
@@ -1722,16 +1927,30 @@ const timer = setInterval(() => {
   },
 
   record(correct){
-    const s=Store.data.stats;
-    s.total++;if(correct)s.correct++;
-    const t=Date.now()-this.startTime;
-    s.typeStats[this.curLvl.type]=s.typeStats[this.curLvl.type]||{correct:0,total:0,times:[]};
-    s.typeStats[this.curLvl.type].total++;
-    if(correct)s.typeStats[this.curLvl.type].correct++;
-    s.typeStats[this.curLvl.type].times.push(t);
-    if(s.typeStats[this.curLvl.type].times.length>20)s.typeStats[this.curLvl.type].times.shift();
-    s.times[this.curLvl.type].push(t);
-    if(s.times[this.curLvl.type].length>20)s.times[this.curLvl.type].shift();
+    const s = Store.data.stats;
+    const type = this.current?.type || this.curLvl.type;  // ⭐ 关键：优先用题目自己的类型
+    s.total++;
+    if(correct) s.correct++;
+    const t = Date.now() - this.startTime;
+    // 初始化题型统计
+    s.typeStats[type] = s.typeStats[type] || {correct:0,total:0,times:[]};
+    // 题型总数 + 正确数
+    s.typeStats[type].total++;
+    if(correct) s.typeStats[type].correct++;
+    // 时间记录（按题型）
+    s.typeStats[type].times.push(t);
+    if(s.typeStats[type].times.length > 20)
+        s.typeStats[type].times.shift();
+    // 全局时间记录（按题型）
+    s.times[type] = s.times[type] || [];
+    s.times[type].push(t);
+    if(s.times[type].length > 20)
+        s.times[type].shift();
+    // ⭐ 记录错题（关键）
+    if(!correct){
+        Store.data.stats.wrongList = Store.data.stats.wrongList || [];
+        Store.data.stats.wrongList.push(this.current);
+    }
     Store.save();
   },
 
@@ -1992,6 +2211,14 @@ document.getElementById('btnWorlds').onclick=()=>App.go('worlds');
 document.getElementById('btnCheckin').onclick=()=>App.go('checkin');
 document.getElementById('btnStats').onclick=()=>App.go('stats');
 document.getElementById('btnAI').onclick=()=>App.go('ai');
+// 今日练习（10题）
+document.getElementById('btnDaily').onclick=()=> {
+  Game.startDailyPractice();
+};
+// 错题重练
+document.getElementById('btnWrong').onclick=()=> {
+  Game.startWrongPractice();
+};
 
 // 返回箭头
 document.getElementById('backWorlds').onclick=()=>App.go('home');
@@ -1999,6 +2226,8 @@ document.getElementById('backGame').onclick=()=>Game.quit();
 document.getElementById('backCheckin').onclick=()=>App.go('home');
 document.getElementById('backStats').onclick=()=>App.go('home');
 document.getElementById('backAI').onclick=()=>App.go('home');
+document.getElementById('backDaily').onclick=()=>App.go('home');
+document.getElementById('backWrong').onclick=()=>App.go('home');
 
 // 关卡点击（用事件委托，因为关卡列表每次重新渲染）
 document.getElementById('worldList').addEventListener('click',e=>{
@@ -2037,7 +2266,13 @@ document.getElementById('modal').addEventListener('click',e=>{
   const id=el.id;
   document.getElementById('modal').classList.remove('on');
   if(id==='mReplay'){
-    if(Game.curLvl)Game.start(Game.curLvl.id);
+      if(Game.curLvl?.type === "wrong"){
+          Game.startWrongPractice();   // ⭐ 正确：重新开始错题重练
+      }else if(Game.curLvl?.type === "daily"){
+          Game.startDailyPractice();   // ⭐ 今日练习也要正确重启
+      }else{
+          Game.start(Game.curLvl.id);  // ⭐ 正常关卡
+      }
   }else if(id==='mHome'){
     Game.quit();
   }else if(id==='mWorlds'){
