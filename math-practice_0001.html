@@ -579,28 +579,29 @@ function calc(ns,ops){let v=ns[0];for(let i=0;i<ops.length;i++)v=ops[i]==='+'?v+
 function typeName(t){return{neighbor:'相邻数和',make10:'凑十法',symbol:'填符号',tree:'算式树',
   shape:'图形算式',grid:'竖式方格',break10_add:'破十加',break10_sub:'破十减',boss:'综合'}[t]||t}
 
+
+// ===== diff=1 终极出题系统（必须全局）=====
+let diff1Pool = [];        // 当前轮的题库（洗牌后）
+let diff1History = [];     // 最近做过的题（避免短期重复）
+const diff1Range = [1,2,3,4,5,6,7];  // diff=1 的题目范围
+/* ✅ 第 2 步：把洗牌函数也放到全局（必须）*/
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 /* ============ 题目生成器 ============ */
-const Gen={
+const Gen={    
   // 1. 相邻数和
   neighbor(diff){
     //const a=rand(2,4+diff*2);
     // 统一范围
     // ====== 先决定 a 的范围（难度 1 和 2 不同） ======
     let a;
-    // ===== diff=1 终极出题系统 =====
-    let diff1Pool = [];        // 当前轮的题库（洗牌后）
-    let diff1History = [];     // 最近做过的题（避免短期重复）
-    const diff1Range = [1,2,3,4,5,6,7];  // diff=1 的题目范围
-    /* ✅ 第 2 步：把洗牌函数也放到全局（必须）*/
-    function shuffle(arr){
-      for(let i = arr.length - 1; i > 0; i--){
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-
+    
     if(diff === 1){
 
       // ① 如果题库空了 → 重新洗牌生成一轮
