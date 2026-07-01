@@ -593,6 +593,58 @@ function shuffle(arr){
   return arr;
 }
 
+// 🟩 第一步：定义图形库（9 个图形）
+const SHAPES = [
+  "🔺", // 三角形
+  "🟥", // 正方形
+  "🟩", // 长方形
+  "⚪", // 圆形
+  "🟡", // 椭圆（用黄色圆代替）
+  "🔷", // 梯形
+  "🧊", // 正方体
+  "📦", // 长方体
+  "⚽", // 球体
+];
+
+// 🟩 第二步：全局变量记录上一题的图形组合
+let lastShapes = null;   // 例如 ["🔺","⚪","🟦"]
+
+function pickShapes(){
+  const arr = [...SHAPES];
+  // 洗牌
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  // 取前三个
+  return arr.slice(0, 3);
+}
+
+// 🟩 第三步：随机抽取 3 个不同图形（并避免与上一题重复）
+function pickShapesAvoidRepeat(){
+  let shapes;
+
+  do {
+    // 洗牌
+    const arr = [...SHAPES];
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+
+    // 抽取前三个
+    shapes = arr.slice(0, 3);
+
+    // 如果和上一题一样 → 重新抽
+  } while (lastShapes && shapes.join("") === lastShapes.join(""));
+
+  // 更新上一题
+  lastShapes = shapes;
+
+  return shapes;
+}
+
+
 /* ============ 题目生成器 ============ */
 const Gen={    
   // 1. 相邻数和
@@ -1133,22 +1185,41 @@ const Gen={
     return{type:'tree',display:'',answer:[12,15]};
   },
   shape(diff){
-    const tri=rand(2,6+diff),cir=rand(3,8+diff),sq=rand(2,7+diff),sum=tri+cir+sq;
-    return{type:'shape',
-      display:`<div class="shape-eq"><b style="color:#d63031;font-size:26px">${sum}</b> =
-        <span class="shape-emoji">🔺</span>+<span class="shape-emoji">⚪</span>+<span class="shape-emoji">🟦</span></div>
-      <div class="shape-list">
-        🔺 + ⚪ = <b class="box empty" data-i="0"></b><br>
-        ⚪ + 🟦 = <b style="color:#2d3436">${cir+sq}</b><br>
-        🔺 + 🟦 = <b style="color:#2d3436">${tri+sq}</b>
-      </div>
-      <div class="shape-answers">
-        <div class="shape-item">🔺=<b class="box empty" data-i="1"></b></div>
-        <div class="shape-item">⚪=<b class="box empty" data-i="2"></b></div>
-        <div class="shape-item">🟦=<b class="box empty" data-i="3"></b></div>
-      </div>
-      <div class="hint">💡 通过加减法推导出图形代表的数</div>`,
-      answer:[tri+cir,tri,cir,sq]};
+    // ① 随机抽取 3 个图形（自动避免与上一题重复）
+    const [S1, S2, S3] = pickShapesAvoidRepeat();
+
+    // ② 随机生成数值
+    const tri = rand(2, 6 + diff);
+    const cir = rand(3, 8 + diff);
+    const sq  = rand(2, 7 + diff);
+    const sum = tri + cir + sq;
+
+    return {
+      type:'shape',
+      display:`
+        <div class="shape-eq">
+          <b style="color:#d63031;font-size:26px">${sum}</b> =
+          <span class="shape-emoji">${S1}</span> +
+          <span class="shape-emoji">${S2}</span> +
+          <span class="shape-emoji">${S3}</span>
+        </div>
+
+        <div class="shape-list">
+          ${S1} + ${S2} = <b class="box empty" data-i="0"></b><br>
+          ${S2} + ${S3} = <b style="color:#2d3436">${cir + sq}</b><br>
+          ${S1} + ${S3} = <b style="color:#2d3436">${tri + sq}</b>
+        </div>
+
+        <div class="shape-answers">
+          <div class="shape-item">${S1} = <b class="box empty" data-i="1"></b></div>
+          <div class="shape-item">${S2} = <b class="box empty" data-i="2"></b></div>
+          <div class="shape-item">${S3} = <b class="box empty" data-i="3"></b></div>
+        </div>
+
+        <div class="hint">💡 通过加减法推导出图形代表的数</div>
+      `,
+      answer:[tri+cir, tri, cir, sq]
+    };
   },
   grid(diff){
     for(let t=0;t<60;t++){
