@@ -1332,32 +1332,47 @@ const Gen={
     }
   },
   break10_sub(diff){
-    const ten=rand(2,5+diff),one=rand(2,8),sub=rand(one+1,9);
-    const result=ten*10+one-sub,borrow=10-one,rest=sub-borrow;
-    return{type:'break10_sub',
-      display:`<div style="font-size:26px;font-weight:bold;line-height:1.8">
-        <span class="break-known">${ten*10+one}</span><span class="break-op">−</span>
-        <span class="break-known">${sub}</span><span class="break-op">=</span>
-        <span class="break-known" style="color:#d63031">${result}</span></div>
-      <div class="break-row" style="font-size:17px;color:#636e72">
-        拆 <b style="color:#d63031">${sub}</b>：
-        <b class="box empty" data-i="0"></b><span class="break-op">+</span><span class="break-known">${rest}</span>
-      </div>
-      <div class="break-row" style="color:#0984e3">
-        先算 <span class="break-known">${one}</span> 不够减 <span class="break-known">${sub}</span>，借 1 个 10
-      </div>
-      <div class="break-row">
-        <span class="break-known">${10+one}</span><span class="break-op">−</span>
-        <span class="break-known">${sub}</span><span class="break-op">=</span>
-        <b class="box empty" data-i="1"></b>
-      </div>
-      <div class="break-row">
-        <span class="break-known">${ten*10+one}</span><span class="break-op">−</span>
-        <span class="break-known">${sub}</span><span class="break-op">=</span>
-        <b class="box empty" data-i="2"></b>
-      </div>
-      <div class="hint">💡 个位不够减时，从十位借 1 变 10</div>`,
-      answer:[borrow,10+one-sub,result]};
+    const ten = rand(2, 5 + diff);   // 十位
+    const one = rand(0, 9);          // 个位
+    const sub = rand(1, 9);          // 减数
+
+    // 必须保证需要借位：one < sub
+    if(one >= sub) return this.break10_sub(diff);
+
+    const original = ten*10 + one;
+    const borrowed = 10 + one;       // 借位后的个位
+    const mid = borrowed - sub;      // 借位计算结果
+    const result = original - sub;
+
+    return {
+      type:'break10_sub',
+      display:`
+        <div class="break-row" style="font-size:26px;font-weight:bold;line-height:1.8">
+          <span class="break-known">${original}</span><span class="break-op">−</span>
+          <span class="break-known">${sub}</span><span class="break-op">=</span>
+          <span class="break-known" style="color:#d63031">${result}</span>
+        </div>
+
+        <div class="break-row" style="color:#0984e3">
+          个位 <span class="break-known">${one}</span> 不够减 <span class="break-known">${sub}</span>，向十位借 1 变成 <span class="break-known">${borrowed}</span>
+        </div>
+
+        <div class="break-row">
+          <span class="break-known">${borrowed}</span><span class="break-op">−</span>
+          <span class="break-known">${sub}</span><span class="break-op">=</span>
+          <b class="box empty" data-i="0"></b>
+        </div>
+
+        <div class="break-row">
+          <span class="break-known">${original}</span><span class="break-op">−</span>
+          <span class="break-known">${sub}</span><span class="break-op">=</span>
+          <b class="box empty" data-i="1"></b>
+        </div>
+
+        <div class="hint">💡 个位不够减时，从十位借 1 变 10</div>
+      `,
+      answer:[mid, result]
+    };
   },
   boss(diff){
     const ts=['tree','shape','symbol','break10_add','break10_sub','grid'];
