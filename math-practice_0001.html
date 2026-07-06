@@ -1631,6 +1631,9 @@ document.addEventListener("click", (e) => {
   if (e.target.id === "userSayBtn") {
     console.log("✅ userSayBtn clicked");   // 先看控制台有没有这句
     const box = document.getElementById("aiExplainBox");
+
+    box.style.display = "block";   // ⭐⭐ 关键修复点：显示聊天框
+
     if (!box) {
       console.warn("❌ aiExplainBox not found");
       return;
