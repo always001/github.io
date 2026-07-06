@@ -442,6 +442,38 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   line-height: 1.5;
 }
 
+/* 聊天气泡样式 */
+.ai-bubble {
+  //background: #f1f1f1;
+  background: #e8f9e9;              /* 🌿 浅绿色背景 */
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin: 10px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 90%;
+  //box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);  /* 更柔和的阴影 */
+  border-left: 5px solid #6ac46a;         /* 🌿 左侧绿色强调条（更像聊天气泡） */
+}
+
+/* 闪烁光标 */
+.cursor {
+  display: inline-block;
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* AI 输出区自动滚动 */
+#aiExplainBox {
+  max-height: 260px;
+  overflow-y: auto;
+}
 
 </style>
 </head>
@@ -1552,34 +1584,59 @@ if (!aiExplainListenerBound) {
 	        /* ------------------------------------------------------ */
 	        /* ⭐⭐ 逐字打印效果 ⭐⭐ */
 	        /* ------------------------------------------------------ */
-	
-	        function typeWriter(text, element, speed = 30) {
-	          let index = 0;
-	          function type() {
-	            if (index < text.length) {
-	              element.innerHTML += text.charAt(index);
-	              index++;
-	              setTimeout(type, speed);
-	            }
-	          }
-	          type();
-	        }
-	
-	        async function typeWriterParagraphs(paragraphs, element, speed = 30, gap = 400) {
-	          for (const p of paragraphs) {
-	            const pEl = document.createElement("p");
-	            element.appendChild(pEl);
-	            await new Promise(resolve => {
-	              typeWriter(p, pEl, speed);
-	              setTimeout(resolve, p.length * speed + gap);
-	            });
-	          }
-	        }
-	
-	        const aiText = data.text || "❌ Worker 返回内容为空";
-	        const paragraphs = aiText.split("\n").map(s => s.trim()).filter(s => s);
-	
-	        await typeWriterParagraphs(paragraphs, box, 35, 500);
+	        /* ------------------------------------------------------ */
+            /* ⭐⭐ 打字机 + 聊天气泡 + 自动滚动 + 闪烁光标 + 渐入动画 ⭐⭐ */
+            /* ------------------------------------------------------ */
+            
+            function createBubble() {
+              const bubble = document.createElement("div");
+              bubble.className = "ai-bubble";
+              bubble.style.opacity = "0";            // 渐入动画初始透明
+              bubble.style.transition = "opacity 0.6s ease";  // 渐入动画
+              box.appendChild(bubble);
+              return bubble;
+            }
+            
+            function typeWriter(text, element, speed = 30) {
+              let index = 0;
+            
+              // 闪烁光标
+              const cursor = document.createElement("span");
+              cursor.className = "cursor";
+              cursor.innerHTML = "█";
+              element.appendChild(cursor);
+            
+              function type() {
+                if (index < text.length) {
+                  cursor.insertAdjacentText("beforebegin", text.charAt(index));
+                  index++;
+                  setTimeout(type, speed);
+                  box.scrollTop = box.scrollHeight;   // 自动滚动到底部
+                } else {
+                  cursor.remove(); // 打完后移除光标
+                }
+              }
+            
+              type();
+            }
+            
+            async function typeWriterParagraphs(paragraphs, element, speed = 30, gap = 400) {
+              for (const p of paragraphs) {
+                const bubble = createBubble();
+                bubble.style.opacity = "1";  // 渐入动画触发
+            
+                await new Promise(resolve => {
+                  typeWriter(p, bubble, speed);
+                  setTimeout(resolve, p.length * speed + gap);
+                });
+              }
+            }
+            
+            const aiText = data.text || "❌ Worker 返回内容为空";
+            const paragraphs = aiText.split("\n").map(s => s.trim()).filter(s => s);
+                   
+            /* ⭐⭐ 使用聊天气泡打印 AI 内容 ⭐⭐ */
+            await typeWriterParagraphs(paragraphs, box, 35, 500);
 	
 	        /* ------------------------------------------------------ */
 	        /* ⭐⭐ 结束运行，允许下一次点击 ⭐⭐ */
