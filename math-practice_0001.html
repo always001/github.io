@@ -667,6 +667,55 @@ function pickShapesAvoidRepeat(){
   return shapes;
 }
 
+// 🚀 最终方案：根据 CSS 判断有效题目（自动识别）
+// 🟩 ⭐ 最终版（真正删除线 + 伪删除线都能判断）
+// ★ 判断“是否被划掉”：同时支持真删除线 + 伪删除线
+function isCrossed(el) {
+  // ① 真删除线
+  const deco = window.getComputedStyle(el).textDecorationLine;
+  if (deco === "line-through") return true;
+
+  // ② 伪删除线（你画的双红线）
+  const before = window.getComputedStyle(el, "::before").borderTopStyle;
+  const after  = window.getComputedStyle(el, "::after").borderBottomStyle;
+  if (before !== "none" || after !== "none") return true;
+
+  return false;
+}
+
+function getValidQuestionTitle() {
+  // ★ 修改 1：不再假设 .border 一定是第一行，而是先拿到两行题目
+  const lineEl = document.querySelector(".neighbor-line");
+  if (!lineEl) return "";
+
+  // 这里按你页面结构：数字行上面紧挨着两行题目
+  const title2El = lineEl.previousElementSibling;          // 第二行（紧挨着数字行）
+  const title1El = title2El?.previousElementSibling;       // 第一行（再往上一个）
+  if (!title1El || !title2El) return "";
+
+  const t1   = title1El.innerText.trim();
+  const t2   = title2El.innerText.trim();
+  const line = lineEl.innerText.trim();
+
+  // ★ 修改 2：对这两行分别判断“是否被划掉”（真删线 + 伪删线）
+  const s1 = isCrossed(title1El);
+  const s2 = isCrossed(title2El);
+
+  let validTitle = "";
+
+  // ★ 修改 3：谁被划掉谁作废，没划掉的那一行才是有效题目
+  if (s1 && !s2) {
+    validTitle = t2;   // 第一行被划掉 → 用第二行
+  } else if (!s1 && s2) {
+    validTitle = t1;   // 第二行被划掉 → 用第一行
+  } else {
+    // 都没划掉：默认用第一行（你难度 3、4、5、6 的情况）
+    validTitle = t1;
+  }
+
+  return `${validTitle} ${line}`.trim();
+}
+
 
 /* ============ 题目生成器 ============ */
 const Gen={    
@@ -1010,22 +1059,31 @@ const Gen={
         box.style.display = "block";
         box.innerHTML = "AI 正在分析题目，请稍等…";
 
-        const title1 = document.querySelector(".border")?.innerText || "";
-        const title2 = document.querySelector(".neighbor-line")?.previousElementSibling?.innerText || "";
-        const questionText = `${title1} ${title2}`;
+        //const title1 = document.querySelector(".border")?.innerText || "";
+        //const title2 = document.querySelector(".neighbor-line")?.previousElementSibling?.innerText || "";
+        //const questionText = `${title1} ${title2}`;
+        // ⭐⭐ 题目文本（你页面里真正的题目位置）
+        //const questionText = document.querySelector(".neighbor-line")?.innerText || "";
+        // ⭐ 自动识别有效题目
+        const questionText = getValidQuestionTitle();
 
-        const response = await fetch("https://math-ai-proxy.gankenrin.workers.dev/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            question: questionText,
-            left: AI_left,
-            right: AI_right,
-            answer: AI_answer
-          })
-        });
-        const data = await response.json();
-        box.innerHTML = data.text;
+        try {
+		  const response = await fetch("https://math-ai-proxy.gankenrin.workers.dev/", {
+		    method: "POST",
+		    headers: { "Content-Type": "application/json" },
+		    body: JSON.stringify({
+		      question: questionText  // ⭐ Worker 现在只接受这个
+		    })
+		  });
+		
+		  const data = await response.json();
+		  box.innerHTML = data.text || "❌ Worker 返回内容为空";
+		
+		} catch (err) {
+		  box.innerHTML = "❌ 前端错误：" + err.message;
+		  console.error(err);
+		}
+
       }
     });
 
