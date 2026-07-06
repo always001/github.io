@@ -432,6 +432,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   cursor: pointer;
 }
 
+/*
 .ai-box {
   margin-top: 10px;
   background: #f0f8ff;
@@ -441,25 +442,44 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   font-size: 16px;
   line-height: 1.5;
 }
+*/
+.ai-box {
+  display: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
 
 /* 聊天气泡样式 */
 /* AI 气泡（浅绿色） */
-.ai-bubble {
-  background: #e8f9e9;
-  padding: 12px 16px;
-  border-radius: 14px;
-  margin: 10px 0;
-  font-size: 16px;
-  line-height: 1.6;
-  max-width: 80%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  border-left: 5px solid #6ac46a;
+/*
+.ai-bubble, .user-bubble {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
+  margin: 8px 0;
 }
 
+.ai-bubble .bubble-text,
+.user-bubble .bubble-text {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.ai-bubble .bubble-text {
+  background: #e8f9e9;
+}
+
+.user-bubble .bubble-text {
+  background: #d6e8ff;
+}
+*/
+
 /* AI 头像 */
+/*
 .ai-avatar {
   width: 40px;
   height: 40px;
@@ -468,8 +488,10 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   background: url('https://always001.github.io/github.io/assets/ai.png');
   background-size: cover;
 }
+*/
 
 /* 用户气泡（蓝色） */
+/*
 .user-bubble {
   background: #d6e8ff;
   padding: 12px 16px;
@@ -485,8 +507,10 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   gap: 10px;
   margin-left: auto; /* 右侧对齐 */
 }
+*/
 
 /* 用户头像 */
+/*
 .user-avatar {
   width: 40px;
   height: 40px;
@@ -495,6 +519,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   background: url('https://always001.github.io/github.io/assets/user.png');
   background-size: cover;
 }
+*/
 
 /* 闪烁光标 */
 .cursor {
@@ -512,6 +537,63 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 #aiExplainBox {
   max-height: 260px;
   overflow-y: auto;
+}
+
+/* 微信风格输入区 */
+.chat-input-area {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.chat-send-btn {
+  padding: 10px 16px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+// 🟩 第五部分：AI 头像眨眼动画（可爱、灵动）
+.ai-avatar {
+  width: 32px;
+  height: 32px;
+  background: url('https://always001.github.io/github.io/assets/ai.png');
+  background-size: cover;
+  border-radius: 50%;
+  animation: aiBlink 4s infinite;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: #4a90e2;
+  border-radius: 50%;
+}
+
+@keyframes aiBlink {
+  0%, 48%, 52%, 100% { filter: brightness(1); }
+  50% { filter: brightness(0.3); } /* 眨眼 */
+}
+
+.cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: cursorBlink 1s infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 </style>
@@ -1111,7 +1193,12 @@ const Gen={
       ${showHint ? hintHTML : ""}
       <button id="aiExplainBtn" class="ai-btn">不会？点我讲解</button>
       <button id="userSayBtn" class="ai-btn" style="background:#4a90e2;">我不会</button>
+
       <div id="aiExplainBox" class="ai-box"></div>
+      <div class="chat-input-area">
+        <input id="userInput" class="chat-input" placeholder="请输入你的问题..." />
+        <button id="sendUserMsg" class="chat-send-btn">发送</button>
+      </div>
     `;
 
     /* ------------------------------------------------------ */
@@ -1571,7 +1658,7 @@ if (!aiExplainListenerBound) {
       box.style.display = "block";
 
       if (loadingTimer) clearInterval(loadingTimer);
-      box.innerHTML = "";
+      //box.innerHTML = "";
 
       box.innerHTML = `
         <div style="display:flex; align-items:center; gap:10px;">
@@ -1627,6 +1714,7 @@ if (!aiExplainListenerBound) {
 /* ------------------------------------------------------ */
 /* ⭐⭐ 用户气泡按钮监听器（必须放在 AI 监听器外面） ⭐⭐ */
 /* ------------------------------------------------------ */
+/* “我不会”按钮：固定文案用户气泡 */
 document.addEventListener("click", (e) => {
   if (e.target.id === "userSayBtn") {
     console.log("✅ userSayBtn clicked");   // 先看控制台有没有这句
@@ -1642,11 +1730,63 @@ document.addEventListener("click", (e) => {
     // 创建用户气泡
     const bubbleText = createBubble(true);  // true = 用户气泡
     bubbleText.innerText = "我不会做这道题";
+    
+    saveChatRecord("user", "我不会做这道题");
 
     // 自动滚动到底部
     box.scrollTop = box.scrollHeight;
   }
 });
+
+/* 发送按钮：输入框内容 → 用户气泡 */
+document.addEventListener("click", (e) => {
+  if (e.target.id === "sendUserMsg") {
+
+    const input = document.getElementById("userInput");
+    if (!input) return;
+    
+    const text = input.value.trim();
+    if (!text) return;
+
+    const box = document.getElementById("aiExplainBox");
+    box.style.display = "block";
+
+    const bubbleText = createBubble(true);  // 用户气泡
+    bubbleText.innerText = text;
+
+    saveChatRecord("user", text);  // ⭐ 保存聊天记录
+
+    box.scrollTop = box.scrollHeight;
+    input.value = "";
+  }
+});
+
+// 🟩 第三部分：聊天记录保存（刷新不丢
+/* 聊天记录保存 / 恢复 */
+function saveChatRecord(role, text) {
+  const history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+  history.push({ role, text });
+  localStorage.setItem("chatHistory", JSON.stringify(history));
+}
+
+// ⭐ 页面加载时恢复聊天记录(放在 App.renderAI() 之后：)
+function loadChatRecord() {
+  const box = document.getElementById("aiExplainBox");
+  if (!box) return;
+
+  const history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+  if (!history.length) return;
+
+  box.style.display = "block";
+
+  history.forEach(msg => {
+    const bubbleText = createBubble(msg.role === "user");
+    bubbleText.innerText = msg.text;
+    bubbleText.parentElement.style.opacity = "1";
+  });
+
+  box.scrollTop = box.scrollHeight;
+}
 
 /* ============ AI ============ */
 const AI={
@@ -2556,7 +2696,7 @@ const App={
   }
 };
 // 给 AI 页面添加建议显示
-/*
+
 const oldRenderAI = App.renderAI;
 App.renderAI = function(){
   oldRenderAI.call(this);
@@ -2567,8 +2707,13 @@ App.renderAI = function(){
     div.innerHTML='<h3>💡 建议</h3>'+sg.tips.map(t=>`<p>${t}</p>`).join('');
     document.getElementById('aBody').appendChild(div);
   }
+  // 渲染题目后调用
+  loadChatRecord();
 };
-*/
+
+
+
+
 
 /* ============ 事件绑定（一次绑定，永不丢失） ============ */
 
@@ -2677,7 +2822,7 @@ function createBubble(isUser = false) {
   }
 
   bubble.style.opacity = "0";
-  bubble.style.transition = "opacity 0.6s ease";
+  bubble.style.transition = "opacity 0.4s ease";
   
   /*
   bubble.className = isUser ? "user-bubble" : "ai-bubble";
@@ -2693,6 +2838,11 @@ function createBubble(isUser = false) {
   const box = document.querySelector("#aiExplainBox");
   box.appendChild(bubble);
 
+  // 渐入
+  requestAnimationFrame(() => {
+    bubble.style.opacity = "1";
+  });
+  
   return bubble.querySelector(".bubble-text");
 }
 
@@ -2725,14 +2875,20 @@ async function typeWriterParagraphs(paragraphs, speed = 30, gap = 400) {
 
   for (const p of paragraphs) {
     const bubbleText = createBubble(false); // AI 气泡
-    bubbleText.parentElement.style.opacity = "1";
+    //bubbleText.parentElement.style.opacity = "1";
 
     await new Promise(resolve => {
       typeWriter(p, bubbleText, speed);
       setTimeout(resolve, p.length * speed + gap);
     });
   }
+  
+  box.scrollTop = box.scrollHeight;
 }
+
+// 🟦 第四部分：AI 回复时也保存聊天记录(在 AI 打字机结束后：)
+saveChatRecord("ai", aiText);
+
 
 </script>
 </body>
