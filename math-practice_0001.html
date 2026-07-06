@@ -432,7 +432,6 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   cursor: pointer;
 }
 
-/*
 .ai-box {
   margin-top: 10px;
   background: #f0f8ff;
@@ -442,16 +441,32 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   font-size: 16px;
   line-height: 1.5;
 }
-*/
+
+/*
 .ai-box {
-  display: none;
+  display: block;
   max-height: 260px;
   overflow-y: auto;
 }
+*/
 
 
 /* 聊天气泡样式 */
 /* AI 气泡（浅绿色） */
+.ai-bubble {
+  background: #e8f9e9;
+  padding: 12px 16px;
+  border-radius: 14px;
+  margin: 10px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 80%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  border-left: 5px solid #6ac46a;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
 /*
 .ai-bubble, .user-bubble {
   display: flex;
@@ -479,7 +494,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 */
 
 /* AI 头像 */
-/*
+
 .ai-avatar {
   width: 40px;
   height: 40px;
@@ -488,10 +503,9 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   background: url('https://always001.github.io/github.io/assets/ai.png');
   background-size: cover;
 }
-*/
+
 
 /* 用户气泡（蓝色） */
-/*
 .user-bubble {
   background: #d6e8ff;
   padding: 12px 16px;
@@ -507,10 +521,9 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   gap: 10px;
   margin-left: auto; /* 右侧对齐 */
 }
-*/
+
 
 /* 用户头像 */
-/*
 .user-avatar {
   width: 40px;
   height: 40px;
@@ -519,7 +532,6 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   background: url('https://always001.github.io/github.io/assets/user.png');
   background-size: cover;
 }
-*/
 
 /* 闪烁光标 */
 .cursor {
@@ -576,8 +588,10 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 .user-avatar {
   width: 32px;
   height: 32px;
+  background: url('https://always001.github.io/github.io/assets/user.png');
   background: #4a90e2;
-  border-radius: 50%;
+  bordanimation: aiBlink 4s infinite;er-radius: 50%;
+  
 }
 
 @keyframes aiBlink {
@@ -1193,7 +1207,6 @@ const Gen={
       ${showHint ? hintHTML : ""}
       <button id="aiExplainBtn" class="ai-btn">不会？点我讲解</button>
       <button id="userSayBtn" class="ai-btn" style="background:#4a90e2;">我不会</button>
-
       <div id="aiExplainBox" class="ai-box"></div>
       <div class="chat-input-area">
         <input id="userInput" class="chat-input" placeholder="请输入你的问题..." />
@@ -1717,20 +1730,26 @@ if (!aiExplainListenerBound) {
 /* “我不会”按钮：固定文案用户气泡 */
 document.addEventListener("click", (e) => {
   if (e.target.id === "userSayBtn") {
-    console.log("✅ userSayBtn clicked");   // 先看控制台有没有这句
+  	// ⭐ 让“我不会”按钮触发 AI 讲解
+  	//document.getElementById("aiExplainBtn").click();
+  	
+    //console.log("✅ userSayBtn clicked");   // 先看控制台有没有这句
     const box = document.getElementById("aiExplainBox");
 
     box.style.display = "block";   // ⭐⭐ 关键修复点：显示聊天框
 
-    if (!box) {
-      console.warn("❌ aiExplainBox not found");
-      return;
-    }
-
+    //if (!box) {
+      //console.warn("❌ aiExplainBox not found");
+      //return;
+    //}
+     
+    box.click();
     // 创建用户气泡
     const bubbleText = createBubble(true);  // true = 用户气泡
-    bubbleText.innerText = "我不会做这道题";
-    
+    //bubbleText.innerText = "我不会做这道题";
+    const msgs = ["老师我不会", "能讲一下吗？", "我不懂这个题"];
+    bubbleText.innerText = msgs[Math.floor(Math.random() * msgs.length)];
+
     saveChatRecord("user", "我不会做这道题");
 
     // 自动滚动到底部
