@@ -610,6 +610,18 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   51%, 100% { opacity: 0; }
 }
 
+/* 🟦 前端动画 CSS（加到你的 <style>）*/
+.step-item {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.6s ease;
+}
+
+.step-item.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 </style>
 </head>
 <body>
@@ -1206,7 +1218,10 @@ const Gen={
       </div>
       ${showHint ? hintHTML : ""}
       <button id="aiExplainBtn" class="ai-btn">不会？点我讲解</button>
-      <div id="aiExplainBox" class="ai-box"></div>
+      <div id="aiExplainBox" class="ai-box">
+        <!-- ⭐ 动画步骤显示区（放这里） -->
+        <div id="steps-container"></div>
+      </div>
       <button id="userSayBtn" class="ai-btn" style="background:#4a90e2;">我不会</button>
       <div class="chat-input-area">
         <input id="userInput" class="chat-input" placeholder="请输入你的问题..." />
@@ -1654,6 +1669,23 @@ const Gen={
   }
 };
 
+// ⭐ 这里放 playSteps（必须放这里）
+function playSteps(stepArray) {
+  const container = document.getElementById("steps-container");
+  container.innerHTML = "";
+
+  stepArray.forEach((step, index) => {
+    const div = document.createElement("div");
+    div.className = "step-item";
+    div.innerText = step;
+    container.appendChild(div);
+
+    setTimeout(() => {
+      div.classList.add("show");
+    }, index * 800);
+  });
+}
+
 // ⭐ 第 1 部分：AI 讲解监听器（保持你的逻辑，只移除内部函数）
 if (!aiExplainListenerBound) {
   aiExplainListenerBound = true;
@@ -1670,7 +1702,7 @@ if (!aiExplainListenerBound) {
       const box = document.getElementById("aiExplainBox");
       box.style.display = "block";
 
-      if (loadingTimer) clearInterval(loadingTimer);
+      //if (loadingTimer) clearInterval(loadingTimer);
       //box.innerHTML = "";
 
       box.innerHTML = `
@@ -1678,6 +1710,7 @@ if (!aiExplainListenerBound) {
           <div style="font-size:28px;">🤖</div>
           <div id="aiLoadingText" style="font-size:16px;">AI 正在分析题目，请稍等</div>
         </div>
+        <div id="steps-container"></div>   <!-- ⭐ 动画步骤区域 -->
       `;
 
       let dotCount = 0;
@@ -1702,12 +1735,18 @@ if (!aiExplainListenerBound) {
         setTimeout(async () => {
 
           clearInterval(loadingTimer);
-          box.innerHTML = "";
+          //box.innerHTML = "";
+          box.innerHTML = `<div id="steps-container"></div>`;  // ⭐ 保留动画区域
 
           const aiText = data.text || "❌ Worker 返回内容为空";
           const paragraphs = aiText.split("\n").map(s => s.trim()).filter(s => s);
 
           await typeWriterParagraphs(paragraphs, 35, 500);
+          
+          // ⭐ 打字机结束后播放动画步骤
+          if (data.steps) {
+            playSteps(data.steps);
+          }
 
           isRunning = false;
 
@@ -1730,9 +1769,9 @@ if (!aiExplainListenerBound) {
 /* “我不会”按钮：固定文案用户气泡 */
 document.addEventListener("click", (e) => {
   if (e.target.id === "userSayBtn") {
-  	// ⭐ 让“我不会”按钮触发 AI 讲解
-  	//document.getElementById("aiExplainBtn").click();
-  	
+    // ⭐ 让“我不会”按钮触发 AI 讲解
+    //document.getElementById("aiExplainBtn").click();
+    
     //console.log("✅ userSayBtn clicked");   // 先看控制台有没有这句
     const box = document.getElementById("aiExplainBox");
 
@@ -2907,7 +2946,6 @@ async function typeWriterParagraphs(paragraphs, speed = 30, gap = 400) {
 
 // 🟦 第四部分：AI 回复时也保存聊天记录(在 AI 打字机结束后：)
 saveChatRecord("ai", aiText);
-
 
 </script>
 </body>
