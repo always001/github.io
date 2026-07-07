@@ -1443,38 +1443,35 @@ const Gen={
       ];
 
       // 找出所有正确答案
-      const valid = [];
-      for(const ops of allOps){
-        const r = calc(ns, ops);
-        if(r>=0 && r<=30 && r!==ns[0] && r!==ns[1]){
-          valid.push({ops, r});
-          // ⭐⭐ 放这里最有效 ⭐⭐
-          console.log('ns=', ns, 'ops=', ops, 'r=', r, 'valid=', valid);
-        }
-      }
+      // ⭐ 先算出所有结果
+      const allResults = allOps.map(ops => ({ops, r: calc(ns, ops)}));
 
-      // 如果有至少一种合法答案
-      if(valid.length > 0){
-        // 随机选一个 r（因为可能不同 ops 得到不同 r）
-        const pick = valid[Math.floor(Math.random()*valid.length)];
+      // ⭐ 过滤掉不合法的 r
+      const legal = allResults.filter(v => v.r>=0 && v.r<=30);
 
-        return {
-          type:'symbol',
-          op:true,
-          display:`<div class="symbol-line">
-            <span class="known">${ns[0]}</span><b class="op empty" data-i="0">＋</b>
-            <span class="known">${ns[1]}</span><b class="op empty" data-i="1">＋</b>
-            <span class="known">${ns[2]}</span><b class="op empty" data-i="2">＋</b>
-            <span class="known">${ns[3]}</span><span class="known" style="color:#6c5ce7">=</span>
-            <span class="known" style="color:#d63031">${pick.r}</span></div>
-          <div class="hint">💡 在方框里选 <b>+</b> 或 <b>−</b>，让等式成立</div>`,
+      if(legal.length === 0) continue;
+
+      // ⭐ 随机选一个 r 作为题目的最终结果
+      const pick = legal[Math.floor(Math.random()*legal.length)];
+
+      // ⭐ 找出所有能得到同样 r 的 ops（真正的多解）
+      const valid = legal.filter(v => v.r === pick.r);
+
+      return {
+        type:'symbol',
+        op:true,
+        display:`<div class="symbol-line">
+          <span class="known">${ns[0]}</span><b class="op empty" data-i="0">＋</b>
+          <span class="known">${ns[1]}</span><b class="op empty" data-i="1">＋</b>
+          <span class="known">${ns[2]}</span><b class="op empty" data-i="2">＋</b>
+          <span class="known">${ns[3]}</span><span class="known" style="color:#6c5ce7">=</span>
+          <span class="known" style="color:#d63031">${pick.r}</span></div>
+        <div class="hint">💡 在方框里选 <b>+</b> 或 <b>−</b>，让等式成立</div>`,
           
-          // ⭐ 返回所有正确答案（多解）
-          answer: valid.map(v => v.ops)
-        };
-      }
+        // ⭐ 返回所有正确答案（多解）
+        answer: valid.map(v => v.ops)
+      };
     }
-
     // 兜底
     return {type:'symbol',op:true,display:'',answer:[['+','-','+']]};
   },
