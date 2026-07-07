@@ -1428,22 +1428,53 @@ const Gen={
   },
   symbol(diff){
     for(let i=0;i<60;i++){
-      const ns=Array.from({length:4},()=>rand(2,5+diff*2));
-      const ops=Array.from({length:3},()=>Math.random()<0.5?'+':'-');
-      const r=calc(ns,ops);
-      if(r>=0&&r<=30&&r!==ns[0]&&r!==ns[1]){
-        return{type:'symbol',op:true,
+      const ns = Array.from({length:4},()=>rand(2,5+diff*2));
+
+      // 枚举所有 8 种符号组合
+      const allOps = [
+        ['+','+','+'],
+        ['+','+','-'],
+        ['+','-','+'],
+        ['+','-','-'],
+        ['-','+','+'],
+        ['-','+','-'],
+        ['-','-','+'],
+        ['-','-','-']
+      ];
+
+      // 找出所有正确答案
+      const valid = [];
+      for(const ops of allOps){
+        const r = calc(ns, ops);
+        if(r>=0 && r<=30 && r!==ns[0] && r!==ns[1]){
+          valid.push({ops, r});
+        }
+      }
+
+      // 如果有至少一种合法答案
+      if(valid.length > 0){
+        // 随机选一个 r（因为可能不同 ops 得到不同 r）
+        const pick = valid[Math.floor(Math.random()*valid.length)];
+
+        return {
+          type:'symbol',
+          op:true,
           display:`<div class="symbol-line">
             <span class="known">${ns[0]}</span><b class="op empty" data-i="0">＋</b>
             <span class="known">${ns[1]}</span><b class="op empty" data-i="1">＋</b>
             <span class="known">${ns[2]}</span><b class="op empty" data-i="2">＋</b>
             <span class="known">${ns[3]}</span><span class="known" style="color:#6c5ce7">=</span>
-            <span class="known" style="color:#d63031">${r}</span></div>
+            <span class="known" style="color:#d63031">${pick.r}</span></div>
           <div class="hint">💡 在方框里选 <b>+</b> 或 <b>−</b>，让等式成立</div>`,
-          answer:ops};
+          
+          // ⭐ 返回所有正确答案（多解）
+          answer: valid.map(v => v.ops)
+        };
       }
     }
-    return{type:'symbol',op:true,display:'',answer:['+','-','+']};
+
+    // 兜底
+    return {type:'symbol',op:true,display:'',answer:[['+','-','+']]};
   },
   tree(diff){
     for(let t=0;t<40;t++){
@@ -2027,8 +2058,11 @@ const Game={
   
   // 🟢 增加一个完全兼容多组答案的判题逻辑（可直接用）， ok() 函数调用它即可
   check(){
-    const user = this.inputs;
-    // 多组答案情况
+  	// const user = this.inputs;
+    // 转换用户输入为半角符号
+    const user = this.inputs.map(v => v === '＋' ? '+' : v === '－' ? '-' : v);
+
+    // 多组答案情况（二维数组）
     if(Array.isArray(this.current.answer[0])){
       for(const ans of this.current.answer){
         if(ans.length === user.length){
@@ -2042,7 +2076,7 @@ const Game={
       return false;
     }
 
-    // 单组答案情况
+    // 单组答案情况（一维数组）
     for(let i=0;i<this.current.answer.length;i++){
       if(this.current.answer[i] != user[i]) return false;
     }
@@ -2262,7 +2296,7 @@ const Game={
   selectBox(i){this.box=i;this.drawInputs()},
 
   ok(){
-  	const isCorrect = this.check(); // ok()函数调用函数check()
+    const isCorrect = this.check(); // ok()函数调用函数check()
     if(!this.active||!this.current)return;
     // 检查是否所有输入都填了
     //for(let i=0;i<this.inputs.length;i++)if(!this.inputs[i]){shake();return}
