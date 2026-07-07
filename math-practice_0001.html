@@ -1736,15 +1736,17 @@ if (!aiExplainListenerBound) {
 
           clearInterval(loadingTimer);
           //box.innerHTML = "";
-          box.innerHTML = `<div id="steps-container"></div>`;  // ⭐ 保留动画区域
-
+          // ⭐ 保留 steps-container，不要清空掉
+          box.innerHTML = `<div id="steps-container"></div>`; 
+          
           const aiText = data.text || "❌ Worker 返回内容为空";
           const paragraphs = aiText.split("\n").map(s => s.trim()).filter(s => s);
-
+          
+          // ⭐ 打字机显示讲解文字
           await typeWriterParagraphs(paragraphs, 35, 500);
           
           // ⭐ 打字机结束后播放动画步骤
-          if (data.steps) {
+          if (data.steps && Array.isArray(data.steps)) {
             playSteps(data.steps);
           }
 
