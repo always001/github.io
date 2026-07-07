@@ -1737,17 +1737,27 @@ if (!aiExplainListenerBound) {
           clearInterval(loadingTimer);
           //box.innerHTML = "";
           // ⭐ 保留 steps-container，不要清空掉
-          box.innerHTML = `<div id="steps-container"></div>`; 
-          
+          // ⭐ 正确结构：讲解文字 + 动画步骤
+          box.innerHTML = `
+            <div id="steps-container"></div>
+            <div id="aiText"></div>
+          `;
+
           const aiText = data.text || "❌ Worker 返回内容为空";
           const paragraphs = aiText.split("\n").map(s => s.trim()).filter(s => s);
           
-          // ⭐ 打字机显示讲解文字
-          await typeWriterParagraphs(paragraphs, 35, 500);
+          // ⭐ 打字机写入 aiText，而不是 steps-container
+          const aiTextBox = document.getElementById("aiText");
+          await typeWriterParagraphs(paragraphs, 35, 500, aiTextBox);
           
           // ⭐ 打字机结束后播放动画步骤
           if (data.steps && Array.isArray(data.steps)) {
             playSteps(data.steps);
+            // ⭐ 自动滚动到动画步骤区域
+            document.getElementById("steps-container").scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
           }
 
           isRunning = false;
@@ -2947,7 +2957,7 @@ async function typeWriterParagraphs(paragraphs, speed = 30, gap = 400) {
 }
 
 // 🟦 第四部分：AI 回复时也保存聊天记录(在 AI 打字机结束后：)
-saveChatRecord("ai", aiText);
+//saveChatRecord("ai", aiText);
 
 </script>
 </body>
