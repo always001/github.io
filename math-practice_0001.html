@@ -1448,6 +1448,8 @@ const Gen={
         const r = calc(ns, ops);
         if(r>=0 && r<=30 && r!==ns[0] && r!==ns[1]){
           valid.push({ops, r});
+          // ⭐⭐ 放这里最有效 ⭐⭐
+          console.log('ns=', ns, 'ops=', ops, 'r=', r, 'valid=', valid);
         }
       }
 
