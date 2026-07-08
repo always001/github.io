@@ -644,6 +644,8 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     <button class="btn btn-3" id="btnAI">🤖 AI 调难度</button>
     <button class="btn btn-1" id="btnDaily">📝 今日练习（10题）</button>
     <button class="btn btn-3" id="btnWrong">❌ 错题重练</button>
+    <!-- ⭐ 在这里加错题本按钮（最佳位置） -->
+    <button class="btn btn-4" id="btnErrorBook">📘 错题本</button>
     <div class="stats">
       <div class="chip">⭐ 星星: <b id="hStar">0</b></div>
       <div class="chip">🔥 连续: <b id="hStreak">0</b>天</div>
@@ -651,7 +653,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     </div>
   </div>
 
-  <div class="screen" id="worlds">
+  <div class="screen" id="worlds" style="position:relative;">
     <div class="topbar">
       <span class="back" id="backWorlds">←</span>
       <span class="title">🗺️ 冒险地图</span>
@@ -669,7 +671,29 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
         <span>⏱ <b id="gTime">0</b>″</span>
       </span>
     </div>
+    <!-- ⭐ 正常题目渲染区 -->
     <div class="game-body" id="gBody"></div>
+    <!-- ⭐ 损坏题提示区（你之前缺少的） -->
+    <div id="gQuestion"
+         style="
+           position:absolute;
+           top:80px;
+           left:0;
+           width:100%;
+           z-index:999;
+           padding:20px;
+         ">
+    </div>
+
+    <!-- ⭐ 手动清除损坏错题按钮（最佳位置） -->
+    <button id="btnFixBroken"
+            style="position:fixed;right:15px;bottom:15px;
+                   padding:10px 14px;border-radius:8px;
+                   background:#e74c3c;color:#fff;font-size:14px;
+                   display:none;z-index:999;">
+      🗑 清除损坏错题
+    </button>
+    <!-- ⭐ 正确答案显示区 -->
     <!-- ⭐永远不被 render() 覆盖的正确答案显示区（新增） -->
     <div id="correctAnswerBox" style="display:none; margin:15px 0; padding:10px; font-size:22px; color:#e74c3c; text-align:center; background:#fff5f5; border-radius:8px;">
         <div id="correctText"></div>
@@ -712,20 +736,29 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     <div class="stats-page" id="aBody"></div>
   </div>
   
-  <div class="screen" id="ai">
+  <div class="screen" id="daily">
     <div class="topbar">
       <span class="back" id="backDaily">←</span>
       <span class="title">📝 今日练习</span>
     </div>
-    <div class="stats-page" id="aBody"></div>
+    <div class="stats-page" id="dailyBody"></div>
   </div>
-  
-  <div class="screen" id="ai">
+
+  <div class="screen" id="wrong">
     <div class="topbar">
       <span class="back" id="backWrong">←</span>
       <span class="title">❌ 错题重练</span>
     </div>
-    <div class="stats-page" id="aBody"></div>
+    <div class="stats-page" id="wrongBody"></div>
+  </div>
+
+  <!-- ⭐ 新增：⭐ 在这里加错题本页面（最佳位置） -->
+  <div class="screen" id="errorbook" style="padding:16px;">
+    <div class="topbar">
+      <span class="back" id="backErrorbook">←</span>
+      <span class="title">📘 错题本</span>
+    </div>
+    <div id="errorBookList" style="margin-top:12px;font-size:14px;"></div>
   </div>
 
   <div class="modal" id="modal">
@@ -2004,10 +2037,16 @@ const Game={
 
   // ⭐ 3. 错题重练模式
   startWrongPractice(){
+
+    // ⭐ 自动修复错题记录
+    //this.fixWrongList();
+
+    // ⭐ 清除 null 错题（关键修复）
+    Store.data.stats.wrongList = (Store.data.stats.wrongList || []).filter(q => q);
     const wrongList = Store.data.stats.wrongList || [];
 
     if(wrongList.length === 0){
-      alert("当前没有错题记录，请先做几关练习。");
+      alert("当前没有错题记录，请先做几关练习。\n当前没有可重练的错题（旧错题已自动清理）。");
       return;
     }
 
@@ -2034,6 +2073,47 @@ const Game={
     this.nextWrong();
   },
   
+  // 🎯 错题记录 wrongList 里保存的旧题目结构不完整 → rebuildQuestion 得到错误数据 → 错题重练出现错误答案或白屏
+  fixWrongList(){
+  const wrongList = Store.data.stats.wrongList || [];
+  const newList = [];
+
+  for(const oldQ of wrongList){
+
+    let damaged = false;  // ⭐ 每题单独判断
+
+    if(oldQ.type === 'symbol'){
+      // ⭐ 只判断完全无法重建的情况
+      if(!Array.isArray(oldQ.ns)) damaged = true;
+      if(typeof oldQ.r !== 'number') damaged = true;
+
+      const freshQ = this.rebuildQuestion(oldQ);
+      freshQ.damaged = damaged;
+      newList.push(freshQ);
+      continue;
+    }
+
+    if(oldQ.type === 'neighbor'){
+      // ⭐ 只判断完全无法重建的情况
+      if(!Array.isArray(oldQ.ns)) damaged = true;
+      if(!Array.isArray(oldQ.blanks)) damaged = true;
+
+      const freshQ = this.rebuildQuestion(oldQ);
+      freshQ.damaged = damaged;
+      newList.push(freshQ);
+      continue;
+    }
+
+    // ⭐ 其他题型保持原样
+    oldQ.damaged = false;
+    newList.push(oldQ);
+  }
+
+  Store.data.stats.wrongList = newList;
+  Store.save();
+},
+
+
   // 根据旧题目的 ns、type、diff
   // 使用最新的 symbol() / calc() 逻辑
   // 重新生成最新的答案（多解）
@@ -2115,7 +2195,14 @@ const Game={
     //const q = wrongList[this.idx];
     const oldQ = wrongList[this.idx];
 
-    // ⭐ 重新生成最新标准答案（不使用旧答案）
+    // 🟩 第 2 步：在 nextWrong() 中检测损坏题目
+    // ⭐ 检测是否损坏
+    if(this.isBrokenQuestion(oldQ)){
+      this.showBrokenQuestionUI(oldQ);
+      return;
+    }
+
+    // ⭐ 正常题目 →⭐ 重新生成最新标准答案（不使用旧答案）
     const freshQ = this.rebuildQuestion(oldQ);
 
     this.current = freshQ;
@@ -2127,7 +2214,104 @@ const Game={
     this.box = 0;
     this.render(freshQ);
   },
+
+  // 🟦 第 1 步：自动检测损坏错题（但不删除）
+  isBrokenQuestion(q){
+    // ⭐ 能重建的题都不算损坏
+    // 只判断“完全无法重建”的情况
+    // ⭐ 如果没有 type，肯定损坏
+    if(!q || !q.type) return true;
   
+    if(q.type === 'symbol'){
+      // ns 必须是数组，但长度不一定必须是 4（旧题可能是 3）
+      if(!Array.isArray(q.ns)) return true;
+      
+      if(q.ns.length < 3) return true;   // 最少要 3 个数字
+  
+      // r 必须是数字，否则无法重建
+      if(typeof q.r !== 'number') return true;
+  
+      // 其他缺失的字段可以在 rebuildQuestion 里补齐
+      return false;
+    }
+  
+    if(q.type === 'neighbor'){
+      // ns 必须是数组
+      if(!Array.isArray(q.ns)) return true;
+  
+      // blanks 必须是数组
+      if(!Array.isArray(q.blanks)) return true;
+  
+      // 其他缺失字段可以补齐
+      return false;
+    }
+  
+    // 其他题型默认不损坏
+    return false;
+  },
+  
+  showBrokenQuestionUI(oldQ){
+    document.getElementById('gQuestion').innerHTML = `
+      <div style="padding:20px;color:#c0392b;font-size:18px;">
+        ⚠️ 这道错题记录已损坏，无法按最新规则重建。
+      </div>
+      <div style="padding:10px;color:#555;font-size:14px;">
+        你可以手动清除它，并把它保存到「错题本」里，方便以后人工检查。
+      </div>
+    `;
+
+    const btn = document.getElementById('btnFixBroken');
+    btn.style.display = 'block';
+    btn.onclick = () => this.fixBrokenQuestion(oldQ);
+  },
+  
+  //
+  fixBrokenQuestion(oldQ){
+    const wrongList = Store.data.stats.wrongList || [];
+
+    // 1️⃣ 加入 0001 系统专用错题本
+    const book = Store.data.stats.errorBook_0001 || [];
+    book.push({
+      time: Date.now(),
+      q: oldQ
+    });
+    Store.data.stats.errorBook_0001 = book;
+
+    // 2️⃣ 从错题重练列表里删掉当前这题
+    wrongList.splice(this.idx, 1);
+    Store.data.stats.wrongList = wrongList;
+    Store.save();
+
+    // 3️⃣ 隐藏按钮，跳到下一题
+    document.getElementById('btnFixBroken').style.display = 'none';
+    this.nextWrong();
+  },
+  
+  /*
+  removeDamaged(item){
+    // 1. 从错题重练列表删除
+    Store.data.stats.wrongList =
+      Store.data.stats.wrongList.filter(q => q !== item);
+  
+    // 2. 加入错题本（errorBook_0001）
+    if(!Store.data.stats.errorBook_0001)
+      Store.data.stats.errorBook_0001 = [];
+  
+    Store.data.stats.errorBook_0001.push({
+      q: item,
+      time: Date.now(),
+      damaged: true
+    });
+  
+    Store.save();
+  
+    alert("已手动清除损坏错题，并加入错题本。");
+  
+    // 3. 跳到下一题
+    this.nextWrong();
+  },
+  */
+
   // 🟢 增加一个完全兼容多组答案的判题逻辑（可直接用）， ok() 函数调用它即可
   check(){
     // const user = this.inputs;
@@ -2752,6 +2936,8 @@ const App={
     if(id==='checkin')this.renderCheckin();
     if(id==='stats')this.renderStats();
     if(id==='ai')this.renderAI();
+    // ⭐ 新增：错题本页面渲染
+    if(id==='errorbook')renderErrorBook();
   },
   go(id){this.show(id)},
   refreshHome(){
@@ -2871,6 +3057,30 @@ const App={
       </div>`;
   }
 };
+
+// ⭐ 4. 错题本渲染函数（放这里） 
+function renderErrorBook(){
+  const box = document.getElementById('errorBookList');
+  const book = Store.data.stats.errorBook_0001 || [];
+
+  if(book.length === 0){
+    box.innerHTML = '<div style="color:#666;">当前没有记录到错题。</div>';
+    return;
+  }
+
+  box.innerHTML = book.map((item, idx) => {
+    const t = new Date(item.time).toLocaleString();
+    return `
+      <div style="margin-bottom:10px;padding:8px;border:1px solid #ddd;border-radius:4px;">
+        <div style="color:#555;">#${idx+1} 记录时间：${t}</div>
+        <pre style="white-space:pre-wrap;font-size:12px;margin-top:6px;">
+${JSON.stringify(item.q, null, 2)}
+        </pre>
+      </div>
+    `;
+  }).join('');
+}
+
 // 给 AI 页面添加建议显示
 
 const oldRenderAI = App.renderAI;
@@ -2906,6 +3116,11 @@ document.getElementById('btnDaily').onclick=()=> {
 document.getElementById('btnWrong').onclick=()=> {
   Game.startWrongPractice();
 };
+// 错题本
+document.getElementById('btnErrorBook').onclick = () => {
+  App.go('errorbook');
+  renderErrorBook();
+};
 
 // 返回箭头
 document.getElementById('backWorlds').onclick=()=>App.go('home');
@@ -2915,6 +3130,7 @@ document.getElementById('backStats').onclick=()=>App.go('home');
 document.getElementById('backAI').onclick=()=>App.go('home');
 document.getElementById('backDaily').onclick=()=>App.go('home');
 document.getElementById('backWrong').onclick=()=>App.go('home');
+document.getElementById('backErrorbook').onclick=()=>App.go('home');
 
 // 关卡点击（用事件委托，因为关卡列表每次重新渲染）
 document.getElementById('worldList').addEventListener('click',e=>{
@@ -3066,5 +3282,23 @@ async function typeWriterParagraphs(paragraphs, speed = 30, gap = 400) {
 //saveChatRecord("ai", aiText);
 
 </script>
+
+
+<!-- 全局：清除损坏错题按钮（默认隐藏） -->
+<button id="btnFixBroken" style="
+  position:fixed;
+  right:10px;
+  bottom:10px;
+  padding:8px 14px;
+  background:#e74c3c;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:14px;
+  display:none;
+  z-index:999;
+">清除并加入错题本</button>
+
+
 </body>
 </html>
