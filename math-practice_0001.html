@@ -2039,60 +2039,68 @@ const Game={
   // 重新生成最新的答案（多解）
   // 保证错题重练永远使用最新标准答案
   rebuildQuestion(oldQ){
-    // 只处理符号题
-    if(oldQ.type === 'symbol'){
-      const ns = oldQ.ns;   // 旧题目的数字
-      const diff = oldQ.diff || 1;
+    try {
+      // 只处理符号题
+      if(oldQ.type === 'symbol'){
+        const ns = oldQ.ns || [];   // 旧题目的数字
+        const diff = oldQ.diff || 1;
 
-      // 枚举所有符号组合
-      const allOps = [
-        ['+','+','+'],['+','+','-'],['+','-','+'],['+','-','-'],
-        ['-','+','+'],['-','+','-'],['-','-','+'],['-','-','-']
-      ];
+        // 枚举所有符号组合
+        const allOps = [
+          ['+','+','+'],['+','+','-'],['+','-','+'],['+','-','-'],
+          ['-','+','+'],['-','+','-'],['-','-','+'],['-','-','-']
+        ];
 
-      // 计算所有结果
-      const allResults = allOps.map(ops => ({ops, r: calc(ns, ops)}));
+        // 计算所有结果
+        const allResults = allOps.map(ops => ({ops, r: calc(ns, ops)}));
 
-      // 过滤合法结果
-      const legal = allResults.filter(v => v.r>=0 && v.r<=30);
+        // 过滤合法结果
+        const legal = allResults.filter(v => v.r>=0 && v.r<=30);
+        if(legal.length === 0) return oldQ;
 
-      // 选一个结果作为最终 r（保持题目一致性）
-      const pick = legal.find(v => v.r === oldQ.r) || legal[0];
+        // 选一个结果作为最终 r（保持题目一致性）
+        const pick = legal.find(v => v.r === oldQ.r) || legal[0];
+        if(!pick) return oldQ;
 
-      // 找出所有能得到同样 r 的 ops（最新标准答案）
-      const valid = legal.filter(v => v.r === pick.r);
+        // 找出所有能得到同样 r 的 ops（最新标准答案）
+        const valid = legal.filter(v => v.r === pick.r);
 
-      return {
-        type:'symbol',
-        op:true,
-        ns,
-        r: pick.r,
-        diff,
-        display: oldQ.display,   // 保持原样
-        answer: valid.map(v => v.ops)  // ⭐ 最新标准答案
-      };
+        return {
+          type:'symbol',
+          op:true,
+          ns,
+          r: pick.r,
+          diff,
+          display: oldQ.display || '<div>题目数据缺失</div>',   // 保持原样
+          answer: valid.map(v => v.ops)  // ⭐ 最新标准答案
+        };
+      }
+      
+      // ⭐ 处理填相邻数题型（关键修复）
+      if(oldQ.type === 'neighbor'){
+        const ns = oldQ.ns || [];        // 旧题目的数字序列
+        const blanks = oldQ.blanks || []; // 哪些位置是空格
+        if(ns.length === 0 || blanks.length === 0) return oldQ;
+
+        // 最新标准答案：直接取 ns 对应位置
+        const answer = blanks.map(i => ns[i]);
+
+        return {
+          type:'neighbor',
+          ns,
+          blanks,
+          diff: oldQ.diff,
+          display: oldQ.display || '<div>题目数据缺失</div>',
+          answer
+        };
+      }
+      
+      // ⭐ 其他题型保持原样
+      return oldQ;
+    } catch(err){
+      console.error('⚠️ rebuildQuestion 出错：', err);
+      return oldQ;
     }
-    
-    // ⭐ 处理填相邻数题型（关键修复）
-    if(oldQ.type === 'neighbor'){
-      const ns = oldQ.ns;        // 旧题目的数字序列
-      const blanks = oldQ.blanks; // 哪些位置是空格
-
-      // 最新标准答案：直接取 ns 对应位置
-      const answer = blanks.map(i => ns[i]);
-
-      return {
-        type:'neighbor',
-        ns,
-        blanks,
-        diff: oldQ.diff,
-        display: oldQ.display,
-        answer
-      };
-    }
-
-    // ⭐ 其他题型保持原样
-    return oldQ;
   },
 
   // ⭐ 4. 错题重练的 nextWrong
