@@ -2024,13 +2024,52 @@ const Game={
     this.box = 0;
     this.render(q);
   },
+  // ⭐ 1. 统一升级旧题结构（最关键）
+  upgradeQuestion(q){
+    if(!q || typeof q !== 'object') return null;
+
+    // 统一题型
+    if(!q.type) q.type = 'symbol';
+
+    // 统一数字数组
+    if(!Array.isArray(q.ns)){
+      return null; // 无法修复
+    }
+
+    // 统一结果字段
+    if(typeof q.r !== 'number'){
+      // 旧题没有 r → 自动重算
+      q.r = q.ns.reduce((a,b)=>a+b, 0);
+    }
+
+    // 统一难度
+    if(typeof q.diff !== 'number'){
+      q.diff = 1;
+    }
+
+    // 统一 display
+    if(!q.display){
+      q.display = '';
+    }
+
+    // 统一 answer（旧题没有 answer）
+    if(!Array.isArray(q.answer)){
+      q.answer = [];
+    }
+
+    return q;
+  },
 
   // ⭐ 3. 错题重练模式
   startWrongPractice(){
 
     // ⭐ 自动修复错题记录
     //this.fixWrongList();
-
+    // ⭐ 自动升级旧题结构
+    Store.data.stats.wrongList = (Store.data.stats.wrongList || [])
+      .map(q => this.upgradeQuestion(q))
+      .filter(q => q); // 清除 null
+    
     const wrongList = Store.data.stats.wrongList || [];
 
     if(wrongList.length === 0){
@@ -2140,12 +2179,12 @@ const Game={
   // 使用最新的 symbol() / calc() 逻辑
   // 重新生成最新的答案（多解）
   // 保证错题重练永远使用最新标准答案
-  rebuildQuestion(oldQ){
+  rebuildQuestion(q){
     try {
       // 只处理符号题
-      if(oldQ.type === 'symbol'){
-        const ns = oldQ.ns || [];   // 旧题目的数字
-        const diff = oldQ.diff || 1;
+      if(q.type === 'symbol'){
+        const ns = q.ns;
+        const diff = q.diff ;
 
         // 枚举所有符号组合
         const allOps = [
@@ -2158,11 +2197,11 @@ const Game={
 
         // 过滤合法结果
         const legal = allResults.filter(v => v.r>=0 && v.r<=30);
-        if(legal.length === 0) return oldQ;
+        if(legal.length === 0) return q;
 
         // 选一个结果作为最终 r（保持题目一致性）
-        const pick = legal.find(v => v.r === oldQ.r) || legal[0];
-        if(!pick) return oldQ;
+        const pick = legal.find(v => v.r === q.r) || legal[0];
+        //if(!pick) return oldQ;
 
         // 找出所有能得到同样 r 的 ops（最新标准答案）
         const valid = legal.filter(v => v.r === pick.r);
@@ -2173,16 +2212,16 @@ const Game={
           ns,
           r: pick.r,
           diff,
-          display: oldQ.display || '<div>题目数据缺失</div>',   // 保持原样
+          display: q.display ,   // 保持原样
           answer: valid.map(v => v.ops)  // ⭐ 最新标准答案
         };
       }
       
       // ⭐ 处理填相邻数题型（关键修复）
-      if(oldQ.type === 'neighbor'){
-        const ns = oldQ.ns || [];        // 旧题目的数字序列
-        const blanks = oldQ.blanks || []; // 哪些位置是空格
-        if(ns.length === 0 || blanks.length === 0) return oldQ;
+      if(q.type === 'neighbor'){
+        const ns = q.ns;        // 旧题目的数字序列
+        const blanks = q.blanks; // 哪些位置是空格
+        //if(ns.length === 0 || blanks.length === 0) return oldQ;
 
         // 最新标准答案：直接取 ns 对应位置
         const answer = blanks.map(i => ns[i]);
@@ -2191,17 +2230,17 @@ const Game={
           type:'neighbor',
           ns,
           blanks,
-          diff: oldQ.diff,
-          display: oldQ.display || '<div>题目数据缺失</div>',
+          diff: q.diff,
+          display: q.display,
           answer
         };
       }
       
       // ⭐ 其他题型保持原样
-      return oldQ;
+      return q;
     } catch(err){
       console.error('⚠️ rebuildQuestion 出错：', err);
-      return oldQ;
+      return q;
     }
   },
 
