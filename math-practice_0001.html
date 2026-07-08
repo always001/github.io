@@ -653,7 +653,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     </div>
   </div>
 
-  <div class="screen" id="worlds" style="position:relative;">
+  <div class="screen" id="worlds">
     <div class="topbar">
       <span class="back" id="backWorlds">←</span>
       <span class="title">🗺️ 冒险地图</span>
@@ -674,19 +674,9 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     <!-- ⭐ 正常题目渲染区 -->
     <div class="game-body" id="gBody"></div>
     <!-- ⭐ 损坏题提示区（你之前缺少的） -->
-    <div id="gQuestion"
-         style="
-           position:absolute;
-           top:80px;
-           left:0;
-           width:100%;
-           z-index:999;
-           padding:20px;
-         ">
-    </div>
-
+    <div id="gQuestion"></div>
     <!-- ⭐ 手动清除损坏错题按钮（最佳位置） -->
-    <button id="btnFixBroken"
+    <button id="btnRemoveDamaged"
             style="position:fixed;right:15px;bottom:15px;
                    padding:10px 14px;border-radius:8px;
                    background:#e74c3c;color:#fff;font-size:14px;
@@ -2041,8 +2031,6 @@ const Game={
     // ⭐ 自动修复错题记录
     //this.fixWrongList();
 
-    // ⭐ 清除 null 错题（关键修复）
-    Store.data.stats.wrongList = (Store.data.stats.wrongList || []).filter(q => q);
     const wrongList = Store.data.stats.wrongList || [];
 
     if(wrongList.length === 0){
@@ -2075,43 +2063,77 @@ const Game={
   
   // 🎯 错题记录 wrongList 里保存的旧题目结构不完整 → rebuildQuestion 得到错误数据 → 错题重练出现错误答案或白屏
   fixWrongList(){
-  const wrongList = Store.data.stats.wrongList || [];
-  const newList = [];
+    const wrongList = Store.data.stats.wrongList || [];
+    const newList = [];
+    
+    for(const oldQ of wrongList){
 
-  for(const oldQ of wrongList){
+      let damaged = false;   // ⭐ 每题单独判断
 
-    let damaged = false;  // ⭐ 每题单独判断
+      // ⭐ 1. 修复符号题
+      if(oldQ.type === 'symbol'){
+        // 必须有 ns 才能重建
+        if(!oldQ.ns || oldQ.ns.length !== 4){
+          damaged = true;
+          console.warn("⚠️ 删除损坏的符号题：缺少 ns", oldQ);
+          //continue; // 删除损坏的符号题：缺少 ns
+        }
 
-    if(oldQ.type === 'symbol'){
-      // ⭐ 只判断完全无法重建的情况
-      if(!Array.isArray(oldQ.ns)) damaged = true;
-      if(typeof oldQ.r !== 'number') damaged = true;
+        // 必须有 r 才能重建
+        if(typeof oldQ.r !== "number"){
+          damaged = true;
+          console.warn("⚠️ 删除损坏的符号题：缺少 r", oldQ);
+          //continue; // 删除损坏的符号题：缺少 r
+        }
 
-      const freshQ = this.rebuildQuestion(oldQ);
-      freshQ.damaged = damaged;
-      newList.push(freshQ);
-      continue;
+        // diff 不存在就补 1
+        if(!oldQ.diff) oldQ.diff = 1;
+
+        // display 不存在就补一个默认
+        if(!oldQ.display) oldQ.display = "<div>题目数据缺失</div>";
+
+        // 重新生成最新答案
+        const freshQ = this.rebuildQuestion(oldQ);
+        freshQ.damaged = damaged;
+        newList.push(freshQ);
+        continue;
+      }
+
+      // ⭐ 2. 修复填相邻数题型
+      if(oldQ.type === 'neighbor'){
+        if(!oldQ.ns || oldQ.ns.length === 0){
+          damaged = true;
+          console.warn("⚠️ 删除损坏的 neighbor 题：缺少 ns", oldQ);
+          //continue; // 删除损坏的 neighbor 题：缺少 ns
+        }
+
+        if(!oldQ.blanks || oldQ.blanks.length === 0){
+          damaged = true;
+          console.warn("⚠️ 删除损坏的 neighbor 题：缺少 blanks", oldQ);
+          // continue; // 删除损坏的 neighbor 题：缺少 blanks
+        }
+
+        if(!oldQ.display) oldQ.display = "<div>题目数据缺失</div>";
+        if(!oldQ.diff) oldQ.diff = 1;
+
+        // 重新生成最新答案
+        const freshQ = this.rebuildQuestion(oldQ);
+        freshQ.damaged = damaged;
+        newList.push(freshQ);
+        continue;
+      }
+
+      // ⭐ 3. 其他题型暂时保持原样（你以后可以继续扩展）
+      oldQ.damaged = false;
+      newList.push(oldQ);
     }
 
-    if(oldQ.type === 'neighbor'){
-      // ⭐ 只判断完全无法重建的情况
-      if(!Array.isArray(oldQ.ns)) damaged = true;
-      if(!Array.isArray(oldQ.blanks)) damaged = true;
+    // ⭐ 保存修复后的错题记录
+    Store.data.stats.wrongList = newList;
+    Store.save();
 
-      const freshQ = this.rebuildQuestion(oldQ);
-      freshQ.damaged = damaged;
-      newList.push(freshQ);
-      continue;
-    }
-
-    // ⭐ 其他题型保持原样
-    oldQ.damaged = false;
-    newList.push(oldQ);
-  }
-
-  Store.data.stats.wrongList = newList;
-  Store.save();
-},
+    console.log("✅ 错题记录已自动修复完毕，共保留：", newList.length);
+  },
 
 
   // 根据旧题目的 ns、type、diff
@@ -2197,10 +2219,10 @@ const Game={
 
     // 🟩 第 2 步：在 nextWrong() 中检测损坏题目
     // ⭐ 检测是否损坏
-    if(this.isBrokenQuestion(oldQ)){
-      this.showBrokenQuestionUI(oldQ);
-      return;
-    }
+    //if(this.isBrokenQuestion(oldQ)){
+      //this.showBrokenQuestionUI(oldQ);
+      //return;
+    //}
 
     // ⭐ 正常题目 →⭐ 重新生成最新标准答案（不使用旧答案）
     const freshQ = this.rebuildQuestion(oldQ);
@@ -2219,14 +2241,10 @@ const Game={
   isBrokenQuestion(q){
     // ⭐ 能重建的题都不算损坏
     // 只判断“完全无法重建”的情况
-    // ⭐ 如果没有 type，肯定损坏
-    if(!q || !q.type) return true;
   
     if(q.type === 'symbol'){
       // ns 必须是数组，但长度不一定必须是 4（旧题可能是 3）
       if(!Array.isArray(q.ns)) return true;
-      
-      if(q.ns.length < 3) return true;   // 最少要 3 个数字
   
       // r 必须是数字，否则无法重建
       if(typeof q.r !== 'number') return true;
