@@ -2072,8 +2072,26 @@ const Game={
         answer: valid.map(v => v.ops)  // ⭐ 最新标准答案
       };
     }
+    
+    // ⭐ 处理填相邻数题型（关键修复）
+    if(oldQ.type === 'neighbor'){
+      const ns = oldQ.ns;        // 旧题目的数字序列
+      const blanks = oldQ.blanks; // 哪些位置是空格
 
-    // 其他题型保持原样
+      // 最新标准答案：直接取 ns 对应位置
+      const answer = blanks.map(i => ns[i]);
+
+      return {
+        type:'neighbor',
+        ns,
+        blanks,
+        diff: oldQ.diff,
+        display: oldQ.display,
+        answer
+      };
+    }
+
+    // ⭐ 其他题型保持原样
     return oldQ;
   },
 
