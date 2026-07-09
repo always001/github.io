@@ -2872,7 +2872,7 @@ const App={
   }
 };
 // 给 AI 页面添加建议显示
-
+/*
 const oldRenderAI = App.renderAI;
 App.renderAI = function(){
   oldRenderAI.call(this);
@@ -2883,11 +2883,10 @@ App.renderAI = function(){
     div.innerHTML='<h3>💡 建议</h3>'+sg.tips.map(t=>`<p>${t}</p>`).join('');
     document.getElementById('aBody').appendChild(div);
   }
-  // 渲染题目后调用
-  loadChatRecord();
 };
-
-
+*/
+// 渲染题目后调用
+loadChatRecord();
 
 
 
