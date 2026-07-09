@@ -2042,7 +2042,35 @@ const Game={
     try {
       // 只处理符号题
       if(oldQ.type === 'symbol'){
-        const ns = oldQ.ns || [];   // 旧题目的数字
+        //const ns = oldQ.ns || [];   // 旧题目的数字
+        //let ns = oldQ.ns || [];
+        // ⭐ 自动修复旧错题本：如果 ns 不完整（不是 4 个数字），从 display 解析
+        //if(ns.length !== 4 && oldQ.display){
+          //const m = oldQ.display.match(/<span class="known">(\d+)<\/span>/g);
+          //if(m && m.length === 4){
+            //ns = m.map(x => Number(x.match(/\d+/)[0]));
+          //}
+        //}
+        // ⭐ 从 display 中解析所有数字（最正确）
+        let ns = [];
+        //const numMatches = [...oldQ.display.matchAll(/<span class="known">(\d+)<\/span>/g)];
+        const numMatches = [...oldQ.display.matchAll(/<span[^>]*class="known"[^>]*>(\d+)<\/span>/g)];
+        if(numMatches.length === 4){
+          ns = numMatches.map(m => Number(m[1]));
+        } else {
+          ns = oldQ.ns || [];
+        }
+
+        //const diff = oldQ.diff || 1;
+        //const targetR = oldQ.r;   // ⭐ 保持原来的结果不变
+        // ⭐ 自动从 display 解析真正的结果（避免错题本保存的 r 是错的）
+        let targetR = oldQ.r;
+        //const mR = oldQ.display.match(/<span class="known" style="color:#d63031">(\d+)<\/span>/);
+        const mR = oldQ.display.match(/<span[^>]*style="color:#d63031"[^>]*>(\d+)<\/span>/);
+        if(mR){
+          targetR = Number(mR[1]);   // ⭐ 强制使用题目里显示的结果
+        }
+        
         const diff = oldQ.diff || 1;
 
         // 枚举所有符号组合
@@ -2054,25 +2082,68 @@ const Game={
         // 计算所有结果
         const allResults = allOps.map(ops => ({ops, r: calc(ns, ops)}));
 
-        // 过滤合法结果
+        // 过滤合法结果（结果在 0~30）
         const legal = allResults.filter(v => v.r>=0 && v.r<=30);
         if(legal.length === 0) return oldQ;
 
         // 选一个结果作为最终 r（保持题目一致性）
-        const pick = legal.find(v => v.r === oldQ.r) || legal[0];
-        if(!pick) return oldQ;
+        //const pick = legal.find(v => v.r === oldQ.r) || legal[0];
+        //if(!pick) return oldQ;
 
         // 找出所有能得到同样 r 的 ops（最新标准答案）
-        const valid = legal.filter(v => v.r === pick.r);
+        //const valid = legal.filter(v => v.r === pick.r);
+        
+        // ⭐ 只保留「结果等于旧题 r」的组合，保证题目不变
+        const valid = legal.filter(v => v.r === targetR);
+        //const valid = legal;   // ⭐ 保留所有合法组合
+        
+        // ⭐ 如果 valid 只有 1 组，说明旧错题本的 r 是错的
+        // ⭐ 那么直接使用所有合法组合 legal
+        if(valid.length <= 1){
+            console.warn("旧错题本的 r 可能错误，使用所有合法组合");
+            valid = legal;
+        }
+        
+        if(valid.length === 0){
+          // 如果没有任何组合能得到旧的 r，就直接返回旧题，避免出现「题目和答案不匹配」
+          return oldQ;
+        }
+        
+        // ⭐ 用统一模板重建 display（所有符号都是空框）
+        /*
+        const display = `
+          <div class="symbol-line">
+            <span class="known">${ns[0]}</span><b class="op empty" data-i="0">+</b>
+            <span class="known">${ns[1]}</span><b class="op empty" data-i="1">+</b>
+            <span class="known">${ns[2]}</span><b class="op empty" data-i="2">+</b>
+            <span class="known" style="color:#6c5ce7">=</span>
+            <span class="known" style="color:#d63031">${targetR}</span>
+          </div>
+          <div class="hint">在方框里选<b>+</b>或<b>-</b>，让等式成立</div>
+        `;
+        */
+        
+        const display = `
+          <div class="symbol-line">
+            <span class="known">${ns[0]}</span><span class="box empty" data-i="0"></span>
+            <span class="known">${ns[1]}</span><span class="box empty" data-i="1"></span>
+            <span class="known">${ns[2]}</span><span class="box empty" data-i="2"></span>
+            <span class="known" style="color:#6c5ce7">=</span>
+            <span class="known" style="color:#d63031">${targetR}</span>
+          </div>
+          <div class="hint">在方框里选<b>+</b>或<b>-</b>，让等式成立</div>
+        `;
+
 
         return {
           type:'symbol',
           op:true,
           ns,
-          r: pick.r,
+          //r: pick.r,
+          r: targetR,
           diff,
-          display: oldQ.display || '<div>题目数据缺失</div>',   // 保持原样
-          answer: valid.map(v => v.ops)  // ⭐ 最新标准答案
+          display, // 保持原样
+          answer: valid.map(v => v.ops)  // ⭐ 所有真正能得到 targetR 的组合
         };
       }
       
@@ -2117,15 +2188,34 @@ const Game={
 
     // ⭐ 重新生成最新标准答案（不使用旧答案）
     const freshQ = this.rebuildQuestion(oldQ);
+    console.log("freshQ.display =", freshQ.display);
+    
+    // ⭐ 最关键：写回错题本
+    wrongList[this.idx] = freshQ;
+    Store.save();
 
     this.current = freshQ;
     this.opMode = !!freshQ.op;
 
+    //const baseAnswer = Array.isArray(freshQ.answer[0]) ? freshQ.answer[0] : freshQ.answer;
+    //this.inputs = Array(baseAnswer.length).fill('');
+    // ⭐ 用答案长度初始化 inputs（符号题就是 3 个）
     const baseAnswer = Array.isArray(freshQ.answer[0]) ? freshQ.answer[0] : freshQ.answer;
     this.inputs = Array(baseAnswer.length).fill('');
 
     this.box = 0;
-    this.render(freshQ);
+    this.active = true;   // ⭐ 确保可以操作
+    //this.render(freshQ);
+    
+    //this.render(freshQ.display);
+    this.render(this.current.display);  // ⭐ 必须用 this.current.display
+    
+    // ⭐ 渲染完 UI 后再获取输入框数量
+    //const items = document.querySelectorAll('#qMain .box[data-i]');
+    //this.inputs = Array(items.length).fill('');
+
+    //this.box = 0;
+    //this.drawInputs();
   },
   
   // 🟢 增加一个完全兼容多组答案的判题逻辑（可直接用）， ok() 函数调用它即可
@@ -2133,10 +2223,14 @@ const Game={
     // const user = this.inputs;
     // 转换用户输入为半角符号
     const user = this.inputs.map(v => v === '＋' ? '+' : v === '－' ? '-' : v);
+    console.log("当前答案 =", this.current.answer);
+    console.log("用户输入 =", user);
 
+    const answers = this.current.answer;
+    
     // 多组答案情况（二维数组）
-    if(Array.isArray(this.current.answer[0])){
-      for(const ans of this.current.answer){
+    if(Array.isArray(answers[0])){
+      for(const ans of answers){
         if(ans.length === user.length){
           let ok = true;
           for(let i=0;i<ans.length;i++){
@@ -2149,8 +2243,8 @@ const Game={
     }
 
     // 单组答案情况（一维数组）
-    for(let i=0;i<this.current.answer.length;i++){
-      if(this.current.answer[i] != user[i]) return false;
+    for(let i=0;i<answers.length;i++){
+      if(answers[i] != user[i]) return false;
     }
     return true;
   },
@@ -2199,13 +2293,14 @@ const Game={
     //this.speakQuestion(q);                                                     //·这行增加了读题機能
   },
 
-  render(q){
+  //render(q){
+  render(displayHTML){
     const diff=AI.getDiff(this.curLvl.type);
     //const diff = Store.data.difficulty.global;
     // ★升档6
     document.getElementById('gBody').innerHTML=`<div class="question">
       <div class="q-title">第 ${this.idx+1} / ${this.total} 题 · 难度 ${'⭐'.repeat(diff)}${'☆'.repeat(6-diff)}</div>
-      <div class="q-main" id="qMain">${q.display}</div>
+      <div class="q-main" id="qMain">${displayHTML}</div>
       </div>`;
     this.drawInputs();
     this.renderKeys();
@@ -2239,8 +2334,15 @@ const Game={
   },
 
   drawInputs(){
-    const sel=this.opMode?'#qMain .op':'#qMain .box';
-    document.querySelectorAll(sel).forEach((el,i)=>{
+    //const sel=this.opMode?'#qMain .op':'#qMain .box';
+    ///const sel = this.opMode ? '#qMain .op.empty' : '#qMain .box';
+    const sel = this.opMode ? '#qMain .op[data-i]' : '#qMain .box[data-i]';
+    
+    const items = document.querySelectorAll(sel);
+    
+    ///document.querySelectorAll(sel).forEach((el,i)=>{
+    items.forEach(el => {
+    
       // ⭐ 跳过没有 data-i 的固定格子（例如固定显示 10 的 box）
       //if (!el.dataset.i) return;
       // ⭐ 关键：没有 data-i 的 box 是固定数字，不处理
@@ -2256,7 +2358,7 @@ const Game={
       //if (idx === undefined) return;  //■
       
       // ⭐ 固定格子跳过
-      if (!el.dataset.i) return;
+      ///if (!el.dataset.i) return;
       const idx = Number(el.dataset.i); // ← 用 data-i，而不是 DOM 顺序 i
       const v = this.inputs[idx] || '';
       
@@ -2456,22 +2558,25 @@ const Game={
       const bar = document.getElementById('progressBar');   // ⭐ 进度条
       // 🟩 最终版：10 秒倒计时动画 
       
+      answers = this.current.answer;   // ⭐ 必须用 freshQ.answer
+      
       box.style.display = 'block';
       //box.textContent = '正确答案：' + answers[0].join('、');
       //text.textContent = '正确答案：' + answers[0].join('、'); // ⭐正确写法是text不是box
       
       // ⭐ 智能显示答案（自动判断一维 / 二维）
-      if (answers.length === 1) {
-        // 只有一套答案 → 按原来方式显示
-        text.textContent = '正确答案：' + answers[0].join('、');
-      } else {
-        // 多套答案 → 显示全部
-        let html = '正确答案：<br>';
-        answers.forEach((ans, idx) => {
-          html += `（${idx + 1}） ${ans.join('、')}<br>`;
-        });
-        text.innerHTML = html;
-      }
+      
+      if (Array.isArray(answers[0])) {
+		// 多解
+		let html = '正确答案：<br>';
+		answers.forEach((ans, idx) => {
+		  html += `（${idx + 1}） ${ans.join('、')}<br>`;
+		});
+		text.innerHTML = html;
+	  } else {
+		// 单解
+		text.textContent = '正确答案：' + answers.join('、');
+	  }
       
       countdown.textContent = '';                              // 清空旧倒计时
       bar.style.width = '100%';   // ⭐ 重置进度条
@@ -2547,7 +2652,9 @@ const timer = setInterval(() => {
         beep(220, 0.2);
         // 保持你原来的节奏：idx++ 然后 next()
         this.idx++;
-        this.next();
+        // ➤➤➤ 这里原来是 this.next()，必须改成 this.nextWrong() ！！！
+        //this.next();
+        this.nextWrong();   // ← 正确写法
      }                              // 註釈  🟩 最终版：10 秒倒计时动画
         //this.nextQuestion();        // ⭐ 现在才刷新题目
       }, 1000);   // ← ⭐ 每秒执行一次
