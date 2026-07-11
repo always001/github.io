@@ -1460,6 +1460,8 @@ const Gen={
       return {
         type:'symbol',
         op:true,
+        ns,          // ⭐ 把 ns 存进去
+        r: pick.r,   // ⭐ 把结果 r 也存进去
         display:`<div class="symbol-line">
           <span class="known">${ns[0]}</span><b class="op empty" data-i="0">＋</b>
           <span class="known">${ns[1]}</span><b class="op empty" data-i="1">＋</b>
@@ -2040,12 +2042,61 @@ const Game={
   // 保证错题重练永远使用最新标准答案
   rebuildQuestion(oldQ){
     try {
-      // 只处理符号题
+      // ⭐ 1. 只处理符号题
       if(oldQ.type === 'symbol'){
-        const ns = oldQ.ns || [];   // 旧题目的数字
+        // --------- 1.1 尝试拿到 ns ----------
+        let ns = Array.isArray(oldQ.ns) ? oldQ.ns.slice() : [];
+
+        // 如果旧数据里没有 ns，就从 display 里解析
+        if(ns.length !== 4 && typeof oldQ.display === 'string'){
+          const nums = [];
+          const re = /<span class="known">(\d+)<\/span>/g;
+          let m;
+          while((m = re.exec(oldQ.display)) !== null){
+            nums.push(parseInt(m[1], 10));
+          }
+          // 前 4 个是 ns
+          if(nums.length >= 4){
+            ns = nums.slice(0, 4);
+          }
+        }
+
+        // 如果还是拿不到 4 个数字，说明旧题数据太残缺，只能原样返回
+        if(ns.length !== 4){
+          return oldQ;
+        }
+
+        // --------- 1.2 尝试拿到结果 r ----------
+        let r = (typeof oldQ.r === 'number') ? oldQ.r : null;
+
+        if(r === null && typeof oldQ.display === 'string'){
+          // 尝试从红色结果的 span 里解析
+          let m = oldQ.display.match(
+            /<span class="known"[^>]*color:#d63031[^>]*>(\d+)<\/span>/
+          );
+          if(m){
+            r = parseInt(m[1], 10);
+          } else {
+            // 如果没有颜色标记，就退而求其次：取最后一个 known 里的数字
+            const reLast = /<span class="known">(\d+)<\/span>/g;
+            let last = null, tmp;
+            while((tmp = reLast.exec(oldQ.display)) !== null){
+              last = tmp[1];
+            }
+            if(last !== null){
+              r = parseInt(last, 10);
+            }
+          }
+        }
+
+        // 如果还是拿不到 r，只能原样返回
+        if(typeof r !== 'number'){
+          return oldQ;
+        }
+
         const diff = oldQ.diff || 1;
 
-        // 枚举所有符号组合
+        // --------- 1.3 枚举所有符号组合 ----------
         const allOps = [
           ['+','+','+'],['+','+','-'],['+','-','+'],['+','-','-'],
           ['-','+','+'],['-','+','-'],['-','-','+'],['-','-','-']
@@ -2054,35 +2105,40 @@ const Game={
         // 计算所有结果
         const allResults = allOps.map(ops => ({ops, r: calc(ns, ops)}));
 
-        // 过滤合法结果
+        // 过滤合法结果（0~30）
         const legal = allResults.filter(v => v.r>=0 && v.r<=30);
-        if(legal.length === 0) return oldQ;
+        if(legal.length === 0){
+          // 如果没有合法结果，就保留旧题
+          return oldQ;
+        }
 
-        // 选一个结果作为最终 r（保持题目一致性）
-        const pick = legal.find(v => v.r === oldQ.r) || legal[0];
-        if(!pick) return oldQ;
+        // ⭐ 关键：只保留「结果等于旧题 r」的组合
+        const valid = legal.filter(v => v.r === r);
 
-        // 找出所有能得到同样 r 的 ops（最新标准答案）
-        const valid = legal.filter(v => v.r === pick.r);
+        // 如果没有任何组合能算出旧的 r，说明旧题数据不一致，保留原样
+        if(valid.length === 0){
+          return oldQ;
+        }
 
+        // ⭐ 构造一个「最新标准」的题目对象（多解）
         return {
-          type:'symbol',
-          op:true,
+          type: 'symbol',
+          op: true,
           ns,
-          r: pick.r,
+          r,
           diff,
-          display: oldQ.display || '<div>题目数据缺失</div>',   // 保持原样
-          answer: valid.map(v => v.ops)  // ⭐ 最新标准答案
+          display: oldQ.display || '<div>题目数据缺失</div>',
+          // 多组答案：[[...ops1],[...ops2],...]
+          answer: valid.map(v => v.ops)
         };
       }
-      
-      // ⭐ 处理填相邻数题型（关键修复）
+
+      // ⭐ 2. 处理填相邻数题型（你原来的逻辑基本没问题）
       if(oldQ.type === 'neighbor'){
-        const ns = oldQ.ns || [];        // 旧题目的数字序列
-        const blanks = oldQ.blanks || []; // 哪些位置是空格
+        const ns = oldQ.ns || [];
+        const blanks = oldQ.blanks || [];
         if(ns.length === 0 || blanks.length === 0) return oldQ;
 
-        // 最新标准答案：直接取 ns 对应位置
         const answer = blanks.map(i => ns[i]);
 
         return {
@@ -2094,9 +2150,10 @@ const Game={
           answer
         };
       }
-      
-      // ⭐ 其他题型保持原样
+
+      // ⭐ 3. 其他题型保持原样
       return oldQ;
+
     } catch(err){
       console.error('⚠️ rebuildQuestion 出错：', err);
       return oldQ;
@@ -2117,6 +2174,12 @@ const Game={
 
     // ⭐ 重新生成最新标准答案（不使用旧答案）
     const freshQ = this.rebuildQuestion(oldQ);
+    
+    // ⭐ 关键：把修复后的题目写回错题列表
+    wrongList[this.idx] = freshQ;
+    Store.data.stats.wrongList = wrongList;
+    // 如果你有统一的保存方法，比如 Store.save()，这里最好也调用一下
+    // Store.save && Store.save();
 
     this.current = freshQ;
     this.opMode = !!freshQ.op;
