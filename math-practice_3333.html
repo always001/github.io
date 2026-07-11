@@ -1460,6 +1460,8 @@ const Gen={
       return {
         type:'symbol',
         op:true,
+        ns,          // ⭐ 把 ns 存进去
+        r: pick.r,   // ⭐ 把结果 r 也存进去
         display:`<div class="symbol-line">
           <span class="known">${ns[0]}</span><b class="op empty" data-i="0">＋</b>
           <span class="known">${ns[1]}</span><b class="op empty" data-i="1">＋</b>
@@ -2172,6 +2174,12 @@ const Game={
 
     // ⭐ 重新生成最新标准答案（不使用旧答案）
     const freshQ = this.rebuildQuestion(oldQ);
+    
+    // ⭐ 关键：把修复后的题目写回错题列表
+    wrongList[this.idx] = freshQ;
+    Store.data.stats.wrongList = wrongList;
+    // 如果你有统一的保存方法，比如 Store.save()，这里最好也调用一下
+    // Store.save && Store.save();
 
     this.current = freshQ;
     this.opMode = !!freshQ.op;
