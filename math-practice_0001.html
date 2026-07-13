@@ -525,12 +525,14 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 
 /* 用户头像 */
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   flex-shrink: 0;
   background: url('https://always001.github.io/github.io/assets/user.png');
   background-size: cover;
+  background-position: center;
+  animation: aiBlink 4s infinite;
 }
 
 /* 闪烁光标 */
@@ -576,6 +578,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 }
 
 // 🟩 第五部分：AI 头像眨眼动画（可爱、灵动）
+/*
 .ai-avatar {
   width: 32px;
   height: 32px;
@@ -584,7 +587,21 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   border-radius: 50%;
   animation: aiBlink 4s infinite;
 }
+*/
 
+.ai-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.ai-avatar.small {
+  width: 32px;
+  height: 32px;
+  animation: aiBlink 4s infinite;
+}
+
+// 蓝色User头像一直不能显示的真正原因
+/*
 .user-avatar {
   width: 32px;
   height: 32px;
@@ -593,6 +610,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   bordanimation: aiBlink 4s infinite;er-radius: 50%;
   
 }
+*/
 
 @keyframes aiBlink {
   0%, 48%, 52%, 100% { filter: brightness(1); }
@@ -703,29 +721,31 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     </div>
     <div class="stats-page" id="sBody"></div>
   </div>
-
-  <div class="screen" id="ai">
+  <!-- AI 调难度页面 -->
+  <div class="screen" id="aiDifficulty">
     <div class="topbar">
       <span class="back" id="backAI">←</span>
       <span class="title">🤖 AI 调难度</span>
     </div>
-    <div class="stats-page" id="aBody"></div>
+    <div class="stats-page" id="aiDifficultyBody"></div>
   </div>
   
-  <div class="screen" id="ai">
+  <!-- 今日练习页面 -->
+  <div class="screen" id="aiDaily">
     <div class="topbar">
       <span class="back" id="backDaily">←</span>
       <span class="title">📝 今日练习</span>
     </div>
-    <div class="stats-page" id="aBody"></div>
+    <div class="stats-page" id="aiDailyBody"></div>
   </div>
   
-  <div class="screen" id="ai">
+  <!-- 错题重练页面 -->
+  <div class="screen" id="aiWrong">
     <div class="topbar">
       <span class="back" id="backWrong">←</span>
       <span class="title">❌ 错题重练</span>
     </div>
-    <div class="stats-page" id="aBody"></div>
+    <div class="stats-page" id="aiWrongBody"></div>
   </div>
 
   <div class="modal" id="modal">
@@ -2742,6 +2762,13 @@ const timer = setInterval(() => {
 
   // 当前缩放比例
   window.addEventListener("DOMContentLoaded", () => {
+
+    // 专业版：把三个 AI 页面 body 全部挂到 App 对象里
+    App.aiDifficultyBody = document.getElementById("aiDifficultyBody");
+    App.aiDailyBody      = document.getElementById("aiDailyBody");
+    App.aiWrongBody      = document.getElementById("aiWrongBody");
+
+    // 原来的缩放初始化也放这里
     //let zoomLevel = Number(localStorage.getItem("zoomLevel")) || 1.25;
     let zoomLevel = Number(localStorage.getItem("zoomLevel")) || 1.00;
     const fab = document.getElementById("zoomFab");
@@ -2814,7 +2841,12 @@ const App={
     if(id==='worlds')this.renderWorlds();
     if(id==='checkin')this.renderCheckin();
     if(id==='stats')this.renderStats();
-    if(id==='ai')this.renderAI();
+    //if(id==='ai')this.renderAI();
+    // 已经拆成三个页面，所以必须改成：
+    if(id === 'aiDifficulty') this.renderAI();     // AI 调难度
+    if(id === 'aiDaily')      this.renderDaily();  // 今日练习
+    if(id === 'aiWrong')      this.renderWrong();  // 错题重练
+
   },
   go(id){this.show(id)},
   refreshHome(){
@@ -2959,7 +2991,12 @@ loadChatRecord();
 document.getElementById('btnWorlds').onclick=()=>App.go('worlds');
 document.getElementById('btnCheckin').onclick=()=>App.go('checkin');
 document.getElementById('btnStats').onclick=()=>App.go('stats');
-document.getElementById('btnAI').onclick=()=>App.go('ai');
+//document.getElementById('btnAI').onclick=()=>App.go('ai');
+//🟦 第四部分：按钮绑定必须改成专业版
+document.getElementById('btnAI').onclick = () => App.go('aiDifficulty');
+document.getElementById('btnDaily').onclick = () => App.go('aiDaily');
+document.getElementById('btnWrong').onclick = () => App.go('aiWrong');
+
 // 今日练习（10题）
 document.getElementById('btnDaily').onclick=()=> {
   Game.startDailyPractice();
@@ -3053,10 +3090,10 @@ function createBubble(isUser = false) {
   
   if (isUser) {
     bubble.className = "user-bubble";
-    bubble.innerHTML = `<div class="user-avatar"></div><div class="bubble-text"></div>`;
+    bubble.innerHTML = `<div class="user-avatar small"></div><div class="bubble-text"></div>`;
   } else {
     bubble.className = "ai-bubble";
-    bubble.innerHTML = `<div class="ai-avatar"></div><div class="bubble-text"></div>`;
+    bubble.innerHTML = `<div class="ai-avatar small"></div><div class="bubble-text"></div>`;
   }
 
   bubble.style.opacity = "0";
