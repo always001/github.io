@@ -1890,7 +1890,8 @@ document.addEventListener("click", async (e) => {
     
     // ③ 调用你的 Worker（真正的 AI）
     try {
-      const response = await fetch("https://math-ai-proxy.gankenrin.workers.dev/", {
+       //const response = await fetch("https://chat.baidu.com/?extParams=%7B%22enter_type%22%3A%22home_operate%22%7D/", {
+        const response = await fetch("https://chat-ai-proxy.gankenrin.workers.dev/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: text })
