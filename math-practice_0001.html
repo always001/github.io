@@ -2973,7 +2973,7 @@ const App={
   renderAI(){
     const sg=AI.suggest(),d=Store.data.difficulty;
     //★升档6
-    document.getElementById('aBody').innerHTML=`
+    document.getElementById('aiDifficultyBody').innerHTML=`
       <div class="stat-card" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7);color:#fff">
         <h3 style="color:#fff">🧠 AI 评估</h3>
         <p>正确率 <b>${sg.acc}%</b></p>
