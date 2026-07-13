@@ -1861,7 +1861,8 @@ document.addEventListener("click", (e) => {
 });
 
 /* 发送按钮：输入框内容 → 用户气泡 */
-document.addEventListener("click", (e) => {
+document.addEventListener("click", async (e) => {
+//document.addEventListener("click", (e) => {
   if (e.target.id === "sendUserMsg") {
 
     const input = document.getElementById("userInput");
@@ -1878,8 +1879,43 @@ document.addEventListener("click", (e) => {
 
     saveChatRecord("user", text);  // ⭐ 保存聊天记录
 
-    box.scrollTop = box.scrollHeight;
+    //box.scrollTop = box.scrollHeight;
     input.value = "";
+    // ② 显示 AI 正在思考
+    const thinkingBubble = createBubble(false);
+    thinkingBubble.innerText = "AI 正在思考…";
+
+    // ③ 调用 Worker（加上 try/catch 防止挂页）
+    let aiText = "❌ AI 暂时无法回复，请稍后再试";
+    
+    // ③ 调用你的 Worker（真正的 AI）
+    try {
+      const response = await fetch("https://math-ai-proxy.gankenrin.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: text })
+      });
+
+      const data = await response.json();
+      aiText = data.text || aiText;
+
+    } catch (err) {
+      console.error("AI 请求失败：", err);
+    }
+
+    // ④ 删除“正在思考”气泡（安全写法）
+    if (thinkingBubble && thinkingBubble.parentElement) {
+      thinkingBubble.parentElement.remove();
+    }
+
+    // ⑤ 显示 AI 回复（带打字机）
+    const aiBubbleText = createBubble(false);
+    typeWriter(aiText, aiBubbleText, 35);
+
+    saveChatRecord("ai", aiText);
+
+    box.scrollTop = box.scrollHeight;
+    
   }
 });
 
