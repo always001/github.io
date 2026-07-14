@@ -641,6 +641,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;
 }
 
 </style>
+ <script src="kb.js"></script>
 </head>
 <body>
 <div class="fab-container">
@@ -1885,38 +1886,83 @@ document.addEventListener("click", async (e) => {
     const thinkingBubble = createBubble(false);
     thinkingBubble.innerText = "AI 正在思考…";
 
+    // ③ ⭐ 优先查本地知识库
+    const kbResult = searchKB(text);
+    
     // ③ 调用 Worker（加上 try/catch 防止挂页）
     let aiText = "❌ AI 暂时无法回复，请稍后再试";
+    let usedSource = "";
     
-    // ③ 调用你的 Worker（真正的 AI）
-    try {
-       //const response = await fetch("https://chat.baidu.com/?extParams=%7B%22enter_type%22%3A%22home_operate%22%7D/", {
-        const response = await fetch("https://chat-ai-proxy.gankenrin.workers.dev/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: text })
-      });
+    if (kbResult.found) {
+      // ✅ 知识库命中 → 直接用，节省 API
+      aiText = kbResult.answer;
+      usedSource = `📚 知识库（相似度 ${kbResult.score.toFixed(2)}）`;
+      console.log(`✅ 知识库命中 [${kbResult.score.toFixed(3)}]:`, aiText);
 
-      const data = await response.json();
-      aiText = data.text || aiText;
+      // 删除"思考中"气泡
+      if (thinkingBubble && thinkingBubble.parentElement) {
+        thinkingBubble.parentElement.remove();
+      }
 
-    } catch (err) {
-      console.error("AI 请求失败：", err);
+      // ⭐ 显示高亮答案
+      const aiBubbleText = createBubble(false);
+      const highlighted = highlightMatches(aiText, kbResult.matchedWords);
+      aiBubbleText.innerHTML = highlighted;
+
+      // 来源标签
+      const sourceTag = document.createElement("div");
+      sourceTag.style.cssText = "font-size:11px;color:#888;margin-top:4px;text-align:right;";
+      sourceTag.innerText = usedSource;
+      aiBubbleText.appendChild(sourceTag);
+
+      saveChatRecord("ai", aiText);
+      box.scrollTop = box.scrollHeight;
+    } else {
+      // ❌ 知识库未命中 → 调用 Worker
+      console.log("⏭️ 知识库未命中，调用 Worker...");
+      
+      // ③ 调用你的 Worker（真正的 AI）
+      try {
+         //const response = await fetch("https://chat.baidu.com/?extParams=%7B%22enter_type%22%3A%22home_operate%22%7D/", {
+          const response = await fetch("https://chat-ai-proxy.gankenrin.workers.dev/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: text })
+        });
+
+        const data = await response.json();
+        aiText = data.text || aiText;
+        usedSource = "🌐 AI 大模型";
+
+      } catch (err) {
+        console.error("AI 请求失败：", err);
+        usedSource = "❌ 请求失败";
+      }
+
+      // ④ 删除“正在思考”气泡（安全写法）
+      if (thinkingBubble && thinkingBubble.parentElement) {
+        thinkingBubble.parentElement.remove();
+      }
+
+      // ⑤ 显示 AI 回复（带打字机）
+      const aiBubbleText = createBubble(false);
+      typeWriter(aiText, aiBubbleText, 35);
+
+      saveChatRecord("ai", aiText);
+      
+      // ⭐ 打字结束后追加来源
+      setTimeout(() => {
+        if (usedSource) {
+          const sourceTag = document.createElement("div");
+          sourceTag.style.cssText = "font-size:11px;color:#888;margin-top:4px;text-align:right;";
+          sourceTag.innerText = usedSource;
+          aiBubbleText.appendChild(sourceTag);
+          box.scrollTop = box.scrollHeight;
+        }
+      }, aiText.length * 35 + 100);
     }
-
-    // ④ 删除“正在思考”气泡（安全写法）
-    if (thinkingBubble && thinkingBubble.parentElement) {
-      thinkingBubble.parentElement.remove();
-    }
-
-    // ⑤ 显示 AI 回复（带打字机）
-    const aiBubbleText = createBubble(false);
-    typeWriter(aiText, aiBubbleText, 35);
-
-    saveChatRecord("ai", aiText);
-
+    
     box.scrollTop = box.scrollHeight;
-    
   }
 });
 
@@ -3001,6 +3047,9 @@ const App={
         <button class="difficulty-badge" onclick="Store.data.difficulty.global=Math.min(6,Store.data.difficulty.global+1);Store.save();App.renderAI()">➕ 升档</button>
         <button class="difficulty-badge" style="background:#d63031" onclick="if(confirm('重置所有数据？')){localStorage.clear();location.reload()}">🗑 重置</button>
       </div>`;
+      
+      // ⭐ 末尾追加：
+      renderKBEditor();
   }
 };
 // 给 AI 页面添加建议显示
