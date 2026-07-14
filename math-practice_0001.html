@@ -1243,7 +1243,7 @@ const Gen={
         <!-- ⭐ 动画步骤显示区（放这里） -->
         <div id="steps-container"></div>
       </div>
-      <button id="userSayBtn" class="ai-btn" style="background:#4a90e2;">我不会</button>
+      <button id="userSayBtn" class="ai-btn" style="background:#4a90e2;display:none;">我不会</button>
       <div class="chat-input-area">
         <input id="userInput" class="chat-input" placeholder="请输入你的问题..." />
         <button id="sendUserMsg" class="chat-send-btn">发送</button>
@@ -1511,12 +1511,12 @@ const Gen={
           <div class="tree-arrows">↙　↘</div>
           <div class="tree-children">
             <div class="tree-branch">
-              <b class="box empty d2" data-i="0" style="width:64px;min-width:64px;height:50px"></b>
+              <b class="box empty d2" data-i="0" style="width:50px;min-width:50px;height:50px"></b>
               <div class="ar">↙ ↘</div>
               <div class="tree-leafs"><span>${a}</span><span>${b}</span></div>
             </div>
             <div class="tree-branch">
-              <b class="box empty d2" data-i="1" style="width:64px;min-width:64px;height:50px"></b>
+              <b class="box empty d2" data-i="1" style="width:50px;min-width:50px;height:50px"></b>
               <div class="ar">↙ ↘</div>
               <div class="tree-leafs"><span>${c}</span><span>${d}</span></div>
             </div>
@@ -1873,7 +1873,8 @@ document.addEventListener("click", async (e) => {
     if (!text) return;
     
     // ⭐ 新增：四则运算预处理
-    const calcResult = tryCalculate(text);
+    //const calcResult = tryCalculate(text);
+    const calcResult = smartCalculate(text);
     if (calcResult !== null) {
       // 是数学表达式 → 直接显示结果（不走知识库/AI）
       const box = document.getElementById("aiExplainBox");
@@ -1890,6 +1891,7 @@ document.addEventListener("click", async (e) => {
       const aiBubbleText = createBubble(false);
       //const answerText = `${text} = ${calcResult.result}\n\n📐 计算过程：\n${calcResult.steps.join('\n')}`;
       // ⭐ 核心改动：根据步骤数决定显示内容
+      /*
       let answerText;
       if (calcResult.steps.length >= 2) {
         // 多步：显示完整计算过程
@@ -1898,7 +1900,32 @@ document.addEventListener("click", async (e) => {
         // 1 步或 0 步：只显示结果
         answerText = `${text} = ${calcResult.result}`;
       }
-      aiBubbleText.innerText = answerText;
+      */
+      
+      // ⭐ 关键改动：原文本含"等于"就显示"等于"，否则显示"="
+      const equalsWord = (text.includes('等于') || text.includes('=')) ? '等于' : '=';
+      // ⭐ 如果是"提取"模式，显示"我理解你要算..."
+      let answerText;
+      
+      // 判断是否需要显示提取的算式
+      const isExtracted = calcResult.extractedExpr !== text.trim();
+      
+      if (isExtracted && calcResult.steps.length >= 2) {
+        // 提取 + 多步：显示算式识别 + 计算过程
+        answerText = `💡 我猜你想算的是：${calcResult.extractedExpr}\n\n${calcResult.extractedExpr} = ${calcResult.result}\n\n📐 计算过程：\n${calcResult.steps.join('\n')}`;
+      } else if (isExtracted) {
+        // 提取 + 1步：显示算式识别 + 简单结果
+        answerText = `💡 我猜你想算的是：${text.trim().replace(/？/g, '').replace(/\?/g, '').replace(/多少/g, '').replace(/等于/g, '').replace(/几/g, '').replace(/是/g, '')} 等于 ${calcResult.result}`;
+      } else if (calcResult.steps.length >= 2) {
+        // 纯算式 + 多步
+        answerText = `${calcResult.extractedExpr} = ${calcResult.result}\n\n📐 计算过程：\n${calcResult.steps.join('\n')}`;
+      } else {
+        // 纯算式 + 1步
+        answerText = `${calcResult.extractedExpr} = ${calcResult.result}`;
+      }
+      //aiBubbleText.innerText = answerText;
+      // ⭐ 高亮"等于"二字
+      aiBubbleText.innerHTML = highlightEquals(answerText);
       
       // 来源标签
       const sourceTag = document.createElement("div");

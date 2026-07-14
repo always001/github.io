@@ -1532,7 +1532,8 @@ function generateSteps(expr) {
     const r = op === '*' ? a * b : a / b;
     
     current = current.replace(match[0], formatNumber(r));
-    steps.push(`第 ${step} 步：${match[0]} = ${formatNumber(r)}`);
+    //steps.push(`第 ${step} 步：${match[0]} = ${formatNumber(r)}`);
+    steps.push(`第 ${step} 步：${match[0]} 等于 ${formatNumber(r)}`);
     step++;
   }
   
@@ -1663,6 +1664,12 @@ function chineseNumToInt(text) {
   result = result.replace(/[÷]/g, '/');
   result = result.replace(/[—–]/g, '-');
   result = result.replace(/[×÷]/g, m => m === '×' ? '*' : '/');
+  result = result.replace(/➕/g, '+');  // 加上 → +
+  result = result.replace(/➖/g, '-');  // 减去 → -
+  result = result.replace(/✖️/g, '*');
+  result = result.replace(/✖/g, '*');
+  result = result.replace(/➗/g, '/');
+  
   
   // 2. 处理"十"开头的两位数（十二 → 12）
   result = result.replace(/十([一二三四五六七八九])/g, '1$1');
@@ -2045,3 +2052,107 @@ function refreshRudeWordsManager() {
     container.innerHTML = renderRudeWordsManager();
   }
 }
+
+
+/* ============================================
+   🧮 智能算式提取（强化版）
+   ============================================ */
+
+/**
+ * 从用户输入中提取数学算式
+ */
+function extractMathExpression(text) {
+  if (!text || typeof text !== 'string') return null;
+  
+  // ⭐ 第 1 步：全角转半角
+  let result = text.replace(/[\uFF01-\uFF5E]/g, ch => 
+    String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)
+  );
+  
+  // ⭐ 第 2 步：去空白
+  result = result.replace(/\s+/g, '');
+  
+  // ⭐ 第 3 步：去掉 = ? 和中文"等于"
+  //result = result.replace(/等于/g, ''); // 为了显示高亮
+  //result = result.replace(/=/g, '');    // ★bug:如果是这样的代码，那 1+1=2 会变成 1+12
+  result = result.replace(/\?/g, '');
+  result = result.replace(/？/g, '');
+  
+  // ⭐ 第 4 步：核心正则 - 找所有可能的算式
+  // 用 /g 标志找所有匹配
+  const matches = result.match(/[\d\+\-\*\/\(\)\.]+/g) || [];
+
+  // 过滤：必须包含数字 + 运算符
+  const validMatches = matches.filter(m => 
+    /\d/.test(m) && /[\+\-\*\/]/.test(m)
+  );
+  
+  // ⭐ 选最长的那个（一般是用户想要的算式）
+  if (validMatches.length > 0) {
+    const longest = validMatches.sort((a, b) => b.length - a.length)[0];
+    return longest;
+  }
+  
+  
+  
+  // ⭐ 第 5 步：尝试中文转换
+  const converted = chineseNumToInt(result);
+  
+  // ⭐ 第 4 步：中文转换（这里才删"等于"）
+  //let converted = result.replace(/等于/g, '');
+  //converted = converted.replace(/[=？\?]/g, '');
+  //converted = chineseNumToInt(converted);
+  
+  const convertedMatches = converted.match(/[\d\+\-\*\/\(\)\.]+/g) || [];
+  const validConverted = convertedMatches.filter(m => 
+    /\d/.test(m) && /[\+\-\*\/]/.test(m)
+  );
+  
+  if (validConverted.length > 0) {
+    return validConverted.sort((a, b) => b.length - a.length)[0];
+  }
+  
+  return null;
+}
+
+/**
+ * 智能 tryCalculate - 先提取算式再计算
+ */
+function smartCalculate(text) {
+  if (!text) return null;
+  
+  // 1. 先尝试原始文本直接计算
+  let result = tryCalculate(text);
+  if (result) {
+    result.extractedExpr = result.expression || text;
+    return result;
+  }
+  
+  // 2. 提取算式
+  const expr = extractMathExpression(text);
+  if (!expr) return null;
+  
+  // 3. 用提取的算式计算
+  result = tryCalculate(expr);
+  if (result) {
+    result.extractedFrom = text;
+    result.extractedExpr = expr;
+    return result;
+  }
+  
+  return null;
+}
+
+
+/* ============================================
+   🟡 高亮"等于"二字
+   ============================================ */
+
+function highlightEquals(text) {
+  if (!text) return text;
+  // ⭐ 同时高亮"等于"和"="
+  return text
+    .replace(/等于/g, '<span style="background:#fff3cd;color:#d63031;font-weight:bold;padding:0px 2px;border-radius:3px;#fdcb6e">等于</span>')
+    //.replace(/=/g, '<span style="background:#fff3cd;color:#d63031;font-weight:bold;padding:0 4px;border-radius:4px">＝</span>');
+}
+
