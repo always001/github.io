@@ -1888,7 +1888,16 @@ document.addEventListener("click", async (e) => {
       input.value = "";
       // AI 气泡（直接显示计算结果）
       const aiBubbleText = createBubble(false);
-      const answerText = `${text} = ${calcResult.result}\n\n📐 计算过程：\n${calcResult.steps.join('\n')}`;
+      //const answerText = `${text} = ${calcResult.result}\n\n📐 计算过程：\n${calcResult.steps.join('\n')}`;
+      // ⭐ 核心改动：根据步骤数决定显示内容
+      let answerText;
+      if (calcResult.steps.length >= 2) {
+        // 多步：显示完整计算过程
+        answerText = `${text} = ${calcResult.result}\n\n📐 计算过程：\n${calcResult.steps.join('\n')}`;
+      } else {
+        // 1 步或 0 步：只显示结果
+        answerText = `${text} = ${calcResult.result}`;
+      }
       aiBubbleText.innerText = answerText;
       
       // 来源标签
@@ -1901,6 +1910,31 @@ document.addEventListener("click", async (e) => {
       return;  // ⭐ 重要：直接返回，不走知识库
     }
 
+    // ⭐ 第 2 步：礼貌检测
+    const politeReply = checkPoliteAdvanced(text);
+    if (politeReply) {
+      const box = document.getElementById("aiExplainBox");
+      box.style.display = "block";
+      
+      const bubbleText = createBubble(true);
+      bubbleText.innerText = text;
+      saveChatRecord("user", text);
+      input.value = "";
+      
+      const aiBubbleText = createBubble(false);
+      aiBubbleText.innerText = politeReply;
+      
+      const sourceTag = document.createElement("div");
+      sourceTag.style.cssText = "font-size:11px;color:#888;margin-top:4px;text-align:right;";
+      sourceTag.innerText = "🌟 礼貌引导";
+      aiBubbleText.appendChild(sourceTag);
+      
+      saveChatRecord("ai", politeReply);
+      box.scrollTop = box.scrollHeight;
+      return;
+    }
+
+    // ⭐ 第 3 步：知识库（原来的代码）
     const box = document.getElementById("aiExplainBox");
     box.style.display = "block";
 

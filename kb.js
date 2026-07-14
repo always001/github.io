@@ -561,6 +561,11 @@ function renderKBEditor() {
       </div>
     </div>
     <div class="stat-card">
+    
+    <!-- ⭐ 在编辑知识库之后、查询日志之前插入 -->
+    <div id="rudeWordManagerContainer">
+      ${renderRudeWordsManager()}
+    </div>
       <h3>📜 最近查询（点击 ⬇️ 可重问）</h3>
       <p style="font-size:11px;color:#888">💡 点击问题可自动填入聊天框</p>
       <div id="kbLogList" style="max-height:350px;overflow-y:auto;font-size:12px">${renderKBLogs()}</div>
@@ -1628,6 +1633,9 @@ function chineseNumToInt(text) {
   result = result.replace(/\?/g, '');    // 英文 ?
   result = result.replace(/等于/g, '');  // 中文"等于"
   result = result.replace(/？/g, '');    // 全角 ？
+  result = result.replace(/是/g, '');    // 中文"是"
+  result = result.replace(/几/g, '');    // 中文"几"
+  result = result.replace(/多少/g, '');  // 中文"多少"
   
   // ⭐ 修复 2：方括号、花括号转圆括号
   result = result.replace(/\[/g, '(');
@@ -1761,4 +1769,279 @@ function isMathExpression(text) {
   if (!/[\+\-\*\/]/.test(text)) return false;  // 必须有运算符
   if (!/^\s*[\-\(]?\s*\d/.test(text)) return false;  // 数字开头
   return true;
+}
+
+/* ============================================
+   🌟 礼貌检测 & 教育引导（完整模块）
+   ============================================ */
+
+// =============== 1. 先定义词库 ===============
+const RUDE_WORDS = [
+  '笨蛋', '蠢', '傻', '废物', '垃圾', '滚', '去死', '弱智',
+  'stupid', 'idiot', 'fool', 'dumb', 'shit', 'fuck','操',
+  '傻逼', '智障', '脑残', '2b', 'sb', 'tmd', 'nmd',
+  '蠢货', '呆子', '二百五', '250','八嘎','巴嘎','阿呆',
+];
+
+// =============== 2. 再加载自定义词 ===============
+// ⭐ 必须放在 RUDE_WORDS 定义之后
+function loadCustomRudeness() {
+  try {
+    const custom = localStorage.getItem('custom_rude_words');
+    if (custom) {
+      const words = JSON.parse(custom);
+      if (Array.isArray(words)) {
+        // ⭐ 避免重复添加（页面刷新时不会重复）
+        for (const w of words) {
+          if (!RUDE_WORDS.includes(w)) {
+            RUDE_WORDS.push(w);
+          }
+        }
+      }
+    }
+  } catch(e) {
+    console.warn('加载自定义词库失败:', e);
+  }
+}
+
+// ⭐ 立即执行（紧跟 RUDE_WORDS 定义）
+loadCustomRudeness();
+
+// =============== 3. 定义回复模板 ===============
+const POLITE_REPLIES = {
+  '笨蛋': [
+    '🤗 别生气啦！我虽然不是人，但我会一直陪着你学习哦~',
+    '😊 骂人是不好的习惯哦，我们来做个好朋友吧！',
+    '💪 我知道你现在可能心情不好，要不我们做道题冷静一下？',
+    '🌈 每个人都会犯错，重要的是改正。我们一起加油吧！'
+  ],
+  '蠢': [
+    '🧠 学习本来就是一个从不会到会的过程，加油！',
+    '✨ 没有人生来就聪明，都是慢慢学出来的~',
+    '🌱 我陪你慢慢来，一道题一道题搞定！'
+  ],
+  '废物': [
+    '💝 你不是废物！每个人都有自己的闪光点哦~',
+    '🌟 说这种话会让你心情更差，不如做道题开心一下？',
+    '🤗 不要这样说自己，你很棒的！'
+  ],
+  '滚': [
+    '😢 我会一直在这里等你的，不会走~',
+    '💕 不管你说什么，我都会陪着你学习哦~',
+    '🎈 我们换个话题吧，要不要挑战一道有趣的题？'
+  ],
+  'default': [
+    '😊 我们用友善的方式交流好不好？我会尽力帮你的~',
+    '💖 我知道你可能不开心，但骂人不能解决问题哦~',
+    '🌟 不管怎样，我都愿意陪你一起学习，加油！',
+    '🎯 把精力放在学习上吧，你一定能变得更棒！'
+  ]
+};
+
+// =============== 4. 分类函数 ===============
+function categorize(word) {
+  if (['笨蛋', '蠢', '傻', '傻逼', '智障', '脑残', '蠢货', '呆子', '二百五', '250','八嘎','巴嘎','阿呆', 'sb', '2b', 'stupid', 'idiot', 'fool', 'dumb'].includes(word)) {
+    return '笨蛋';
+  }
+  if (['废物', '垃圾'].includes(word)) return '废物';
+  if (['滚', '去死', 'shit', 'fuck'].includes(word)) return '滚';
+  return 'default';
+}
+
+// =============== 5. 礼貌检测主函数 ===============
+function checkPolite(text) {
+  if (!text) return null;
+  
+  const lowerText = text.toLowerCase().trim();
+  
+  for (const word of RUDE_WORDS) {
+    if (lowerText.includes(word.toLowerCase())) {
+      const category = categorize(word);
+      const replies = POLITE_REPLIES[category] || POLITE_REPLIES['default'];
+      const reply = replies[Math.floor(Math.random() * replies.length)];
+      console.log(`🌟 检测到不礼貌词: "${word}" → 回复: ${reply.substring(0, 30)}...`);
+      return reply;
+    }
+  }
+  
+  return null;
+}
+
+// =============== 6. 高级版（带情绪检测） ===============
+function checkPoliteAdvanced(text) {
+  const basicReply = checkPolite(text);
+  if (basicReply) return basicReply;
+  
+  const emotionWords = {
+    '生气': '😤',
+    '不开心': '😢',
+    '难过': '😢',
+    '讨厌': '😣',
+    '烦': '😩',
+    '哭': '😢'
+  };
+  
+  for (const [word, emoji] of Object.entries(emotionWords)) {
+    if (text.includes(word)) {
+      return `${emoji} 我感受到你${word}了。愿意和我说说为什么吗？我会认真听的~`;
+    }
+  }
+  
+  return null;
+}
+
+// =============== 7. 自定义词管理函数 ===============
+// 添加自定义词
+function addCustomRudeWord(word) {
+  if (!word || !word.trim()) {
+    alert('❌ 词不能为空');
+    return false;
+  }
+  
+  word = word.trim();
+  
+  if (RUDE_WORDS.includes(word)) {
+    alert(`"${word}" 已经在词库里了`);
+    return false;
+  }
+  
+  RUDE_WORDS.push(word);
+  
+  // 保存到 localStorage
+  saveCustomRudeness();
+  return true;
+}
+
+// 保存自定义词到 localStorage
+function saveCustomRudeness() {
+  // 只保存"自定义"的那部分（不含默认的）
+  // 简单做法：保存所有非默认词
+  const defaultWords = [
+    '笨蛋', '蠢', '傻', '废物', '垃圾', '滚', '去死', '弱智',
+    'stupid', 'idiot', 'fool', 'dumb', 'shit', 'fuck','操',
+    '傻逼', '智障', '脑残', '2b', 'sb', 'tmd', 'nmd',
+    '蠢货', '呆子', '二百五', '250','八嘎','巴嘎','阿呆',
+  ];
+  
+  const customWords = RUDE_WORDS.filter(w => !defaultWords.includes(w));
+  
+  try {
+    localStorage.setItem('custom_rude_words', JSON.stringify(customWords));
+  } catch(e) {
+    console.warn('保存失败:', e);
+  }
+}
+
+// 删除自定义词
+function removeCustomRudeWord(word) {
+  const index = RUDE_WORDS.indexOf(word);
+  if (index > -1) {
+    RUDE_WORDS.splice(index, 1);
+    saveCustomRudeness();
+    return true;
+  }
+  return false;
+}
+
+/* ============================================
+   🛡️ 礼貌词管理 UI
+   ============================================ */
+
+// ⭐ 渲染礼貌词管理卡片
+function renderRudeWordsManager() {
+  const defaultWords = [
+    '笨蛋','蠢','傻','废物','垃圾','滚','去死','弱智',
+    'stupid','idiot','fool','dumb','shit','fuck','操',
+    '傻逼','智障','脑残','2b','sb','tmd','nmd',
+    '蠢货','呆子','二百五','250','八嘎','巴嘎','阿呆',
+  ];
+  
+  return `
+    <div class="stat-card">
+      <h3>🛡️ 礼貌词管理</h3>
+      <p style="font-size:12px;color:#888">
+        检测到不礼貌词时，AI 会自动用友善语言回复<br>
+        当前词库: <b>${RUDE_WORDS.length}</b> 个
+        （默认 ${defaultWords.length} + 自定义 ${RUDE_WORDS.length - defaultWords.length}）
+      </p>
+      
+      <!-- 词库列表 -->
+      <div style="margin:8px 0">
+        <div id="rudeWordList" style="
+          max-height:150px;overflow-y:auto;background:#fafafa;
+          padding:8px;border-radius:6px;font-size:12px;line-height:2;
+        ">
+          ${RUDE_WORDS.map(w => {
+            const isDefault = defaultWords.includes(w);
+            const bgColor = isDefault ? '#f0f0f0' : '#fff3cd';
+            const textColor = isDefault ? '#666' : '#d63031';
+            const deleteBtn = isDefault ? '' : 
+              `<span style="
+                color:#ff7675;cursor:pointer;margin-left:4px;
+                font-weight:bold;
+              " onclick="removeRudeWord('${w}')" title="删除">✕</span>`;
+            return `<span style="
+              display:inline-block;background:${bgColor};
+              color:${textColor};
+              padding:3px 8px;border-radius:10px;margin:2px;font-size:11px;
+            ">${w}${deleteBtn}</span>`;
+          }).join('')}
+        </div>
+      </div>
+      
+      <!-- 添加输入框 -->
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <input type="text" id="newRudeWord" placeholder="输入要添加的词..." 
+          style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"
+          onkeydown="if(event.key==='Enter') handleAddRudeWord()">
+        <button onclick="handleAddRudeWord()" style="
+          padding:8px 16px;background:#d63031;color:#fff;
+          border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:bold
+        ">➕ 添加</button>
+      </div>
+      
+      <div style="font-size:11px;color:#888;margin-top:6px">
+        💡 提示：默认词不能删除，只能添加自定义词（黄色显示）
+      </div>
+    </div>
+  `;
+}
+
+// 处理添加按钮
+function handleAddRudeWord() {
+  const input = document.getElementById('newRudeWord');
+  if (!input) return;
+  
+  const word = input.value.trim();
+  if (!word) {
+    alert('请输入要添加的词');
+    return;
+  }
+  
+  if (addCustomRudeWord(word)) {
+    input.value = '';
+    refreshRudeWordsManager();  // 只刷新这部分，不刷新整个 KB 编辑器
+    alert(`✅ 已添加 "${word}"`);
+  } else {
+    alert(`"${word}" 已经在词库里了`);
+  }
+}
+
+// 删除自定义词
+function removeRudeWord(word) {
+  if (confirm(`确定要删除 "${word}" 吗？`)) {
+    if (removeCustomRudeWord(word)) {
+      refreshRudeWordsManager();
+    } else {
+      alert('删除失败');
+    }
+  }
+}
+
+// ⭐ 智能刷新（只刷礼貌词部分，不破坏 KB 编辑器）
+function refreshRudeWordsManager() {
+  const container = document.getElementById('rudeWordManagerContainer');
+  if (container) {
+    container.innerHTML = renderRudeWordsManager();
+  }
 }
