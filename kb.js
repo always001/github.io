@@ -86,6 +86,67 @@ const DEFAULT_KB = [
   "圆的面积公式是 π 乘以半径的平方。",
   "圆周率约等于 3.1415926。",
   "北京是中国的首都，人口约 2100 万。",
+  // ⭐ 新增 Tokyo 相关（多种问法都覆盖）
+  "Tokyo 是日本的首都，国际大都市，英文名 Tokyo。",
+  "东京 Tokyo 是日本的首都，日文写作東京。",
+  "Tokyo 位于日本本州关东地区，是世界最大城市之一。",
+  
+  // 人口
+  "Tokyo 人口约 1400 万 Tokyo population about 14 million。",
+  "Tokyo 都市圈人口约 3700 万，是世界最大都市圈之一 metro area 37 million。",
+  
+  // 语言和货币
+  "Tokyo 的官方语言是日语 Japanese。",
+  "Tokyo 使用的货币是日元 Japanese Yen 货币符号是 JPY 或 ¥。",
+  "Tokyo 语言日语货币日元 language Japanese currency Yen。",
+  
+  // 著名景点
+  "Tokyo 著名景点有涩谷十字路口 Shibuya Crossing 是世界上最繁忙的十字路口。",
+  "Tokyo 著名景点有东京塔 Tokyo Tower 高度 333 米仿照巴黎埃菲尔铁塔建造。",
+  "Tokyo 著名景点有浅草寺 Senso-ji Temple 是东京最古老的寺庙。",
+  "Tokyo 著名景点有秋叶原 Akihabara 是电器和动漫圣地。",
+  "Tokyo 著名景点有东京晴空塔 Tokyo Skytree 高度 634 米是世界第二高塔。",
+  "Tokyo 著名景点有东京迪士尼乐园 Tokyo Disneyland 是亚洲第一座迪士尼。",
+  "Tokyo 著名景点有明治神宫 Meiji Shrine 是东京最重要的神社之一。",
+  "Tokyo 著名景点有皇居 Imperial Palace 是天皇的居所。",
+  "Tokyo 著名景点有新宿御苑 Shinjuku Gyoen 是著名的大型公园。",
+  
+  // 樱花和文化
+  "Tokyo 樱花在每年 3 月底 4 月初盛开 cherry blossom。",
+  "Tokyo 是日本的美食之都，有寿司拉面怀石料理等日本料理 sushi ramen。",
+  "Tokyo 美食丰富，寿司拉面天妇罗都非常有名 Japanese food。",
+  
+  // 奥运和现代
+  "Tokyo 2020 奥运会在 2021 年举办 Olympics。",
+  "Tokyo 是科技中心 Sony 丰田软银等大公司总部所在地 technology。",
+  "Tokyo 是金融中心 日本银行东京证券交易所所在地 finance。",
+  "Tokyo 是时尚中心 原宿表参道是时尚地标 fashion。",
+  "Tokyo 是流行文化中心 秋叶原是动漫圣地 pop culture anime。",
+  
+  // 政治地位
+  "Tokyo 是日本的政治中心，天皇和日本政府所在地 political center。",
+  "Tokyo 是天皇的居所 Imperial family Emperor of Japan。",
+  "Tokyo 是日本国会首相府所在地 government parliament。",
+  
+  // 英文完整版（直接对应你的原文）
+  "Tokyo is the capital of Japan. 东京是日本的首都。",
+  "Tokyo population approximately 14 million metro area 37 million. 东京人口约 1400 万都市圈 3700 万。",
+  "Tokyo language Japanese currency Japanese Yen JPY. 东京语言日语货币日元。",
+  "Tokyo famous for Shibuya Crossing Tokyo Tower Senso-ji Temple Akihabara. 东京以涩谷东京塔浅草寺秋叶原闻名。",
+  "Tokyo is the political center home to the Emperor and government. 东京是政治中心天皇和政府所在地。",
+  "Tokyo is a major hub for technology finance fashion and pop culture. 东京是科技金融时尚流行文化中心。",
+  "Tokyo incredible food scene sushi ramen. 东京美食丰富寿司拉面。",
+  // 英文版（直接对应你的原文）
+  "Tokyo is the capital of Japan. 东京是日本的首都。",
+  "Tokyo population about 14 million. 东京人口约 1400 万。",
+  "Tokyo metro area about 37 million. 东京都市圈约 3700 万。",
+  "Tokyo language is Japanese. 东京语言是日语。",
+  "Tokyo currency is Japanese Yen JPY. 东京货币是日元。",
+  "Tokyo famous for Shibuya Crossing, Tokyo Tower, Senso-ji Temple, Akihabara. 东京以涩谷十字路口东京塔浅草寺秋叶原闻名。",
+  "Tokyo is the political center home to the Emperor and government. 东京是政治中心，天皇和政府所在地。",
+  "Tokyo is a major hub for technology, finance, fashion, and pop culture. 东京是科技金融时尚流行文化中心。",
+  "Yes, that's correct! Tokyo (東京) is the capital of Japan.",
+  "Tokyo is the capital of Japan.",
   "Python 是易学的编程语言。"
 ];
 
@@ -96,7 +157,7 @@ const KB_KEYWORDS = [
   "图形","三角形","圆形","正方","算式树","竖式","数位","对齐",
   "时间","长度","重量","单位","钟面","时针","分针",
   "应用题","读题","条件","问题","答","原有","剩下","比多","比少",
-  "深圳","上海","北京","广州","杭州","成都","西安",
+  "深圳","上海","北京","广州","杭州","成都","西安","tokyo","japan",
   "腾讯","华为","阿里","百度","python","人工智能"
 ];
 
@@ -151,11 +212,32 @@ function saveKBStats() {
 
 // =============== 分词 ===============
 function kbTokenize(text) {
-  const clean = text.replace(/[，。！？；:\s\n　,.!?？]/g, '').toLowerCase();
+  // ⭐ 关键修复 1：先转小写
+//const clean = text.replace(/[，。！？；:\s\n　,.!?？]/g, '').toLowerCase();
+  //const clean = text.replace(/[，。！？；:\s\n　,.!?？()【】《》「」『』"'`~@#$%^&*]/g, '').toLowerCase();
+  // 扩展版（去掉所有标点，包括英文）
+  const clean = text
+    .replace(/[\s\n\r\t　]/g, '')        // 空白字符
+    .replace(/[，。！？；:,!?]/g, '')     // 中英文标点
+    .replace(/[()【】《》「」『』"'\`~@#$%^&*]/g, '')  // 各种括号引号
+    .toLowerCase();
   const tokens = [];
   let i = 0;
   while (i < clean.length) {
     const c = clean[i];
+    
+    // ⭐ 关键修复 2：英文（大小写都匹配）
+    if (/[a-zA-Z]/.test(c)) {
+      let word = '';
+      while (i < clean.length && /[a-zA-Z0-9]/.test(clean[i])) {
+        word += clean[i];
+        i++;
+      }
+      if (word) tokens.push(word.toLowerCase());  // 统一小写
+      continue;
+    }
+    
+    // 数字+符号
     if (/[0-9+\-*/=().×÷π]/.test(c)) {
       let expr = '';
       while (i < clean.length && /[0-9+\-*/=().×÷π]/.test(clean[i])) {
@@ -165,6 +247,8 @@ function kbTokenize(text) {
       if (expr) tokens.push(expr);
       continue;
     }
+    
+    /*
     if (/[a-z]/.test(c)) {
       let word = '';
       while (i < clean.length && /[a-z0-9]/.test(clean[i])) {
@@ -174,6 +258,9 @@ function kbTokenize(text) {
       if (word) tokens.push(word);
       continue;
     }
+    */
+    
+    // 中文 2 字
     if (/[\u4e00-\u9fa5]/.test(c)) {
       if (i + 2 <= clean.length) {
         tokens.push(clean.substr(i, 2));
@@ -186,7 +273,13 @@ function kbTokenize(text) {
     }
     i++;
   }
-  return tokens.filter(t => t.length >= 2);
+  
+  //return tokens.filter(t => t.length >= 2);
+  // ⭐ 关键修复 3：单字过滤（但保留英文单词）
+  return tokens.filter(t => {
+    if (/[a-z]/.test(t)) return true;  // 英文全部保留（包括 "a", "I"）
+    return t.length >= 2;  // 中文/数字至少 2 位
+  });
 }
 
 // =============== 相似度 ===============
@@ -225,7 +318,7 @@ function searchKB(question) {
     }
   }
   
-  const found = bestScore > 0.10;
+  const found = bestScore > 0.01; // 改 0.10 → 0.01
   if (found) KB_HITS++; else KB_MISSES++;
   
   KB_LOGS.unshift({
@@ -425,6 +518,35 @@ function renderKBEditor() {
       </div>
       <div id="kbTrendChart">${renderKBTrend(7, true)}</div>
     </div>
+    
+    <!-- ⭐ 新增 3 个功能按钮 -->
+    <div class="stat-card">
+      <h3>🛠️ 高级功能</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <button onclick="aiOrganizeMissedQuestions()" style="
+          padding:14px 8px;background:linear-gradient(135deg,#4a90e2,#357abd);
+          color:#fff;border:none;border-radius:10px;cursor:pointer;
+          font-size:12px;font-weight:bold;line-height:1.4;
+        ">
+          🤖<br>AI 整理<br><span style="font-size:10px;opacity:.8">未命中问题</span>
+        </button>
+        <button onclick="exportPDFReport()" style="
+          padding:14px 8px;background:linear-gradient(135deg,#a29bfe,#6c5ce7);
+          color:#fff;border:none;border-radius:10px;cursor:pointer;
+          font-size:12px;font-weight:bold;line-height:1.4;
+        ">
+          📊<br>PDF 报告<br><span style="font-size:10px;opacity:.8">打印/导出</span>
+        </button>
+        <button onclick="startKBGame()" style="
+          padding:14px 8px;background:linear-gradient(135deg,#fdcb6e,#e17055);
+          color:#fff;border:none;border-radius:10px;cursor:pointer;
+          font-size:12px;font-weight:bold;line-height:1.4;
+        ">
+          🏆<br>答题游戏<br><span style="font-size:10px;opacity:.8">10 题挑战</span>
+        </button>
+      </div>
+    </div>
+    
     <div class="stat-card">
       <h3>✏️ 编辑知识库</h3>
       <p style="font-size:12px;color:#888">每行一条知识，共 <b id="kbLineCount">${KB_DATA.length}</b> 条</p>
@@ -515,3 +637,770 @@ function clearKBStats() {
 
 // ⭐ 页面加载时自动初始化
 initKB();
+
+
+/* ============================================
+   🤖 AI 自动整理未命中问题
+   ============================================ */
+async function aiOrganizeMissedQuestions() {
+  const missed = KB_LOGS.filter(l => !l.hit).slice(0, 20);
+  if (missed.length === 0) {
+    alert('🎉 太好了！最近没有未命中问题！');
+    return;
+  }
+  
+  if (!confirm(`发现 ${missed.length} 个未命中问题。\n\nAI 将帮你：\n1. 分析这些问题的共同点\n2. 推荐需要新增的知识\n3. 自动生成知识条目（你可以编辑后再保存）\n\n是否继续？`)) {
+    return;
+  }
+  
+  // 显示加载状态
+  const container = document.getElementById('kbEditorContainer');
+  const loading = document.createElement('div');
+  loading.id = 'aiLoadingBox';
+  loading.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.5);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;flex-direction:column;color:#fff;
+  `;
+  loading.innerHTML = `
+    <div style="font-size:50px;animation:float 2s infinite">🤖</div>
+    <div style="margin-top:20px;font-size:18px">AI 正在分析未命中问题...</div>
+    <div style="margin-top:10px;font-size:14px;opacity:.8">这可能需要 5-10 秒</div>
+  `;
+  document.body.appendChild(loading);
+  
+  try {
+    // 构造 prompt
+    const questions = missed.map((m, i) => `${i+1}. ${m.q}`).join('\n');
+    const prompt = `你是小学数学知识整理助手。我有一个数学知识库，最近有这些"未命中"的问题（知识库里找不到答案）：
+
+${questions}
+
+请帮我：
+1. 分析这些问题的共同主题（如：加减法、几何、单位换算等）
+2. 推荐 5-10 条应该新增到知识库的内容
+3. 每条用一句话回答，简洁明了（20-50字），适合小学生理解
+4. 直接输出知识条目，每行一条，不要编号，不要其他解释
+
+格式示例：
+凑十法看大数拆小数
+9 加 5 等于 14 因为 9+1=10 再加 4
+...`;
+
+    // 调用 Worker
+    const response = await fetch("https://chat-ai-proxy.gankenrin.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: prompt })
+    });
+    
+    const data = await response.json();
+    const aiText = data.text || '';
+    
+    // 解析 AI 返回的知识
+    const newEntries = aiText
+      .split('\n')
+      .map(s => s.trim())
+      .filter(s => s.length > 5 && s.length < 200)
+      .map(s => s.replace(/^[\d\.\-\*•、\s]+/, '').trim())  // 去掉编号
+      .filter(s => s);
+    
+    if (newEntries.length === 0) {
+      alert('❌ AI 没有返回有效内容，请重试');
+      return;
+    }
+    
+    // 显示结果让用户编辑
+    showAIOrganizeResult(newEntries, missed);
+    
+  } catch (err) {
+    console.error('AI 整理失败：', err);
+    alert('❌ AI 整理失败：' + err.message);
+  } finally {
+    document.getElementById('aiLoadingBox')?.remove();
+  }
+}
+
+// 显示 AI 整理结果
+function showAIOrganizeResult(newEntries, missedQuestions) {
+  // 创建弹窗
+  const modal = document.createElement('div');
+  modal.id = 'aiOrganizeModal';
+  modal.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;padding:20px;
+  `;
+  
+  const card = document.createElement('div');
+  card.style.cssText = `
+    background:#fff;border-radius:16px;padding:20px;
+    max-width:500px;width:100%;max-height:80vh;
+    overflow-y:auto;animation:pop .4s;
+  `;
+  
+  card.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:40px">🤖</div>
+      <h2 style="color:#6c5ce7;margin:8px 0">AI 整理结果</h2>
+      <p style="color:#888;font-size:13px">
+        基于 ${missedQuestions.length} 个未命中问题，AI 推荐了 ${newEntries.length} 条新知识
+      </p>
+    </div>
+    
+    <div style="background:#f0f9ff;border-left:4px solid #4a90e2;padding:10px;border-radius:6px;margin-bottom:12px">
+      <div style="font-size:12px;color:#666">💡 你可以编辑后再保存</div>
+    </div>
+    
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;color:#666;margin-bottom:6px">📋 未命中问题预览：</div>
+      <div style="max-height:100px;overflow-y:auto;background:#fafafa;padding:8px;border-radius:6px;font-size:12px">
+        ${missedQuestions.slice(0, 5).map(m => `• ${m.q}`).join('<br>')}
+        ${missedQuestions.length > 5 ? `<br>...还有 ${missedQuestions.length - 5} 个` : ''}
+      </div>
+    </div>
+    
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;color:#666;margin-bottom:6px">✨ AI 推荐的新知识：</div>
+      <textarea id="aiNewEntries" style="
+        width:100%;height:200px;padding:10px;
+        border:2px solid #4a90e2;border-radius:8px;
+        font-family:inherit;font-size:14px;line-height:1.6;
+        resize:vertical;
+      ">${newEntries.join('\n')}</textarea>
+      <div style="font-size:11px;color:#888;margin-top:4px">
+        提示：每行一条，可以增删改
+      </div>
+    </div>
+    
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      <button id="aiAddAll" style="
+        flex:1;min-width:120px;padding:12px;
+        background:linear-gradient(135deg,#00b894,#00cec9);
+        color:#fff;border:none;border-radius:8px;
+        font-size:14px;font-weight:bold;cursor:pointer;
+      ">✅ 全部加入</button>
+      <button id="aiAddSelected" style="
+        flex:1;min-width:120px;padding:12px;
+        background:linear-gradient(135deg,#4a90e2,#357abd);
+        color:#fff;border:none;border-radius:8px;
+        font-size:14px;font-weight:bold;cursor:pointer;
+      ">📝 只加勾选的</button>
+      <button id="aiCancel" style="
+        flex:1;min-width:120px;padding:12px;background:#6b7280;
+        color:#fff;border:none;border-radius:8px;
+        font-size:14px;font-weight:bold;cursor:pointer;
+      ">❌ 取消</button>
+    </div>
+  `;
+  
+  modal.appendChild(card);
+  document.body.appendChild(modal);
+  
+  // 事件绑定
+  document.getElementById('aiCancel').onclick = () => modal.remove();
+  
+  document.getElementById('aiAddAll').onclick = () => {
+    const lines = document.getElementById('aiNewEntries').value
+      .split('\n').map(s => s.trim()).filter(s => s);
+    if (lines.length === 0) {
+      alert('❌ 内容不能为空');
+      return;
+    }
+    KB_DATA.push(...lines);
+    saveKB();
+    modal.remove();
+    alert(`🎉 成功添加 ${lines.length} 条新知识！\n当前共 ${KB_DATA.length} 条`);
+    renderKBEditor();
+  };
+  
+  document.getElementById('aiAddSelected').onclick = () => {
+    // 显示勾选模式
+    showSelectableEntries(newEntries, modal);
+  };
+  
+  // 点击背景关闭
+  modal.onclick = (e) => {
+    if (e.target === modal) modal.remove();
+  };
+}
+
+// 勾选模式
+function showSelectableEntries(entries, parentModal) {
+  const card = parentModal.querySelector('div');
+  const listHTML = entries.map((e, i) => `
+    <label style="
+      display:flex;align-items:flex-start;gap:8px;
+      padding:8px;margin:4px 0;background:#f9fafb;
+      border-radius:6px;cursor:pointer;
+      transition:background .15s;
+    " onmouseover="this.style.background='#e8f5e9'" 
+       onmouseout="this.style.background='#f9fafb'">
+      <input type="checkbox" checked data-idx="${i}" 
+        style="margin-top:4px;cursor:pointer">
+      <span style="flex:1;font-size:13px;line-height:1.5">${e}</span>
+    </label>
+  `).join('');
+  
+  card.innerHTML = `
+    <h2 style="color:#6c5ce7;text-align:center">📝 选择要添加的知识</h2>
+    <div style="max-height:50vh;overflow-y:auto;margin:16px 0">
+      ${listHTML}
+    </div>
+    <div style="display:flex;gap:8px">
+      <button id="aiConfirm" style="
+        flex:1;padding:12px;background:#00b894;color:#fff;
+        border:none;border-radius:8px;font-weight:bold;cursor:pointer
+      ">✅ 确认添加</button>
+      <button id="aiBack" style="
+        flex:1;padding:12px;background:#6b7280;color:#fff;
+        border:none;border-radius:8px;font-weight:bold;cursor:pointer
+      ">↩️ 返回</button>
+    </div>
+  `;
+  
+  document.getElementById('aiConfirm').onclick = () => {
+    const checked = card.querySelectorAll('input[type=checkbox]:checked');
+    const toAdd = Array.from(checked).map(cb => entries[parseInt(cb.dataset.idx)]);
+    if (toAdd.length === 0) {
+      alert('⚠️ 请至少勾选一条');
+      return;
+    }
+    KB_DATA.push(...toAdd);
+    saveKB();
+    parentModal.remove();
+    alert(`🎉 成功添加 ${toAdd.length} 条！\n当前共 ${KB_DATA.length} 条`);
+    renderKBEditor();
+  };
+  
+  document.getElementById('aiBack').onclick = () => {
+    showAIOrganizeResult(entries, KB_LOGS.filter(l => !l.hit).slice(0, 20));
+    parentModal.remove();
+  };
+}
+
+/* ============================================
+   📊 导出 PDF 报告
+   ============================================ */
+function exportPDFReport() {
+  const total = KB_HITS + KB_MISSES;
+  const hitRate = total > 0 ? (KB_HITS / total * 100).toFixed(1) : 0;
+  const today = new Date();
+  
+  // 按日期统计（最近 30 天）
+  const dailyStats = {};
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    dailyStats[key] = { date: key, hits: 0, total: 0 };
+  }
+  KB_LOGS.forEach(log => {
+    if (dailyStats[log.date]) {
+      dailyStats[log.date].total++;
+      if (log.hit) dailyStats[log.date].hits++;
+    }
+  });
+  
+  // Top 5 高频问题
+  const questionCount = {};
+  KB_LOGS.forEach(log => {
+    questionCount[log.q] = (questionCount[log.q] || 0) + 1;
+  });
+  const topQuestions = Object.entries(questionCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  
+  // Top 5 未命中问题
+  const missedQuestions = KB_LOGS
+    .filter(l => !l.hit)
+    .reduce((acc, l) => {
+      acc[l.q] = (acc[l.q] || 0) + 1;
+      return acc;
+    }, {});
+  const topMissed = Object.entries(missedQuestions)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  
+  // 生成 HTML 报告
+  const reportHTML = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>数学知识库报告 - ${today.toLocaleDateString('zh-CN')}</title>
+<style>
+  @page { size: A4; margin: 20mm; }
+  * { box-sizing: border-box; }
+  body { 
+    font-family: "Microsoft YaHei", sans-serif; 
+    padding: 20px; color: #2d3436; line-height: 1.6;
+    max-width: 800px; margin: 0 auto;
+  }
+  h1 { color: #6c5ce7; text-align: center; border-bottom: 3px solid #6c5ce7; padding-bottom: 12px; }
+  h2 { color: #00b894; margin-top: 30px; border-left: 4px solid #00b894; padding-left: 12px; }
+  .header-info { text-align: center; color: #888; margin-bottom: 30px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+  .stat-card { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 16px; border-radius: 8px; text-align: center; }
+  .stat-card .num { font-size: 32px; font-weight: bold; }
+  .stat-card .label { font-size: 12px; opacity: .9; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { background: #6c5ce7; color: #fff; padding: 10px; text-align: left; }
+  td { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; }
+  tr:nth-child(even) { background: #f9fafb; }
+  .missed { color: #d63031; }
+  .hit { color: #00b894; }
+  .chart { display: flex; align-items: flex-end; gap: 3px; height: 100px; margin: 20px 0; padding: 10px; background: #fafafa; border-radius: 6px; }
+  .bar { flex: 1; background: linear-gradient(180deg, #a29bfe, #6c5ce7); border-radius: 3px 3px 0 0; position: relative; min-width: 8px; }
+  .bar .label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; color: #888; }
+  .bar .num { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: bold; }
+  .summary { background: #fff8e1; border-left: 4px solid #fdcb6e; padding: 12px; border-radius: 6px; margin: 16px 0; }
+  .footer { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
+</style>
+</head>
+<body>
+  <h1>📚 数学知识库分析报告</h1>
+  <div class="header-info">
+    生成时间：${today.toLocaleString('zh-CN')}<br>
+    报告周期：最近 30 天
+  </div>
+  
+  <h2>📊 总体数据</h2>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="num">${hitRate}%</div>
+      <div class="label">命中率</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#00b894,#00cec9)">
+      <div class="num">${KB_HITS}</div>
+      <div class="label">命中次数</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#ff7675,#d63031)">
+      <div class="num">${KB_MISSES}</div>
+      <div class="label">未命中次数</div>
+    </div>
+    <div class="stat-card" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">
+      <div class="num">${KB_DATA.length}</div>
+      <div class="label">知识库条数</div>
+    </div>
+  </div>
+  
+  <h2>📈 近 30 天趋势</h2>
+  <div class="chart">
+    ${Object.values(dailyStats).map(d => {
+      const h = d.total > 0 ? Math.max(8, (d.total / Math.max(1, ...Object.values(dailyStats).map(x => x.total))) * 80) : 0;
+      const date = new Date(d.date);
+      return `<div class="bar" style="height:${h}px" title="${d.date}: ${d.hits}/${d.total}">
+        ${d.total > 0 ? `<span class="num">${d.total}</span>` : ''}
+        <span class="label">${date.getMonth()+1}/${date.getDate()}</span>
+      </div>`;
+    }).join('')}
+  </div>
+  
+  <h2>🔥 最常问的问题（TOP 5）</h2>
+  <table>
+    <thead><tr><th>排名</th><th>问题</th><th>次数</th><th>状态</th></tr></thead>
+    <tbody>
+      ${topQuestions.length === 0 ? '<tr><td colspan="4" style="text-align:center;color:#888">暂无数据</td></tr>' :
+        topQuestions.map(([q, c], i) => {
+          const log = KB_LOGS.find(l => l.q === q);
+          const status = log && log.hit ? '<span class="hit">✅ 命中</span>' : '<span class="missed">❌ 未中</span>';
+          return `<tr><td>${i+1}</td><td>${q}</td><td>${c}</td><td>${status}</td></tr>`;
+        }).join('')}
+    </tbody>
+  </table>
+  
+  <h2>⚠️ 最常未命中的问题（TOP 5）</h2>
+  <table>
+    <thead><tr><th>排名</th><th>问题</th><th>次数</th><th>建议</th></tr></thead>
+    <tbody>
+      ${topMissed.length === 0 ? '<tr><td colspan="4" style="text-align:center;color:#888">🎉 没有未命中记录</td></tr>' :
+        topMissed.map(([q, c], i) => 
+          `<tr><td>${i+1}</td><td>${q}</td><td><b class="missed">${c}</b></td><td style="font-size:12px;color:#888">添加到知识库</td></tr>`
+        ).join('')}
+    </tbody>
+  </table>
+  
+  <h2>💡 智能建议</h2>
+  <div class="summary">
+    ${generateReportAdvice(hitRate, topMissed, total)}
+  </div>
+  
+  <div class="footer">
+    📚 数学乐园 · 知识库分析系统<br>
+    本报告由系统自动生成
+  </div>
+</body>
+</html>`;
+  
+  // 打开新窗口
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(reportHTML);
+  printWindow.document.close();
+  
+  // 等待加载完成后提示打印
+  printWindow.onload = () => {
+    setTimeout(() => {
+      if (confirm('报告已生成！\n\n点击"确定"打开打印对话框（可保存为 PDF）\n点击"取消"只看 HTML 报告')) {
+        printWindow.print();
+      }
+    }, 300);
+  };
+}
+
+function generateReportAdvice(hitRate, topMissed, total) {
+  const advices = [];
+  
+  if (total < 10) {
+    advices.push('📊 数据量较少，建议多使用几天后再生成报告');
+  } else if (hitRate >= 80) {
+    advices.push('🎉 太棒了！知识库命中率达到 ' + hitRate + '%，效果非常好！');
+    advices.push('💡 可以考虑扩充知识库，回答更多复杂问题');
+  } else if (hitRate >= 60) {
+    advices.push('👍 命中率良好（' + hitRate + '%），知识库基本满足需求');
+    advices.push('💡 可针对未命中问题补充知识');
+  } else if (hitRate >= 40) {
+    advices.push('⚠️ 命中率一般（' + hitRate + '%），建议扩充知识库');
+  } else {
+    advices.push('🚨 命中率偏低（' + hitRate + '%），急需扩充知识库！');
+  }
+  
+  if (topMissed.length > 0) {
+    advices.push('📌 TOP 未命中问题需要重点关注，可使用"🤖 AI 自动整理"功能快速补充');
+  }
+  
+  if (KB_DATA.length < 30) {
+    advices.push('💡 知识库条数较少（' + KB_DATA.length + ' 条），建议扩充到 50+ 条');
+  }
+  
+  return advices.map(a => `<div style="margin:6px 0">${a}</div>`).join('');
+}
+
+/* ============================================
+   🏆 知识库答题游戏
+   ============================================ */
+let gameState = {
+  active: false,
+  questions: [],
+  currentIdx: 0,
+  correctCount: 0,
+  startTime: 0,
+  totalTime: 0
+};
+
+function startKBGame() {
+  // 至少要 4 条知识才能玩
+  if (KB_DATA.length < 4) {
+    alert('❌ 知识库至少需要 4 条知识才能玩游戏！\n当前只有 ' + KB_DATA.length + ' 条');
+    return;
+  }
+  
+  // 随机抽取 10 条知识（如果知识库少于 10 条就全用）
+  const count = Math.min(10, KB_DATA.length);
+  const shuffled = [...KB_DATA].sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, count);
+  
+  // 为每条知识生成选择题
+  const questions = selected.map(correct => {
+    // 3 个错误选项
+    const others = KB_DATA
+      .filter(k => k !== correct)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3);
+    
+    // 打乱顺序
+    const options = [correct, ...others].sort(() => Math.random() - 0.5);
+    
+    // 截断过长的文本
+    const displayText = correct.length > 60 
+      ? correct.substring(0, 60) + '...'
+      : correct;
+    
+    return {
+      question: displayText,
+      options,
+      correctIndex: options.indexOf(correct),
+      fullAnswer: correct
+    };
+  });
+  
+  gameState = {
+    active: true,
+    questions,
+    currentIdx: 0,
+    correctCount: 0,
+    startTime: Date.now(),
+    totalTime: 0
+  };
+  
+  showGameQuestion();
+}
+
+function showGameQuestion() {
+  const { questions, currentIdx } = gameState;
+  const q = questions[currentIdx];
+  const progress = currentIdx + 1;
+  const total = questions.length;
+  
+  const modal = document.createElement('div');
+  modal.id = 'kbGameModal';
+  modal.style.cssText = `
+    position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    z-index:9999;display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  `;
+  
+  const card = document.createElement('div');
+  card.style.cssText = `
+    background:#fff;border-radius:20px;padding:24px;
+    max-width:500px;width:100%;max-height:90vh;
+    overflow-y:auto;animation:pop .4s;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);
+  `;
+  
+  // ⭐ 显示完整答案作为题目（挖空模式）
+  const words = q.fullAnswer.split(/([，。；！？])/);
+  let displayQ = '';
+  let correctAnswer = '';
+  let blankPosition = 0;
+  
+  // 找一个有意义的挖空位置
+  if (q.fullAnswer.length > 15) {
+    const cutPos = Math.floor(q.fullAnswer.length * 0.4);
+    const before = q.fullAnswer.substring(0, cutPos);
+    const after = q.fullAnswer.substring(cutPos);
+    correctAnswer = q.fullAnswer.substring(cutPos, cutPos + 4);
+    displayQ = `${before}<span style="
+      display:inline-block;border-bottom:3px solid #d63031;
+      color:#d63031;font-weight:bold;padding:0 8px;min-width:60px;
+      text-align:center;
+    " data-pos="${cutPos}">____</span>${after}`;
+  } else {
+    displayQ = q.fullAnswer;
+  }
+  
+  card.innerHTML = `
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <button id="gameQuit" style="
+          background:#ff7675;color:#fff;border:none;
+          padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px
+        ">❌ 退出</button>
+        <div style="font-size:13px;color:#888">
+          🏆 第 <b style="color:#d63031;font-size:18px">${progress}</b> / ${total} 题
+        </div>
+        <div style="font-size:13px;color:#888">
+          ✅ <b style="color:#00b894">${gameState.correctCount}</b> 对
+        </div>
+      </div>
+      
+      <div style="background:#f9fafb;height:6px;border-radius:3px;overflow:hidden;margin-bottom:20px">
+        <div style="background:linear-gradient(90deg,#00b894,#00cec9);height:100%;width:${progress/total*100}%;transition:width .3s"></div>
+      </div>
+      
+      <div style="font-size:12px;color:#888;margin-bottom:8px">📖 这条知识是：</div>
+      <div style="
+        font-size:15px;line-height:1.7;
+        background:#fff8e1;padding:14px;border-radius:10px;
+        color:#2d3436;text-align:left;
+      ">${displayQ}</div>
+    </div>
+    
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;color:#666;margin-bottom:8px">
+        ${correctAnswer ? '👇 从下面选项中选出空缺的词：' : '👇 这条知识是关于什么的？'}
+      </div>
+      <div id="gameOptions" style="display:grid;gap:8px">
+        ${q.options.map((opt, i) => {
+          const displayOpt = opt.length > 30 ? opt.substring(0, 30) + '...' : opt;
+          return `
+            <button class="game-option" data-idx="${i}" style="
+              padding:12px;background:#f9fafb;border:2px solid #e5e7eb;
+              border-radius:10px;cursor:pointer;font-size:14px;
+              text-align:left;transition:all .15s;color:#2d3436;
+              font-family:inherit;line-height:1.5;
+            " onmouseover="if(!this.classList.contains('selected'))this.style.background='#f0f9ff'"
+               onmouseout="if(!this.classList.contains('selected'))this.style.background='#f9fafb'">
+              <span style="
+                display:inline-block;width:24px;height:24px;
+                background:#6c5ce7;color:#fff;border-radius:50%;
+                text-align:center;line-height:24px;margin-right:8px;
+                font-size:12px;font-weight:bold;
+              ">${'ABCD'[i]}</span>
+              ${displayOpt}
+            </button>
+          `;
+        }).join('')}
+      </div>
+    </div>
+    
+    <div id="gameFeedback" style="display:none;padding:12px;border-radius:8px;margin-bottom:12px"></div>
+    
+    <button id="gameNext" style="
+      width:100%;padding:12px;
+      background:linear-gradient(135deg,#00b894,#00cec9);
+      color:#fff;border:none;border-radius:10px;
+      font-size:15px;font-weight:bold;cursor:pointer;
+      display:none;
+    ">下一题 ➡️</button>
+  `;
+  
+  modal.appendChild(card);
+  document.body.removeChild(document.getElementById('kbGameModal') || document.createElement('div'));
+  document.body.appendChild(modal);
+  
+  // 退出按钮
+  document.getElementById('gameQuit').onclick = () => {
+    if (confirm('确定退出游戏吗？进度将不保存。')) {
+      modal.remove();
+      gameState.active = false;
+    }
+  };
+  
+  // 选项点击
+  card.querySelectorAll('.game-option').forEach(btn => {
+    btn.onclick = () => {
+      if (btn.classList.contains('selected')) return;
+      
+      // 标记所有按钮为已选
+      card.querySelectorAll('.game-option').forEach(b => b.classList.add('selected'));
+      
+      const selectedIdx = parseInt(btn.dataset.idx);
+      const isCorrect = selectedIdx === q.correctIndex;
+      
+      // 视觉反馈
+      if (isCorrect) {
+        btn.style.background = '#00b894';
+        btn.style.color = '#fff';
+        btn.style.borderColor = '#00b894';
+        gameState.correctCount++;
+        beep(880, 0.1);
+      } else {
+        btn.style.background = '#ff7675';
+        btn.style.color = '#fff';
+        btn.style.borderColor = '#ff7675';
+        // 显示正确答案
+        card.querySelectorAll('.game-option')[q.correctIndex].style.background = '#00b894';
+        card.querySelectorAll('.game-option')[q.correctIndex].style.color = '#fff';
+        beep(220, 0.2);
+      }
+      
+      // 显示反馈
+      const feedback = document.getElementById('gameFeedback');
+      feedback.style.display = 'block';
+      feedback.style.background = isCorrect ? '#e8f8f5' : '#fff5f5';
+      feedback.style.color = isCorrect ? '#006657' : '#991b1b';
+      feedback.innerHTML = isCorrect 
+        ? '🎉 <b>答对了！</b> 这条知识你记住了！' 
+        : `😅 <b>答错了</b><br>正确答案：${q.options[q.correctIndex].substring(0, 50)}${q.options[q.correctIndex].length > 50 ? '...' : ''}`;
+      
+      // 显示下一题按钮
+      document.getElementById('gameNext').style.display = 'block';
+    };
+  });
+  
+  // 下一题
+  document.getElementById('gameNext').onclick = () => {
+    gameState.currentIdx++;
+    modal.remove();
+    if (gameState.currentIdx >= gameState.questions.length) {
+      finishKBGame();
+    } else {
+      showGameQuestion();
+    }
+  };
+}
+
+function finishKBGame() {
+  const { correctCount, questions, startTime } = gameState;
+  const total = questions.length;
+  const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+  const accuracy = (correctCount / total * 100).toFixed(0);
+  
+  let stars, emoji, title;
+  if (accuracy >= 90) {
+    stars = 3; emoji = '🏆'; title = '完美！';
+  } else if (accuracy >= 70) {
+    stars = 2; emoji = '🎉'; title = '太棒了！';
+  } else if (accuracy >= 50) {
+    stars = 1; emoji = '😊'; title = '不错哦！';
+  } else {
+    stars = 0; emoji = '💪'; title = '继续努力！';
+  }
+  
+  // 保存成绩
+  try {
+    const games = JSON.parse(localStorage.getItem('kb_game_history') || '[]');
+    games.push({
+      date: new Date().toISOString(),
+      total,
+      correct: correctCount,
+      time: timeSpent,
+      accuracy: parseFloat(accuracy)
+    });
+    localStorage.setItem('kb_game_history', JSON.stringify(games.slice(-20)));  // 保留最近 20 次
+  } catch(e) {}
+  
+  // 显示结果
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    z-index:9999;display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  `;
+  
+  modal.innerHTML = `
+    <div style="
+      background:#fff;border-radius:20px;padding:30px;
+      max-width:400px;width:100%;text-align:center;
+      animation:pop .5s;
+    ">
+      <div style="font-size:60px;margin-bottom:10px">${emoji}</div>
+      <h2 style="color:#6c5ce7;margin:0 0 8px">${title}</h2>
+      <div style="font-size:30px;color:#fdcb6e;margin:10px 0">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:20px 0">
+        <div style="background:#e8f8f5;padding:12px;border-radius:8px">
+          <div style="font-size:24px;font-weight:bold;color:#00b894">${correctCount}/${total}</div>
+          <div style="font-size:11px;color:#666">正确</div>
+        </div>
+        <div style="background:#fff8e1;padding:12px;border-radius:8px">
+          <div style="font-size:24px;font-weight:bold;color:#fdcb6e">${accuracy}%</div>
+          <div style="font-size:11px;color:#666">正确率</div>
+        </div>
+        <div style="background:#e3f2fd;padding:12px;border-radius:8px">
+          <div style="font-size:24px;font-weight:bold;color:#4a90e2">${timeSpent}s</div>
+          <div style="font-size:11px;color:#666">用时</div>
+        </div>
+      </div>
+      
+      <div style="display:flex;gap:8px;margin-top:20px">
+        <button id="gameAgain" style="
+          flex:1;padding:12px;background:linear-gradient(135deg,#00b894,#00cec9);
+          color:#fff;border:none;border-radius:10px;font-weight:bold;cursor:pointer
+        ">🔁 再来一次</button>
+        <button id="gameBack" style="
+          flex:1;padding:12px;background:linear-gradient(135deg,#6c5ce7,#4834d4);
+          color:#fff;border:none;border-radius:10px;font-weight:bold;cursor:pointer
+        ">🏠 返回</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  document.getElementById('gameAgain').onclick = () => {
+    modal.remove();
+    startKBGame();
+  };
+  
+  document.getElementById('gameBack').onclick = () => {
+    modal.remove();
+    gameState.active = false;
+  };
+  
+  // 撒花效果
+  if (stars >= 2 && typeof confettiBurst === 'function') {
+    confettiBurst();
+  }
+}

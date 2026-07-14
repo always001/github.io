@@ -1950,6 +1950,49 @@ document.addEventListener("click", async (e) => {
 
       saveChatRecord("ai", aiText);
       
+      // ============================================
+      // 🎁 彩蛋：自动学习 - 把问答加入知识库
+      // ============================================
+      if (usedSource === "🌐 AI 大模型" && aiText.length > 5) {
+        setTimeout(() => {
+          // 防滥用：检查今日加入次数
+          const today = new Date().toISOString().slice(0, 10);
+          const addCount = parseInt(localStorage.getItem('kb_add_' + today) || '0');
+          if (addCount >= 10) {
+            console.log('⏭️ 今日已加入 10 条，暂停提示');
+            return;
+          }
+          
+          // 查重：避免重复加入
+          const exists = KB_DATA.some(k => k.startsWith(text + '：'));
+          if (exists) {
+            console.log('⏭️ 这条问答已在知识库中');
+            return;
+          }
+          if (confirm('💡 是否把这条问答加入知识库？\n（下次类似问题能秒回）\n\n问题：' + text + '\n\n回答：' + aiText.substring(0, 50) + (aiText.length > 50 ? '...' : ''))) {
+            // ⭐ 用问答对格式加入（更智能）
+            KB_DATA.push(`${text}：${aiText}`);
+            saveKB();
+            
+            // 统计调整
+            KB_HITS++;    // 算作命中
+            KB_MISSES--;  // 取消未命中
+            if (KB_MISSES < 0) KB_MISSES = 0;
+            saveKBStats();
+            
+            // 刷新界面（如果在 AI 调难度页）
+            if (typeof renderKBEditor === 'function') {
+              renderKBEditor();
+            }
+            
+            // 显示成功提示
+            setTimeout(() => {
+              alert(`✅ 已加入知识库！\n\n当前共 ${KB_DATA.length} 条知识\n下次问类似问题就能秒回啦！`);
+            }, 100);
+          }
+        }, aiText.length * 35 + 500);
+      }
+      
       // ⭐ 打字结束后追加来源
       setTimeout(() => {
         if (usedSource) {
