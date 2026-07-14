@@ -1404,3 +1404,361 @@ function finishKBGame() {
     confettiBurst();
   }
 }
+
+
+// 计算表达式（带步骤）
+function tryCalculateRaw(text) {
+  if (!isMathExpression(text)) return null;
+  
+  try {
+    // 1. 标准化表达式
+    const expr = text
+      .replace(/×/g, '*')   // 中文 ×
+      .replace(/÷/g, '/')   // 中文 ÷
+      .replace(/[—–]/g, '-')  // 长破折号
+      .replace(/\s+/g, '')   // 去除空格
+      .trim();
+    
+    // 2. 安全性检查（只允许数字和运算符）
+    if (!/^[\d\+\-\*\/\(\)\.]+$/.test(expr)) return null;
+    
+    // 3. 计算结果
+    const result = Function('"use strict"; return (' + expr + ')')();
+    
+    // 4. 检查结果有效性
+    if (typeof result !== 'number' || !isFinite(result)) return null;
+    
+    // 5. 生成计算步骤
+    const steps = generateSteps(expr);
+    
+    return {
+      result: formatNumber(result),
+      steps,
+      original: text,
+      expression: expr
+    };
+  } catch (e) {
+    console.warn('计算失败:', e);
+    return null;
+  }
+}
+
+
+/* ============================================
+   🧮 四则运算计算器（完整智能版）
+   ============================================ */
+
+// 判断是否是数学表达式（先转中文再判断）
+function isMathExpression(text) {
+  if (!text || typeof text !== 'string') return false;
+  text = text.trim();
+  if (!text) return false;
+  
+  // ⭐ 关键：先尝试转换中文，看转换后是不是数学表达式
+  // ⭐ 关键：先尝试中文转换
+  let converted;
+    try {
+    converted = chineseNumToInt(text);
+  } catch(e) {
+    return false;
+  }
+  
+  // 转换后必须是纯数学表达式
+  converted = converted.trim();
+  
+  // 匹配：数字 + 运算符 + 数字 + ...
+  // 支持：+ - * / ( ) . 空格
+  // 不允许：字母、中文
+  //if (/[a-zA-Z\u4e00-\u9fa5]/.test(text)) return false;
+  if (!/^[\d\+\-\*\/\(\)\.]+$/.test(converted)) return false;
+  // 必须包含至少一个运算符
+  //if (!/[\+\-\*\/]/.test(text)) return false;
+  if (!/[\+\-\*\/]/.test(converted)) return false;
+  // 必须是数字开头
+  if (!/^\s*[\-\(]?\s*\d/.test(text)) return false;
+  
+  return true;
+}
+
+// 格式化数字（去掉无意义的 0）
+function formatNumber(num) {
+  if (typeof num !== 'number' || !isFinite(num)) return 'NaN';
+  // 整数
+  if (Number.isInteger(num)) return num.toString();
+  // 小数（保留 4 位）
+  return parseFloat(num.toFixed(4)).toString();
+}
+
+// 生成计算步骤（按运算顺序）
+function generateSteps(expr) {
+  const steps = [];
+  
+  // ⭐ 简化版步骤：按运算符优先级展开
+  // 第一步：找出所有乘除
+  let current = expr;
+  let step = 1;
+  
+  // 处理括号
+  while (current.includes('(')) {
+    const match = current.match(/\(([^()]+)\)/);
+    if (!match) break;
+    
+    const inner = match[1];
+    try {
+      //const innerResult = Function('"use strict"; return (' + inner + ')')();
+      const innerResult = Function('"use strict"; return (' + match[1] + ')')();
+      current = current.replace(match[0], formatNumber(innerResult));
+      steps.push(`第 ${step} 步：算括号 ${match[0]} = ${formatNumber(innerResult)}`);
+      step++;
+    } catch(e) {
+      break;
+    }
+  }
+  
+  // 处理乘除
+  let mulDivRegex = /(-?\d+(?:\.\d+)?)\s*([\*\/])\s*(-?\d+(?:\.\d+)?)/;
+  while (mulDivRegex.test(current)) {
+    const match = current.match(mulDivRegex);
+    if (!match) break;
+    
+    const a = parseFloat(match[1]);
+    const op = match[2];
+    const b = parseFloat(match[3]);
+    const r = op === '*' ? a * b : a / b;
+    
+    current = current.replace(match[0], formatNumber(r));
+    steps.push(`第 ${step} 步：${match[0]} = ${formatNumber(r)}`);
+    step++;
+  }
+  
+  // 处理加减
+  let addSubRegex = /(-?\d+(?:\.\d+)?)\s*([\+\-])\s*(-?\d+(?:\.\d+)?)/;
+  while (addSubRegex.test(current) && current.match(/[\+\-]/g)?.length > 1) {
+    const match = current.match(addSubRegex);
+    if (!match) break;
+    
+    const a = parseFloat(match[1]);
+    const op = match[2];
+    const b = parseFloat(match[3]);
+    const r = op === '+' ? a + b : a - b;
+    
+    current = current.replace(match[0], formatNumber(r));
+    steps.push(`第 ${step} 步：${match[0]} = ${formatNumber(r)}`);
+    step++;
+  }
+  
+  return steps;
+}
+
+// ⭐ 基础版（纯数字）
+function tryCalculateRaw(text) {
+  if (!isMathExpression(text)) return null;
+  
+  try {
+    // ⭐ 关键：先转中文（如果是中文表达式）
+    let expr = chineseNumToInt(text);
+    
+    // 标准化
+    expr = expr
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/')
+      .replace(/[—–]/g, '-')
+      .replace(/\s+/g, '')
+      .trim();
+    
+    if (!/^[\d\+\-\*\/\(\)\.]+$/.test(expr)) return null;
+    
+    const result = Function('"use strict"; return (' + expr + ')')();
+    
+    if (typeof result !== 'number' || !isFinite(result)) return null;
+    
+    const steps = generateSteps(expr);
+    
+    return {
+      result: formatNumber(result),
+      steps,
+      original: text,
+      expression: expr
+    };
+  } catch (e) {
+    console.warn('计算失败:', e);
+    return null;
+  }
+}
+
+
+/* ============================================
+   🀄 中文数字转换
+   ============================================ */
+
+function chineseNumToInt(text) {
+
+  if (!text) return '';
+  
+  // ⭐ 关键修复：全角字符转半角
+  /*
+  text = text
+    .replace(/（/g, '(')   // （ → (
+    .replace(/）/g, ')')   // ） → )
+    .replace(/，/g, ',')   // ， → ,
+    .replace(/；/g, ';')   // ； → ;
+    .replace(/：/g, ':')   // ： → :
+    .replace(/！/g, '!')   // ！ → !
+    .replace(/？/g, '?');  // ？ → ?
+  */
+  
+  //let result = text;
+  // ⭐ 关键修复 1：全角转半角（包括括号、标点）
+  let result = text
+    .replace(/[\uFF01-\uFF5E]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+    //;
+    // ⭐ 扩展：支持更多全角字符
+    .replace(/【/g, '[')
+    .replace(/】/g, ']')
+    .replace(/『/g, '[')
+    .replace(/』/g, ']')
+    .replace(/「/g, '[')
+    .replace(/」/g, ']')
+    .replace(/《/g, '<')
+    .replace(/》/g, '>')
+    .replace(/\s+/g, '');
+  
+  // ⭐ 关键修复：去掉等号和问号
+  result = result.replace(/=/g, '');     // 英文 =
+  result = result.replace(/\?/g, '');    // 英文 ?
+  result = result.replace(/等于/g, '');  // 中文"等于"
+  result = result.replace(/？/g, '');    // 全角 ？
+  
+  // ⭐ 修复 2：方括号、花括号转圆括号
+  result = result.replace(/\[/g, '(');
+  result = result.replace(/\]/g, ')');
+  result = result.replace(/\{/g, '(');
+  result = result.replace(/\}/g, ')');
+  
+  // ⭐ 修复 3：去除空白
+  result = result.replace(/\s+/g, '');
+  
+  // ⭐ 关键修复 2：剩余的全角空格、半角空格等都去掉
+  result = result.replace(/\s+/g, '');
+  
+  // 1. 处理运算符（先处理长的，避免被短的截胡）
+  result = result.replace(/乘以/g, '*');
+  result = result.replace(/除以/g, '/');
+  result = result.replace(/加上/g, '+');  // 加上 → +
+  result = result.replace(/减去/g, '-');  // 减去 → -
+  result = result.replace(/乘/g, '*');
+  result = result.replace(/除/g, '/');
+  result = result.replace(/加/g, '+');
+  result = result.replace(/减/g, '-');
+  result = result.replace(/等于/g, '=');
+  result = result.replace(/[×✕]/g, '*');
+  result = result.replace(/[÷]/g, '/');
+  result = result.replace(/[—–]/g, '-');
+  result = result.replace(/[×÷]/g, m => m === '×' ? '*' : '/');
+  
+  // 2. 处理"十"开头的两位数（十二 → 12）
+  result = result.replace(/十([一二三四五六七八九])/g, '1$1');
+  
+  // 3. 处理百位
+  result = result.replace(/([一二三四五六七八九])百/g, '$100');
+  result = result.replace(/百/g, '100');
+  
+  // 4. 处理 X十 形式（二十 → 20）
+  result = result.replace(/([一二三四五六七八九])十/g, '$10');
+  
+  // 5. 处理单独的"十"
+  result = result.replace(/十/g, '10');
+  
+  const map = {
+    '零': 0, '一': 1, '二': 2, '三': 3, '四': 4,
+    '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10
+  };
+  
+  
+  for (const [cn, num] of Object.entries(map)) {
+    result = result.replace(new RegExp(cn, 'g'), num);
+  }
+  
+  return result;
+}
+
+// ⭐ 完整版中文数字解析（支持 1-999）
+
+function parseChineseNumber(text) {
+  // 处理 "十X" → 1X
+  text = text.replace(/十([一二三四五六七八九])/g, (m, d) => '1' + d);
+  // 处理 "十" → 10
+  text = text.replace(/十/g, '10');
+  // 处理 "X十" → X0
+  text = text.replace(/([一二三四五六七八九])十/g, '$10');
+  // 处理 "百"
+  text = text.replace(/([一二三四五六七八九])百/g, '$100');
+  text = text.replace(/百/g, '100');
+  
+  const map = {
+    '零': 0, '一': 1, '二': 2, '三': 3, '四': 4,
+    '五': 5, '六': 6, '七': 7, '八': 8, '九': 9
+  };
+  for (const [cn, num] of Object.entries(map)) {
+    text = text.replace(new RegExp(cn, 'g'), num);
+  }
+  
+  return text;
+}
+
+
+/* ============================================
+   ⭐ 智能版 tryCalculate（支持中文 对外接口）
+   ============================================ */
+function tryCalculate(text) {
+
+  // 直接计算（内部已含中文转换）
+  return tryCalculateRaw(text);
+}
+
+// ⭐ 完整版中文数字解析（支持 1-999）
+function parseChineseNumber(text) {
+  // 处理 "十X" → 1X (如 十二 → 12)
+  text = text.replace(/十([一二三四五六七八九])/g, (m, d) => '1' + d);
+  // 处理 "十" → 10
+  text = text.replace(/十/g, '10');
+  // 处理 "X十" → X0 (如 二十 → 20)
+  text = text.replace(/([一二三四五六七八九])十/g, '$10');
+  // 处理 "百"（如 三百 → 300）
+  text = text.replace(/([一二三四五六七八九])百/g, '$100');
+  text = text.replace(/百/g, '100');
+  
+  // 单个数字
+  const map = {
+    '零': 0, '一': 1, '二': 2, '三': 3, '四': 4,
+    '五': 5, '六': 6, '七': 7, '八': 8, '九': 9
+  };
+  for (const [cn, num] of Object.entries(map)) {
+    text = text.replace(new RegExp(cn, 'g'), num);
+  }
+  
+  return text;
+}
+
+// ⭐ 放在文件最末尾（覆盖前面的版本）
+function isMathExpression(text) {
+  text = text.trim();
+  
+  // ⭐ 关键修复：先尝试转换中文
+  const converted = chineseNumToInt(text);
+  
+  // 如果转换后是纯数学表达式 → 是
+  if (/^[\d\+\-\*\/\(\)\.]+$/.test(converted.trim())) {
+    return true;
+  }
+  // ⭐ 修复：允许 [ ] { } 三种括号
+  if (!/^[\d\+\-\*\/\(\)\[\]\{\}\.]+$/.test(converted.trim())) return false;
+  // ⭐ 修复：允许 = ? 等
+  if (!/^[\d\+\-\*\/\(\)\.\=\?]+$/.test(converted.trim())) return false;
+  
+  // 否则按原版逻辑判断（不转换）
+  if (/[a-zA-Z]/.test(text)) return false;  // 字母不行
+  if (!/[\+\-\*\/]/.test(text)) return false;  // 必须有运算符
+  if (!/^\s*[\-\(]?\s*\d/.test(text)) return false;  // 数字开头
+  return true;
+}

@@ -1871,6 +1871,35 @@ document.addEventListener("click", async (e) => {
     
     const text = input.value.trim();
     if (!text) return;
+    
+    // ⭐ 新增：四则运算预处理
+    const calcResult = tryCalculate(text);
+    if (calcResult !== null) {
+      // 是数学表达式 → 直接显示结果（不走知识库/AI）
+      const box = document.getElementById("aiExplainBox");
+      box.style.display = "block";
+
+      const bubbleText = createBubble(true);  // 用户气泡
+      bubbleText.innerText = text;
+
+      saveChatRecord("user", text);  // ⭐ 保存聊天记录
+
+      //box.scrollTop = box.scrollHeight;
+      input.value = "";
+      // AI 气泡（直接显示计算结果）
+      const aiBubbleText = createBubble(false);
+      const answerText = `${text} = ${calcResult.result}\n\n📐 计算过程：\n${calcResult.steps.join('\n')}`;
+      aiBubbleText.innerText = answerText;
+      
+      // 来源标签
+      const sourceTag = document.createElement("div");
+      sourceTag.style.cssText = "font-size:11px;color:#888;margin-top:4px;text-align:right;";
+      //sourceTag.innerText = "🧮 计算器";
+      aiBubbleText.appendChild(sourceTag);
+      
+      box.scrollTop = box.scrollHeight;
+      return;  // ⭐ 重要：直接返回，不走知识库
+    }
 
     const box = document.getElementById("aiExplainBox");
     box.style.display = "block";
@@ -1882,17 +1911,18 @@ document.addEventListener("click", async (e) => {
 
     //box.scrollTop = box.scrollHeight;
     input.value = "";
+
     // ② 显示 AI 正在思考
     const thinkingBubble = createBubble(false);
     thinkingBubble.innerText = "AI 正在思考…";
 
-    // ③ ⭐ 优先查本地知识库
+    // ③ ⭐ 优先查本地知识库【知识库查询...】
     const kbResult = searchKB(text);
-    
+
     // ③ 调用 Worker（加上 try/catch 防止挂页）
     let aiText = "❌ AI 暂时无法回复，请稍后再试";
     let usedSource = "";
-    
+
     if (kbResult.found) {
       // ✅ 知识库命中 → 直接用，节省 API
       aiText = kbResult.answer;
