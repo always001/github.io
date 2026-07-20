@@ -1,0 +1,3819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0420">
+<title>天才基本法 · 掌握数学的基本法则</title>
+<style>
+/* ========== CSS Reset & Variables ========== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:#000;color:#fff;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit}
+input,textarea{font-family:inherit;border:none;outline:none;background:transparent;color:inherit}
+img,svg{display:block;max-width:100%}
+
+:root{
+  --bg-deep:#0a0420;
+  --bg-purple:#2A1B5C;
+  --purple-1:#6B4EFF;
+  --purple-2:#9B7DFF;
+  --purple-3:#C4B5FD;
+  --gold:#FFB627;
+  --gold-2:#FF8C42;
+  --cyan:#00E5FF;
+  --pink:#FF5E9C;
+  --green:#3DDC97;
+  --red:#FF5470;
+  --text:#fff;
+  --text-2:rgba(255,255,255,.7);
+  --text-3:rgba(255,255,255,.5);
+  --glass:rgba(255,255,255,.06);
+  --glass-border:rgba(255,255,255,.1);
+  --shadow-1:0 4px 16px rgba(0,0,0,.3);
+  --shadow-2:0 8px 24px rgba(107,78,255,.3);
+  --radius-sm:10px;
+  --radius-md:16px;
+  --radius-lg:20px;
+  --radius-xl:28px;
+}
+
+/* ========== Phone Frame ========== */
+body{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a0420 0%,#1a0840 50%,#0a0420 100%);padding:0}
+#app{
+  position:relative;width:100%;max-width:420px;height:100vh;height:100dvh;
+  background:#0a0420;overflow:hidden;
+  box-shadow:0 0 80px rgba(107,78,255,.25);
+}
+@media(min-width:480px){
+  #app{height:92vh;max-height:920px;border-radius:48px;border:10px solid #1a1a2e}
+}
+
+/* ========== Status Bar ========== */
+.status-bar{
+  position:absolute;top:0;left:0;right:0;height:44px;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 24px;font-size:15px;font-weight:600;z-index:200;
+  pointer-events:none;
+}
+.status-bar .time{font-variant-numeric:tabular-nums}
+
+/* ========== Page System ========== */
+.page{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity .35s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+  background:#0a0420;
+}
+.page.active{opacity:1;pointer-events:auto;z-index:10}
+.page.slide-in{animation:slideIn .4s cubic-bezier(.4,0,.2,1)}
+.page.slide-out{animation:slideOut .35s cubic-bezier(.4,0,.2,1)}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes slideOut{from{transform:translateX(0)}to{transform:translateX(-30%);opacity:0}}
+
+/* Scrollable content */
+.scroll{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ========== Splash Page ========== */
+#page-splash{
+  background:radial-gradient(ellipse at 50% 40%,#3d1d8a 0%,#1a0840 40%,#0a0420 80%);
+  align-items:center;justify-content:center;
+}
+#starfield{position:absolute;inset:0;width:100%;height:100%}
+.splash-stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.splash-stars i{
+  position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
+  animation:twinkle 3s infinite ease-in-out;
+}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.8)}}
+.shooting-star{
+  position:absolute;width:2px;height:100px;background:linear-gradient(180deg,transparent,#fff);
+  top:15%;left:80%;transform:rotate(35deg);
+  animation:shoot 5s infinite linear;opacity:0;
+}
+@keyframes shoot{0%{transform:rotate(35deg) translateY(0) translateX(0);opacity:0}
+  5%{opacity:1}100%{transform:rotate(35deg) translateY(500px) translateX(-200px);opacity:0}}
+
+.splash-content{
+  position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;
+  animation:contentFade 1s ease-out;
+}
+@keyframes contentFade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.logo-3d{position:relative;width:160px;height:160px;margin-bottom:36px;
+  animation:logoFloat 3s ease-in-out infinite;
+}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.logo-planet{
+  position:absolute;inset:30px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#C4B5FF,#6B4EFF 60%,#3D1D8A);
+  box-shadow:0 0 60px rgba(107,78,255,.7),inset -10px -10px 30px rgba(0,0,0,.4);
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-planet::after{
+  content:'π';font-size:64px;font-weight:900;color:#fff;
+  font-family:Georgia,serif;text-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+.logo-hat{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  width:60px;height:24px;background:linear-gradient(180deg,#1a0840,#0a0420);
+  border-radius:50% 50% 5px 5px;
+  border:2px solid var(--gold);
+  z-index:2;
+}
+.logo-hat::after{
+  content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  width:70px;height:10px;background:linear-gradient(180deg,#1a0840,#0a0420);
+  border-radius:4px;border:2px solid var(--gold);
+}
+.logo-ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:1px solid rgba(255,182,39,.4);
+  transform:rotateX(75deg) rotateZ(-20deg);
+  animation:ringSpin 8s linear infinite;
+}
+@keyframes ringSpin{from{transform:rotateX(75deg) rotateZ(0)}to{transform:rotateX(75deg) rotateZ(360deg)}}
+.logo-orbit{
+  position:absolute;inset:0;border-radius:50%;
+  animation:orbit 6s linear infinite;
+}
+.logo-orbit::before{
+  content:'∑';position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  width:28px;height:28px;background:linear-gradient(135deg,var(--gold),var(--gold-2));
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:900;font-size:14px;
+  box-shadow:0 0 20px rgba(255,182,39,.6);
+}
+@keyframes orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.splash-title{
+  font-size:42px;font-weight:900;letter-spacing:6px;
+  background:linear-gradient(90deg,var(--gold) 0%,var(--gold-2) 50%,var(--pink) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:titleGlow 2s ease-in-out infinite;
+  margin-bottom:10px;
+}
+@keyframes titleGlow{0%,100%{filter:drop-shadow(0 0 10px rgba(255,182,39,.5))}
+  50%{filter:drop-shadow(0 0 24px rgba(255,182,39,.9))}}
+.splash-slogan{font-size:15px;color:var(--text-2);letter-spacing:3px;margin-bottom:50px}
+.splash-slogan::before,.splash-slogan::after{content:'✦';margin:0 8px;opacity:.5;font-size:12px}
+
+.splash-loader{width:200px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.loader-bar{
+  width:100%;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;
+}
+.loader-bar::after{
+  content:'';display:block;height:100%;width:0;background:linear-gradient(90deg,var(--purple-1),var(--gold));
+  animation:loadProgress 3s ease-in-out forwards;
+  border-radius:2px;
+}
+@keyframes loadProgress{to{width:100%}}
+.loader-text{font-size:12px;color:var(--text-3);letter-spacing:2px}
+
+.splash-footer{position:absolute;bottom:40px;left:0;right:0;text-align:center;z-index:1}
+.splash-version{font-size:11px;color:var(--text-3);letter-spacing:1px}
+.splash-tagline{margin-top:8px;font-size:12px;color:var(--text-2)}
+
+/* ========== Common Components ========== */
+.top-nav{
+  flex-shrink:0;padding:54px 20px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:5;
+}
+.top-nav h2{font-size:20px;font-weight:800}
+.back-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  transition:transform .2s;
+}
+.back-btn:active{transform:scale(.92)}
+.icon-btn{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--glass);display:flex;align-items:center;justify-content:center;
+  font-size:18px;position:relative;cursor:pointer;border:1px solid var(--glass-border);
+}
+.icon-btn .badge{
+  position:absolute;top:-3px;right:-3px;background:var(--pink);
+  color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;padding:0 4px;
+  border:2px solid #0a0420;font-weight:700;
+}
+
+.btn{
+  border-radius:24px;padding:14px 28px;font-size:15px;font-weight:700;
+  letter-spacing:1px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  transition:transform .15s,box-shadow .15s;
+  cursor:pointer;position:relative;overflow:hidden;
+}
+.btn:active{transform:scale(.96)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--purple-1),var(--purple-2));
+  color:#fff;box-shadow:0 8px 20px rgba(107,78,255,.4);
+}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold),var(--gold-2));
+  color:#0a0420;box-shadow:0 8px 20px rgba(255,182,39,.4);
+}
+.btn-ghost{
+  background:var(--glass);color:#fff;border:1px solid var(--glass-border);
+}
+.btn-block{display:flex;width:100%}
+.btn-sm{padding:8px 18px;font-size:13px;border-radius:18px}
+
+/* ========== Onboarding Pages ========== */
+.onboard{
+  align-items:center;justify-content:flex-start;padding-top:80px;
+  text-align:center;
+}
+.onboard-content{padding:0 32px;width:100%}
+.onboard-illust{
+  width:240px;height:240px;margin:0 auto 36px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  font-size:140px;filter:drop-shadow(0 20px 40px rgba(107,78,255,.4));
+  animation:illustFloat 4s ease-in-out infinite;
+}
+@keyframes illustFloat{0%,100%{transform:translateY(0) rotate(-3deg)}
+  50%{transform:translateY(-16px) rotate(3deg)}}
+.onboard h1{font-size:30px;font-weight:900;margin-bottom:14px;line-height:1.3}
+.onboard h1 span{
+  background:linear-gradient(90deg,var(--gold),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.onboard p{font-size:15px;color:var(--text-2);line-height:1.7;margin-bottom:40px}
+
+.dots{display:flex;gap:8px;justify-content:center;margin-bottom:24px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--glass);transition:all .3s}
+.dots i.active{width:24px;background:linear-gradient(90deg,var(--purple-1),var(--gold))}
+
+.onboard-bottom{padding:0 32px 40px;width:100%;display:flex;flex-direction:column;gap:14px;align-items:center}
+
+/* ========== Grade Selection ========== */
+#page-grade{align-items:stretch;justify-content:flex-start;text-align:left}
+.grade-header{padding:80px 24px 20px;text-align:center}
+.grade-header h1{font-size:28px;font-weight:900;margin-bottom:8px}
+.grade-header p{font-size:14px;color:var(--text-2);line-height:1.6}
+
+.grade-tabs{
+  display:flex;gap:8px;padding:0 20px 16px;overflow-x:auto;
+  scrollbar-width:none;
+}
+.grade-tabs::-webkit-scrollbar{display:none}
+.grade-tab{
+  flex-shrink:0;padding:8px 18px;border-radius:20px;
+  background:var(--glass);font-size:13px;font-weight:600;
+  white-space:nowrap;cursor:pointer;border:1px solid var(--glass-border);
+  transition:all .2s;
+}
+.grade-tab.active{
+  background:linear-gradient(135deg,var(--purple-1),var(--purple-2));
+  border-color:transparent;box-shadow:0 4px 12px rgba(107,78,255,.4);
+}
+
+.grade-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  padding:0 20px 20px;
+}
+.grade-card{
+  position:relative;aspect-ratio:1/1.1;border-radius:var(--radius-md);
+  background:var(--glass);border:1px solid var(--glass-border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .25s;overflow:hidden;
+}
+.grade-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(107,78,255,.25),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.grade-card:active{transform:scale(.94)}
+.grade-card.selected{
+  border-color:var(--gold);background:linear-gradient(135deg,rgba(255,182,39,.15),rgba(255,94,156,.1));
+}
+.grade-card.selected::after{
+  content:'✓';position:absolute;top:8px;right:8px;
+  width:22px;height:22px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold-2));
+  display:flex;align-items:center;justify-content:center;
+  color:#0a0420;font-weight:900;font-size:13px;
+  z-index:2;
+}
+.grade-card .emoji{font-size:36px;margin-bottom:6px;position:relative;z-index:1;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.grade-card .label{font-size:13px;font-weight:700;position:relative;z-index:1}
+.grade-card .sub{font-size:10px;color:var(--text-3);margin-top:2px;position:relative;z-index:1}
+.grade-card .hot-tag{
+  position:absolute;top:6px;left:6px;z-index:2;
+  background:linear-gradient(135deg,var(--pink),var(--gold-2));
+  font-size:8px;padding:2px 6px;border-radius:6px;font-weight:800;letter-spacing:.5px;
+}
+
+.grade-bottom{
+  padding:16px 20px 30px;border-top:1px solid var(--glass-border);
+  background:rgba(0,0,0,.3);
+}
+.grade-bottom .btn-block{margin-bottom:8px}
+.grade-bottom .tip{font-size:11px;color:var(--text-3);text-align:center}
+.grade-bottom .tip span{color:var(--cyan)}
+
+/* ========== Avatar Selection ========== */
+#page-avatar{align-items:stretch;justify-content:flex-start;text-align:left}
+.avatar-header{padding:80px 24px 16px;text-align:center}
+.avatar-header h1{font-size:26px;font-weight:900;margin-bottom:6px}
+.avatar-header p{font-size:13px;color:var(--text-2)}
+
+.avatar-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px 20px;
+}
+.avatar-item{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:46px;border-radius:50%;
+  background:var(--glass);border:2px solid var(--glass-border);
+  cursor:pointer;transition:all .2s;
+  position:relative;
+}
+.avatar-item:active{transform:scale(.92)}
+.avatar-item.selected{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(255,182,39,.2),rgba(255,94,156,.1));
+  box-shadow:0 0 20px rgba(255,182,39,.4);
+}
+.avatar-item.selected::after{
+  content:'✓';position:absolute;bottom:2px;right:2px;
+  width:20px;height:20px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold-2));
+  color:#0a0420;font-weight:900;font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.name-input-wrap{padding:0 20px 20px}
+.name-input{
+  width:100%;padding:14px 20px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);font-size:15px;text-align:center;font-weight:600;
+  letter-spacing:2px;
+}
+.name-input::placeholder{color:var(--text-3);letter-spacing:1px}
+
+.avatar-bottom{
+  padding:16px 20px 30px;border-top:1px solid var(--glass-border);
+  background:rgba(0,0,0,.3);
+}
+
+/* ========== Bottom Tab Bar ========== */
+#bottom-nav{
+  position:absolute;bottom:0;left:0;right:0;height:78px;
+  background:rgba(20,10,50,.85);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border-top:1px solid var(--glass-border);
+  display:flex;padding:0 8px 18px;z-index:100;
+  transition:transform .3s;
+}
+#bottom-nav.hide{transform:translateY(100%)}
+.tab-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;color:var(--text-3);
+  transition:color .2s;position:relative;
+}
+.tab-item .ic{font-size:22px;transition:transform .2s}
+.tab-item span{font-size:10px;font-weight:600}
+.tab-item.active{color:var(--gold)}
+.tab-item.active .ic{transform:translateY(-3px) scale(1.15)}
+.tab-item.active::before{
+  content:'';position:absolute;top:6px;width:30px;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--pink));
+  border-radius:2px;
+}
+.tab-center{
+  flex:1;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  position:relative;margin-top:-20px;
+}
+.tab-center .ai-btn{
+  width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple-1),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;
+  box-shadow:0 8px 24px rgba(107,78,255,.5);
+  animation:aiFloat 3s ease-in-out infinite;
+  position:relative;
+}
+@keyframes aiFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.tab-center .ai-btn::before{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid rgba(0,229,255,.4);
+  animation:aiPulse 2s infinite;
+}
+@keyframes aiPulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.4);opacity:0}}
+
+/* ========== Home Page ========== */
+.home-header{
+  padding:54px 20px 24px;
+  background:linear-gradient(180deg,rgba(107,78,255,.25) 0%,rgba(107,78,255,.05) 80%,transparent 100%);
+  position:relative;overflow:hidden;
+}
+.home-header::before{
+  content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(255,182,39,.2),transparent 60%);
+  pointer-events:none;
+}
+.home-header::after{
+  content:'';position:absolute;bottom:-80px;left:-30px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(0,229,255,.2),transparent 60%);
+  pointer-events:none;
+}
+.greet{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;position:relative;z-index:1}
+.user-info{display:flex;align-items:center;gap:12px}
+.avatar{
+  width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--pink));
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;border:2px solid rgba(255,255,255,.2);
+  box-shadow:0 4px 12px rgba(255,94,156,.3);
+}
+.greet-text h3{font-size:18px;font-weight:800}
+.greet-text p{font-size:12px;color:var(--text-2);margin-top:2px;display:flex;align-items:center;gap:4px}
+.greet-text .lv{color:var(--gold);font-weight:700}
+.greet-text .lvl-badge{
+  display:inline-block;padding:2px 8px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(255,182,39,.2),rgba(255,94,156,.1));
+  border:1px solid rgba(255,182,39,.3);
+  font-size:10px;font-weight:700;color:var(--gold);
+  margin-left:6px;
+}
+.header-icons{display:flex;gap:10px;position:relative;z-index:1}
+
+/* XP bar */
+.xp-wrap{
+  margin:0 0 16px;position:relative;z-index:1;
+}
+.xp-info{display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);margin-bottom:6px}
+.xp-info b{color:var(--gold);font-weight:700}
+.xp-bar{height:8px;background:rgba(0,0,0,.3);border-radius:4px;overflow:hidden;position:relative}
+.xp-bar-fill{
+  height:100%;background:linear-gradient(90deg,var(--purple-1),var(--gold),var(--pink));
+  background-size:200% 100%;
+  border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1);
+  animation:xpShine 3s linear infinite;
+  position:relative;
+}
+@keyframes xpShine{from{background-position:0 0}to{background-position:200% 0}}
+
+/* Stats grid */
+.stats-card{
+  background:linear-gradient(135deg,rgba(107,78,255,.25) 0%,rgba(155,125,255,.1) 100%);
+  border:1px solid rgba(155,125,255,.25);border-radius:var(--radius-lg);
+  padding:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  backdrop-filter:blur(20px);position:relative;z-index:1;
+}
+.stat-item{text-align:center}
+.stat-num{
+  font-size:22px;font-weight:900;line-height:1;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.stat-label{font-size:10px;color:var(--text-2);margin-top:4px}
+
+/* Streak banner */
+.streak-bar{
+  margin:16px 20px 0;padding:16px;
+  background:linear-gradient(90deg,rgba(255,182,39,.15),rgba(255,94,156,.1));
+  border:1px solid rgba(255,182,39,.3);border-radius:var(--radius-md);
+  display:flex;align-items:center;gap:14px;
+  position:relative;overflow:hidden;
+}
+.streak-bar::after{
+  content:'';position:absolute;right:-30px;top:-30px;width:100px;height:100px;
+  background:radial-gradient(circle,rgba(255,182,39,.2),transparent 70%);
+}
+.streak-fire{font-size:38px;animation:fireDance 1s infinite alternate;z-index:1}
+@keyframes fireDance{from{transform:scale(1) rotate(-8deg)}to{transform:scale(1.1) rotate(8deg)}}
+.streak-info{flex:1;z-index:1}
+.streak-info h4{font-size:14px;font-weight:700;margin-bottom:2px}
+.streak-info p{font-size:11px;color:var(--text-2)}
+.days-row{display:flex;gap:5px;margin-top:8px}
+.day-dot{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(255,255,255,.1);font-size:9px;
+  display:flex;align-items:center;justify-content:center;font-weight:600;
+}
+.day-dot.active{background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#0a0420}
+.day-dot.today{box-shadow:0 0 0 2px var(--gold);background:rgba(255,182,39,.2);color:var(--gold)}
+.streak-cta{padding:6px 14px;background:linear-gradient(135deg,var(--gold),var(--gold-2));
+  border-radius:14px;font-size:12px;font-weight:700;color:#0a0420;cursor:pointer;z-index:1}
+
+/* Sections */
+.section{padding:0 20px;margin-top:24px}
+.section-title{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
+}
+.section-title h3{font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px}
+.section-title h3 .icon{font-size:20px}
+.section-title .more{font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:2px;cursor:pointer}
+
+/* Hero banner */
+.hero-banner{
+  position:relative;height:150px;border-radius:var(--radius-lg);overflow:hidden;
+  background:linear-gradient(135deg,var(--purple-1) 0%,var(--pink) 100%);
+  padding:20px;display:flex;align-items:center;cursor:pointer;
+  box-shadow:0 12px 30px rgba(107,78,255,.3);
+}
+.hero-banner::before{
+  content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;
+  border-radius:50%;background:rgba(255,255,255,.1);
+}
+.hero-banner::after{
+  content:'';position:absolute;bottom:-60px;right:40px;width:140px;height:140px;
+  border-radius:50%;background:rgba(255,255,255,.08);
+}
+.hero-text{position:relative;z-index:1;flex:1}
+.hero-text .tag{
+  display:inline-block;background:rgba(255,255,255,.25);backdrop-filter:blur(10px);
+  padding:3px 10px;border-radius:10px;font-size:10px;margin-bottom:10px;font-weight:600;
+}
+.hero-text h2{font-size:21px;font-weight:900;margin-bottom:6px;line-height:1.2}
+.hero-text p{font-size:11px;color:rgba(255,255,255,.85);margin-bottom:12px;line-height:1.4}
+.start-pill{
+  display:inline-flex;align-items:center;gap:4px;background:#fff;color:var(--purple-1);
+  padding:6px 16px;border-radius:14px;font-size:12px;font-weight:700;
+}
+.hero-emoji{font-size:90px;position:relative;z-index:1;filter:drop-shadow(0 8px 16px rgba(0,0,0,.3))}
+
+/* Course list */
+.course-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.course-card{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);padding:14px;cursor:pointer;
+  transition:transform .2s;
+}
+.course-card:active{transform:scale(.97)}
+.course-icon{
+  width:46px;height:46px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  margin-bottom:10px;
+}
+.course-card h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.course-card .meta{font-size:11px;color:var(--text-2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.course-card .meta .dot{width:3px;height:3px;border-radius:50%;background:var(--text-3)}
+.progress{
+  height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;
+}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--purple-1),var(--purple-2));border-radius:2px;transition:width .6s}
+
+/* Category grid */
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cat-item{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:14px 4px;border-radius:var(--radius-md);
+  background:var(--glass);border:1px solid var(--glass-border);
+  cursor:pointer;transition:transform .2s;
+}
+.cat-item:active{transform:scale(.95)}
+.cat-item .ic{
+  width:46px;height:46px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+}
+.cat-item span{font-size:11px;color:var(--text-2);font-weight:600}
+
+/* Daily challenge */
+.daily-challenge{
+  margin:0 20px;
+  background:linear-gradient(135deg,rgba(255,94,156,.2),rgba(255,140,66,.15));
+  border:1px solid rgba(255,94,156,.3);
+  border-radius:var(--radius-lg);padding:18px;display:flex;align-items:center;gap:14px;
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.daily-challenge::after{
+  content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%);
+}
+.daily-emoji{font-size:50px;z-index:1}
+.daily-info{flex:1;z-index:1}
+.daily-info h4{font-size:15px;font-weight:800;margin-bottom:2px}
+.daily-info p{font-size:11px;color:var(--text-2);margin-bottom:8px}
+.daily-reward{display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.3);
+  padding:3px 10px;border-radius:8px;font-size:11px;font-weight:600}
+
+/* ========== Game Hall ========== */
+.game-header{
+  padding:54px 20px 20px;
+  background:linear-gradient(180deg,rgba(0,229,255,.15) 0%,transparent 100%);
+}
+.game-search{
+  margin-top:16px;background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.game-search input{flex:1;font-size:14px}
+.game-search input::placeholder{color:var(--text-3)}
+
+.game-cats{
+  display:flex;gap:10px;padding:16px 20px;overflow-x:auto;scrollbar-width:none;
+}
+.game-cats::-webkit-scrollbar{display:none}
+.game-cat{
+  flex-shrink:0;padding:8px 18px;border-radius:20px;
+  background:var(--glass);font-size:13px;font-weight:600;
+  white-space:nowrap;cursor:pointer;border:1px solid var(--glass-border);
+  transition:all .2s;
+}
+.game-cat.active{
+  background:linear-gradient(135deg,var(--purple-1),var(--purple-2));
+  border-color:transparent;box-shadow:0 4px 12px rgba(107,78,255,.4);
+}
+
+.game-grid{
+  padding:0 20px 100px;display:grid;grid-template-columns:1fr 1fr;gap:14px;
+}
+.game-card{
+  position:relative;aspect-ratio:1/1.15;border-radius:var(--radius-lg);overflow:hidden;
+  cursor:pointer;transition:transform .25s;
+  box-shadow:0 8px 20px rgba(0,0,0,.3);
+}
+.game-card:active{transform:scale(.96)}
+.game-card .bg{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;font-size:64px;
+}
+.game-card.g1 .bg{background:linear-gradient(135deg,var(--gold),var(--gold-2))}
+.game-card.g2 .bg{background:linear-gradient(135deg,var(--purple-1),var(--purple-2))}
+.game-card.g3 .bg{background:linear-gradient(135deg,var(--cyan),var(--green))}
+.game-card.g4 .bg{background:linear-gradient(135deg,var(--pink),var(--gold-2))}
+.game-card.g5 .bg{background:linear-gradient(135deg,#FF5470,#9B7DFF)}
+.game-card.g6 .bg{background:linear-gradient(135deg,var(--green),var(--cyan))}
+.game-card .info{
+  position:absolute;bottom:0;left:0;right:0;padding:14px;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.7));
+}
+.game-card .info h4{font-size:14px;font-weight:800;margin-bottom:2px}
+.game-card .info p{font-size:10px;opacity:.85}
+.game-card .corner-tag{
+  position:absolute;top:10px;left:10px;background:rgba(0,0,0,.4);
+  backdrop-filter:blur(10px);font-size:10px;padding:3px 8px;border-radius:8px;
+  font-weight:600;
+}
+.game-card .stars-row{
+  position:absolute;top:10px;right:10px;display:flex;gap:2px;font-size:12px;
+}
+.game-card .new-tag{
+  position:absolute;top:10px;right:10px;background:linear-gradient(135deg,var(--pink),var(--purple-1));
+  font-size:9px;padding:3px 8px;border-radius:8px;font-weight:700;letter-spacing:1px;
+}
+.game-card.locked{filter:brightness(.5) saturate(.6)}
+.game-card .lock-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;backdrop-filter:blur(2px);
+}
+
+/* ========== Game Play Screens ========== */
+.game-play{padding-top:0}
+.game-top{
+  padding:54px 20px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.game-close{
+  width:36px;height:36px;border-radius:50%;background:var(--glass);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  border:1px solid var(--glass-border);cursor:pointer;
+}
+.game-info-row{display:flex;align-items:center;gap:12px}
+.game-stat-pill{
+  background:var(--glass);border:1px solid var(--glass-border);
+  padding:6px 14px;border-radius:14px;font-size:13px;font-weight:700;
+  display:flex;align-items:center;gap:6px;
+}
+.game-stat-pill.gold{background:linear-gradient(135deg,rgba(255,182,39,.2),rgba(255,140,66,.1));border-color:rgba(255,182,39,.3);color:var(--gold)}
+.game-stat-pill.green{background:rgba(61,220,151,.15);border-color:rgba(61,220,151,.3);color:var(--green)}
+.game-stat-pill.pink{background:rgba(255,94,156,.15);border-color:rgba(255,94,156,.3);color:var(--pink)}
+
+.game-progress{
+  margin:0 20px 16px;height:6px;background:rgba(255,255,255,.08);
+  border-radius:3px;overflow:hidden;
+}
+.game-progress-bar{
+  height:100%;background:linear-gradient(90deg,var(--purple-1),var(--gold),var(--pink));
+  border-radius:3px;transition:width .5s;
+}
+
+.game-stage{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:0 20px 100px;position:relative;
+}
+
+/* Pizza game */
+.pizza-container{
+  position:relative;width:280px;height:280px;margin:20px auto;
+}
+.pizza-svg{width:100%;height:100%;filter:drop-shadow(0 12px 30px rgba(0,0,0,.4))}
+.slice{
+  transform-origin:140px 140px;
+  transition:transform .5s,opacity .5s;
+  cursor:pointer;
+}
+.slice.eaten{opacity:0;transform:scale(0) translateY(-100px)}
+.slice-shine{
+  position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.3),transparent 50%);
+  pointer-events:none;
+}
+
+.pizza-question{
+  margin-top:20px;text-align:center;
+  background:var(--glass);border:1px solid var(--glass-border);
+  padding:18px 24px;border-radius:var(--radius-md);
+  width:100%;backdrop-filter:blur(20px);
+}
+.pizza-question h3{font-size:15px;margin-bottom:4px}
+.pizza-question .big-q{font-size:28px;font-weight:900;margin:8px 0;
+  background:linear-gradient(90deg,var(--gold),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.pizza-options{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;width:100%;
+}
+.pizza-option{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);padding:18px;text-align:center;
+  font-size:24px;font-weight:900;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.pizza-option:active{transform:scale(.95)}
+.pizza-option.correct{
+  background:linear-gradient(135deg,rgba(61,220,151,.3),rgba(0,229,255,.2));
+  border-color:var(--green);
+  animation:correctPulse .6s;
+}
+.pizza-option.wrong{
+  background:linear-gradient(135deg,rgba(255,84,112,.3),rgba(255,94,156,.2));
+  border-color:var(--red);
+  animation:wrongShake .4s;
+}
+@keyframes correctPulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* Space math */
+.space-bg{
+  position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;
+}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
+  animation:twinkle 2s infinite}
+.planet{
+  position:absolute;border-radius:50%;opacity:.6;
+  animation:planetFloat 8s ease-in-out infinite;
+}
+@keyframes planetFloat{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-10px)}}
+.rocket{
+  position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+  font-size:40px;animation:rocketFly 3s ease-in-out infinite;
+  filter:drop-shadow(0 0 20px rgba(255,182,39,.5));
+}
+@keyframes rocketFly{0%,100%{transform:translateX(-50%) translateY(0)}
+  50%{transform:translateX(-50%) translateY(-15px)}}
+
+.space-question{
+  position:relative;z-index:1;
+  background:linear-gradient(135deg,rgba(107,78,255,.3),rgba(155,125,255,.1));
+  border:1px solid rgba(155,125,255,.3);
+  padding:36px 30px;border-radius:var(--radius-lg);
+  text-align:center;width:100%;margin:60px 0 20px;
+  backdrop-filter:blur(20px);
+}
+.space-q{font-size:14px;color:var(--text-2);margin-bottom:8px}
+.space-eq{font-size:54px;font-weight:900;line-height:1;
+  background:linear-gradient(90deg,#FFB627,#FF5E9C);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:2px;
+}
+.space-eq .op{color:var(--cyan);margin:0 14px}
+.space-timer{
+  margin:20px auto;width:200px;height:6px;background:rgba(0,0,0,.3);
+  border-radius:3px;overflow:hidden;position:relative;
+}
+.space-timer-fill{
+  height:100%;background:linear-gradient(90deg,var(--green),var(--cyan),var(--gold));
+  border-radius:3px;transition:width .1s linear;
+}
+.space-options{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;position:relative;z-index:1;
+}
+.space-option{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--radius-md);padding:22px;text-align:center;
+  font-size:30px;font-weight:900;cursor:pointer;
+  transition:all .2s;backdrop-filter:blur(20px);
+}
+.space-option:active{transform:scale(.95)}
+.space-option.correct{
+  background:linear-gradient(135deg,rgba(61,220,151,.4),rgba(0,229,255,.2));
+  border-color:var(--green);
+  box-shadow:0 0 30px rgba(61,220,151,.5);
+}
+.space-option.wrong{
+  background:linear-gradient(135deg,rgba(255,84,112,.4),rgba(255,94,156,.2));
+  border-color:var(--red);
+  animation:wrongShake .4s;
+}
+.combo-display{
+  position:absolute;top:60px;right:20px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-2));
+  color:#0a0420;padding:6px 14px;border-radius:14px;
+  font-size:13px;font-weight:800;z-index:2;
+  animation:comboPop .3s;
+}
+@keyframes comboPop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* Detective game */
+.detective-scene{
+  position:relative;width:100%;height:200px;margin:20px 0;
+  background:linear-gradient(135deg,rgba(255,94,156,.15),rgba(107,78,255,.1));
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.scene-magnifier{
+  position:absolute;top:20px;right:30px;font-size:50px;
+  animation:magRotate 3s ease-in-out infinite;
+}
+@keyframes magRotate{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+.scene-fingerprints{
+  position:absolute;bottom:20px;left:20px;font-size:30px;opacity:.4;
+}
+.detective-board{
+  position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);
+  width:90%;background:rgba(0,0,0,.4);backdrop-filter:blur(10px);
+  border-radius:var(--radius-md);padding:12px 20px;
+  border:1px solid var(--glass-border);text-align:center;
+}
+.detective-board h3{font-size:14px;font-weight:700;color:var(--gold)}
+
+.detective-puzzle{
+  background:linear-gradient(135deg,rgba(107,78,255,.2),rgba(0,229,255,.1));
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);padding:30px 20px;
+  text-align:center;width:100%;
+  margin-bottom:20px;
+}
+.detective-puzzle p{font-size:13px;color:var(--text-2);margin-bottom:20px}
+.number-sequence{
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+}
+.num-card{
+  width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,var(--purple-1),var(--purple-2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:900;
+  box-shadow:0 4px 12px rgba(107,78,255,.4);
+  animation:numPop .4s ease-out;
+}
+@keyframes numPop{from{transform:scale(0) rotate(180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.num-card.mystery{
+  background:linear-gradient(135deg,var(--gold),var(--gold-2));
+  color:#0a0420;
+  box-shadow:0 0 20px rgba(255,182,39,.5);
+  animation:numPulse 1.5s infinite;
+}
+@keyframes numPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.num-arrow{font-size:24px;color:var(--text-3)}
+
+.detective-options{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;
+}
+.det-option{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);padding:16px 8px;text-align:center;
+  font-size:20px;font-weight:900;cursor:pointer;
+  transition:all .2s;
+}
+.det-option:active{transform:scale(.95)}
+.det-option.correct{
+  background:linear-gradient(135deg,rgba(61,220,151,.3),rgba(0,229,255,.2));
+  border-color:var(--green);
+}
+.det-option.wrong{
+  background:linear-gradient(135deg,rgba(255,84,112,.3),rgba(255,94,156,.2));
+  border-color:var(--red);
+  animation:wrongShake .4s;
+}
+
+/* Geometry game */
+.geo-display{
+  width:100%;height:220px;
+  background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(61,220,151,.1));
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);
+  display:flex;align-items:center;justify-content:center;
+  margin:20px 0;position:relative;overflow:hidden;
+}
+.geo-shape{font-size:130px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.4));
+  animation:shapeMorph 3s ease-in-out infinite}
+@keyframes shapeMorph{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.1) rotate(5deg)}}
+.geo-info{
+  position:absolute;bottom:16px;left:16px;right:16px;
+  display:flex;justify-content:space-around;
+  background:rgba(0,0,0,.4);backdrop-filter:blur(10px);
+  padding:10px;border-radius:12px;
+}
+.geo-info .gi{text-align:center}
+.geo-info .gi .l{font-size:10px;color:var(--text-3)}
+.geo-info .gi .v{font-size:18px;font-weight:900;color:var(--cyan);margin-top:2px}
+
+.geo-question{margin-bottom:20px;text-align:center;width:100%}
+.geo-question h3{font-size:20px;font-weight:800;margin-bottom:6px}
+.geo-question p{font-size:13px;color:var(--text-2)}
+
+.geo-options{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;
+}
+.geo-option{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);padding:14px;text-align:center;
+  cursor:pointer;transition:all .2s;
+}
+.geo-option:active{transform:scale(.95)}
+.geo-option .ic{font-size:30px;margin-bottom:4px}
+.geo-option .nm{font-size:12px;font-weight:700}
+.geo-option.correct{
+  background:linear-gradient(135deg,rgba(61,220,151,.3),rgba(0,229,255,.2));
+  border-color:var(--green);
+}
+.geo-option.wrong{
+  background:linear-gradient(135deg,rgba(255,84,112,.3),rgba(255,94,156,.2));
+  border-color:var(--red);
+  animation:wrongShake .4s;
+}
+
+/* Game result modal */
+.game-result{
+  position:absolute;inset:0;background:rgba(10,4,32,.95);
+  display:flex;align-items:center;justify-content:center;z-index:50;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+  padding:40px 30px;
+}
+.game-result.show{opacity:1;pointer-events:auto}
+.result-card{
+  width:100%;max-width:340px;
+  background:linear-gradient(135deg,rgba(107,78,255,.3),rgba(0,229,255,.1));
+  border:1px solid rgba(155,125,255,.4);
+  border-radius:var(--radius-xl);padding:32px 24px;text-align:center;
+  backdrop-filter:blur(30px);
+  animation:resultPop .5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes resultPop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.result-emoji{font-size:80px;margin-bottom:12px;animation:bounceIn .8s}
+@keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.result-card h2{font-size:26px;font-weight:900;margin-bottom:6px}
+.result-card .subtitle{font-size:14px;color:var(--text-2);margin-bottom:24px}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.result-stat{
+  background:rgba(0,0,0,.3);border-radius:12px;padding:12px 6px;
+}
+.result-stat .v{font-size:24px;font-weight:900;color:var(--gold)}
+.result-stat .l{font-size:10px;color:var(--text-2);margin-top:2px}
+.result-card .btn-block{margin-bottom:10px}
+
+/* ========== Lesson Detail ========== */
+.lesson-hero{
+  position:relative;height:220px;overflow:hidden;
+  background:linear-gradient(135deg,var(--purple-1) 0%,var(--purple-2) 50%,var(--pink) 100%);
+  padding:54px 20px 20px;display:flex;flex-direction:column;justify-content:flex-end;
+}
+.lesson-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 30%,rgba(255,182,39,.3),transparent 40%),
+             radial-gradient(circle at 80% 60%,rgba(0,229,255,.3),transparent 40%);
+}
+.lesson-hero .crumb{position:relative;font-size:12px;opacity:.85;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.lesson-hero h1{position:relative;font-size:26px;font-weight:900;line-height:1.2;margin-bottom:4px}
+.lesson-hero p{position:relative;font-size:13px;opacity:.85}
+.lesson-hero .mascot{
+  position:absolute;top:60px;right:20px;font-size:90px;
+  animation:heroFloat 3s ease-in-out infinite;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.3));
+}
+@keyframes heroFloat{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-15px) rotate(5deg)}}
+
+.lesson-meta{
+  display:flex;gap:16px;padding:16px 20px;
+  background:rgba(0,0,0,.2);
+  border-bottom:1px solid var(--glass-border);
+}
+.lesson-meta .m{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)}
+.lesson-meta .m .ic{font-size:14px}
+
+.lesson-tabs{
+  display:flex;padding:0 20px;border-bottom:1px solid var(--glass-border);
+  background:#0a0420;position:sticky;top:0;z-index:10;
+}
+.lesson-tab{
+  padding:14px 0;margin-right:24px;font-size:14px;font-weight:700;
+  color:var(--text-3);cursor:pointer;position:relative;
+}
+.lesson-tab.active{color:#fff}
+.lesson-tab.active::after{
+  content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);
+  width:24px;height:3px;background:linear-gradient(90deg,var(--gold),var(--pink));border-radius:2px;
+}
+
+.lesson-step{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);padding:16px;margin-bottom:12px;
+  display:flex;align-items:center;gap:14px;
+  transition:transform .2s;cursor:pointer;
+}
+.lesson-step:active{transform:scale(.98)}
+.lesson-step .num{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--purple-1),var(--purple-2));
+  display:flex;align-items:center;justify-content:center;font-weight:800;
+  box-shadow:0 4px 12px rgba(107,78,255,.3);
+}
+.lesson-step.done .num{background:linear-gradient(135deg,var(--green),var(--cyan))}
+.lesson-step .info{flex:1}
+.lesson-step h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.lesson-step p{font-size:11px;color:var(--text-2)}
+.lesson-step .ic{font-size:20px;color:var(--text-3)}
+.lesson-step.locked{opacity:.5;pointer-events:none}
+.lesson-step.locked .num{background:rgba(255,255,255,.1)}
+
+.lesson-cta{
+  position:absolute;left:20px;right:20px;bottom:24px;
+  display:flex;gap:12px;z-index:10;
+}
+.lesson-cta .btn{flex:1}
+
+/* ========== AI Tutor ========== */
+.ai-header{
+  padding:54px 20px 12px;
+  background:linear-gradient(180deg,rgba(0,229,255,.2) 0%,transparent 100%);
+  display:flex;align-items:center;gap:12px;
+}
+.ai-avatar-big{
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple-1),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;position:relative;
+  box-shadow:0 4px 16px rgba(107,78,255,.4);
+}
+.ai-avatar-big::after{
+  content:'';position:absolute;bottom:0;right:0;width:12px;height:12px;
+  background:var(--green);border-radius:50%;border:2px solid #0a0420;
+}
+.ai-info{flex:1}
+.ai-info h2{font-size:17px;font-weight:800}
+.ai-info p{font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:4px}
+.ai-info .status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px var(--green);display:inline-block}
+
+.ai-suggestions{
+  display:flex;gap:8px;padding:0 20px 16px;overflow-x:auto;scrollbar-width:none;
+}
+.ai-suggestions::-webkit-scrollbar{display:none}
+.ai-chip{
+  flex-shrink:0;padding:8px 16px;border-radius:18px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  font-size:12px;cursor:pointer;white-space:nowrap;
+  transition:all .2s;
+}
+.ai-chip:active{transform:scale(.95);background:rgba(107,78,255,.2)}
+
+.chat-area{
+  flex:1;overflow-y:auto;padding:16px 20px 100px;scrollbar-width:none;
+  display:flex;flex-direction:column;gap:14px;
+}
+.chat-area::-webkit-scrollbar{display:none}
+.chat-msg{display:flex;gap:10px;max-width:88%;animation:msgFadeIn .3s}
+@keyframes msgFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.chat-msg.user{flex-direction:row-reverse;align-self:flex-end}
+.chat-msg-avatar{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.chat-msg.ai .chat-msg-avatar{background:linear-gradient(135deg,var(--purple-1),var(--cyan))}
+.chat-msg.user .chat-msg-avatar{background:linear-gradient(135deg,var(--gold),var(--pink))}
+.chat-bubble{
+  padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.6;
+  word-wrap:break-word;
+}
+.chat-msg.ai .chat-bubble{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-top-left-radius:4px;
+}
+.chat-msg.user .chat-bubble{
+  background:linear-gradient(135deg,var(--purple-1),var(--purple-2));
+  border-top-right-radius:4px;
+}
+.chat-bubble .math{
+  display:inline-block;background:rgba(255,182,39,.2);color:var(--gold);
+  padding:2px 8px;border-radius:6px;font-weight:700;margin:0 2px;
+}
+.chat-typing{display:flex;gap:4px;padding:8px 0}
+.chat-typing i{width:8px;height:8px;background:var(--purple-2);border-radius:50%;
+  animation:typingDot 1.4s infinite}
+.chat-typing i:nth-child(2){animation-delay:.2s}
+.chat-typing i:nth-child(3){animation-delay:.4s}
+@keyframes typingDot{0%,60%,100%{transform:scale(.6);opacity:.4}30%{transform:scale(1);opacity:1}}
+
+.ai-input-bar{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:12px 20px 24px;
+  background:rgba(20,10,50,.85);backdrop-filter:blur(30px);
+  border-top:1px solid var(--glass-border);
+  display:flex;align-items:center;gap:10px;
+}
+.ai-input{
+  flex:1;background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:24px;padding:12px 18px;font-size:14px;
+}
+.ai-send{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple-1),var(--purple-2));
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 4px 12px rgba(107,78,255,.4);cursor:pointer;
+  transition:transform .15s;
+}
+.ai-send:active{transform:scale(.9)}
+.ai-send:disabled{opacity:.5;cursor:not-allowed}
+
+/* ========== Olympic Training ========== */
+#page-olympic{background:linear-gradient(180deg,#0a0420,#1a0840)}
+.ol-header{
+  position:relative;padding:60px 24px 30px;
+  background:linear-gradient(135deg,#1a0840,#3d1d8a);
+  overflow:hidden;
+}
+.ol-header::before{
+  content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(255,182,39,.4),transparent 60%);
+}
+.ol-header::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.ol-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,rgba(255,182,39,.2),rgba(255,94,156,.2));
+  border:1px solid rgba(255,182,39,.4);
+  padding:6px 14px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  color:var(--gold);margin-bottom:12px;
+}
+.ol-header h1{font-size:30px;font-weight:900;line-height:1.15;margin-bottom:8px;position:relative;z-index:1}
+.ol-header h1 span{
+  background:linear-gradient(90deg,var(--gold),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.ol-header p{font-size:13px;color:var(--text-2);line-height:1.6;position:relative;z-index:1}
+
+.ol-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin:20px 20px 0;
+}
+.ol-stat{
+  text-align:center;padding:14px 4px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);
+}
+.ol-stat .n{font-size:20px;font-weight:900;color:var(--gold)}
+.ol-stat .l{font-size:10px;color:var(--text-2);margin-top:2px}
+
+.method-card{
+  position:relative;
+  background:linear-gradient(135deg,rgba(107,78,255,.2),rgba(0,229,255,.1));
+  border:1px solid rgba(107,78,255,.3);
+  border-radius:var(--radius-md);padding:18px;margin-bottom:12px;
+  display:flex;align-items:center;gap:14px;overflow:hidden;
+  cursor:pointer;transition:transform .2s;
+}
+.method-card:active{transform:scale(.98)}
+.method-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--gold),var(--pink));
+}
+.method-card .mnum{
+  font-size:32px;font-weight:900;
+  background:linear-gradient(135deg,var(--gold),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  width:48px;flex-shrink:0;
+}
+.method-card h4{font-size:15px;font-weight:800;margin-bottom:2px}
+.method-card p{font-size:11px;color:var(--text-2);line-height:1.4}
+.method-card .arrow{font-size:18px;color:var(--text-3)}
+
+.teacher-card{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);overflow:hidden;margin-bottom:14px;
+}
+.teacher-banner{
+  position:relative;height:100px;
+  background:linear-gradient(135deg,#3d1d8a,var(--purple-1));
+  display:flex;align-items:center;padding:0 20px;
+}
+.teacher-banner::after{
+  content:'👨‍🏫';position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  font-size:60px;opacity:.9;
+}
+.teacher-banner h3{font-size:16px;font-weight:800;position:relative;z-index:1}
+.teacher-banner p{font-size:11px;color:rgba(255,255,255,.8);position:relative;z-index:1;margin-top:2px}
+.teacher-tags{padding:12px 16px;display:flex;gap:6px;flex-wrap:wrap}
+.teacher-tags span{
+  font-size:10px;padding:3px 8px;border-radius:8px;
+  background:rgba(255,182,39,.15);color:var(--gold);font-weight:600;
+}
+.teacher-actions{display:flex;gap:8px;padding:0 16px 16px}
+.teacher-actions .btn{flex:1;font-size:13px;padding:10px}
+
+.quiz-list{padding:0}
+.quiz-item{
+  display:flex;align-items:center;gap:12px;padding:14px 0;
+  border-bottom:1px solid var(--glass-border);
+  cursor:pointer;
+}
+.quiz-item:last-child{border:none}
+.quiz-item .year-tag{
+  width:50px;height:50px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(135deg,rgba(107,78,255,.2),rgba(155,125,255,.1));
+  border:1px solid rgba(107,78,255,.3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.quiz-item .year-tag .y{font-size:14px;font-weight:800}
+.quiz-item .year-tag .t{font-size:9px;color:var(--text-2)}
+.quiz-item .info{flex:1}
+.quiz-item h4{font-size:14px;font-weight:700;margin-bottom:2px}
+.quiz-item p{font-size:11px;color:var(--text-2)}
+.quiz-item .arr{color:var(--text-3);font-size:16px}
+
+/* Olympic practice mode */
+.olym-test{
+  padding:54px 20px 100px;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#1a0840,#0a0420);min-height:100%;
+}
+.test-header{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;
+}
+.test-progress{flex:1;margin:0 16px}
+.test-progress .bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.test-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--pink));border-radius:3px;transition:width .4s}
+.test-progress .text{font-size:11px;color:var(--text-2);text-align:center;margin-top:4px}
+.test-card{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);padding:24px;margin-bottom:20px;
+  backdrop-filter:blur(20px);
+}
+.test-tag{
+  display:inline-block;padding:3px 10px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(255,182,39,.2),rgba(255,94,156,.1));
+  color:var(--gold);font-size:10px;font-weight:700;margin-bottom:12px;
+}
+.test-question{font-size:18px;font-weight:700;line-height:1.5;margin-bottom:20px}
+.test-options{display:flex;flex-direction:column;gap:10px}
+.test-option{
+  background:rgba(0,0,0,.2);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;
+  display:flex;align-items:center;gap:12px;transition:all .2s;
+  font-size:14px;
+}
+.test-option:active{transform:scale(.98)}
+.test-option .ltr{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+}
+.test-option.correct{background:rgba(61,220,151,.15);border-color:var(--green)}
+.test-option.correct .ltr{background:var(--green);color:#0a0420}
+.test-option.wrong{background:rgba(255,84,112,.15);border-color:var(--red)}
+.test-option.wrong .ltr{background:var(--red);color:#fff}
+.test-option.disabled{pointer-events:none;opacity:.6}
+.test-explain{
+  margin-top:14px;padding:14px;
+  background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);
+  border-radius:var(--radius-md);font-size:13px;line-height:1.6;
+  display:none;
+}
+.test-explain.show{display:block;animation:fadeIn .3s}
+.test-explain h4{color:var(--cyan);font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+.test-actions{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:16px 20px 24px;
+  background:rgba(20,10,50,.85);backdrop-filter:blur(30px);
+  border-top:1px solid var(--glass-border);
+  display:flex;gap:10px;
+}
+.test-actions .btn{flex:1}
+
+/* ========== Personal Center ========== */
+.me-header{
+  position:relative;padding:60px 24px 24px;
+  background:linear-gradient(180deg,rgba(255,94,156,.2),rgba(107,78,255,.1),transparent);
+  overflow:hidden;
+}
+.me-header::before{
+  content:'';position:absolute;top:-80px;right:-80px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(255,182,39,.3),transparent 60%);
+}
+.me-header::after{
+  content:'';position:absolute;bottom:-100px;left:-50px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(0,229,255,.2),transparent 60%);
+}
+.me-row{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.me-avatar{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--pink));
+  display:flex;align-items:center;justify-content:center;font-size:36px;
+  border:3px solid rgba(255,255,255,.2);
+  box-shadow:0 8px 20px rgba(255,94,156,.3);
+}
+.me-info h2{font-size:20px;font-weight:800}
+.me-info p{font-size:12px;color:var(--text-2);margin-top:2px}
+.me-info .lvl{
+  display:inline-block;margin-top:8px;padding:3px 10px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(255,182,39,.2),rgba(255,94,156,.2));
+  font-size:11px;font-weight:700;color:var(--gold);
+  border:1px solid rgba(255,182,39,.3);
+}
+
+.me-quick{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:20px;
+  position:relative;z-index:1;
+}
+.me-quick .q{
+  display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);cursor:pointer;
+  transition:transform .2s;
+}
+.me-quick .q:active{transform:scale(.95)}
+.me-quick .q .ic{font-size:24px}
+.me-quick .q span{font-size:10px;color:var(--text-2);font-weight:600}
+
+.radar-wrap{
+  margin:20px;padding:20px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);
+}
+.radar-wrap h3{font-size:15px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.radar-svg{width:100%;height:200px}
+
+.achv-item{
+  display:flex;align-items:center;gap:14px;padding:14px 0;
+  border-bottom:1px solid var(--glass-border);
+}
+.achv-item .badge-i{
+  width:54px;height:54px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,rgba(255,182,39,.2),rgba(255,94,156,.2));
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  border:2px solid rgba(255,182,39,.3);
+  position:relative;
+}
+.achv-item .badge-i.locked{opacity:.3;filter:grayscale(1)}
+.achv-item .info{flex:1}
+.achv-item h4{font-size:13px;font-weight:700;margin-bottom:2px}
+.achv-item p{font-size:11px;color:var(--text-2)}
+.achv-item .date{font-size:10px;color:var(--text-3)}
+
+/* ========== Parent Center ========== */
+.parent-hero{
+  position:relative;padding:60px 24px 30px;
+  background:linear-gradient(135deg,#1a0840,#3d1d8a);
+  overflow:hidden;
+}
+.parent-hero::before{
+  content:'';position:absolute;top:0;right:0;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(0,229,255,.3),transparent 60%);
+}
+.parent-hero .label{
+  display:inline-block;padding:4px 10px;background:rgba(0,229,255,.15);
+  border:1px solid rgba(0,229,255,.3);border-radius:8px;
+  color:var(--cyan);font-size:11px;font-weight:700;margin-bottom:12px;
+}
+.parent-hero h1{font-size:24px;font-weight:900;margin-bottom:6px}
+.parent-hero p{font-size:12px;color:var(--text-2)}
+
+.parent-quick{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px;margin-top:20px;
+}
+.pq-card{
+  padding:16px;border-radius:var(--radius-md);cursor:pointer;
+  background:var(--glass);border:1px solid var(--glass-border);
+  transition:transform .2s;
+}
+.pq-card:active{transform:scale(.97)}
+.pq-card.pink{background:linear-gradient(135deg,rgba(255,94,156,.15),rgba(255,140,66,.1));border-color:rgba(255,94,156,.2)}
+.pq-card.cyan{background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(61,220,151,.1));border-color:rgba(0,229,255,.2)}
+.pq-card.purple{background:linear-gradient(135deg,rgba(107,78,255,.15),rgba(155,125,255,.1));border-color:rgba(107,78,255,.2)}
+.pq-card.gold{background:linear-gradient(135deg,rgba(255,182,39,.15),rgba(255,94,156,.1));border-color:rgba(255,182,39,.2)}
+.pq-card .ic{font-size:30px;margin-bottom:8px}
+.pq-card h4{font-size:14px;font-weight:800;margin-bottom:3px}
+.pq-card p{font-size:11px;color:var(--text-2);line-height:1.4}
+
+.report-card{
+  margin:20px;padding:18px;border-radius:var(--radius-lg);
+  background:linear-gradient(135deg,rgba(107,78,255,.2),rgba(0,229,255,.1));
+  border:1px solid rgba(107,78,255,.3);
+}
+.report-card h3{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.report-card h3 .period{font-size:11px;color:var(--text-2);font-weight:500}
+.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.report-cell{
+  padding:12px;background:rgba(0,0,0,.25);border-radius:12px;
+}
+.report-cell .l{font-size:10px;color:var(--text-2);margin-bottom:4px}
+.report-cell .v{font-size:20px;font-weight:900;color:var(--gold)}
+.report-cell .d{font-size:10px;color:var(--green);margin-top:2px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:18px;padding-bottom:20px}
+.bar{flex:1;background:linear-gradient(180deg,var(--purple-2),var(--purple-1));border-radius:4px 4px 0 0;position:relative;transition:height .6s}
+.bar.today{background:linear-gradient(180deg,var(--gold),var(--pink))}
+.bar .lbl{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--text-3)}
+
+.lesson-table{
+  margin:0 20px 100px;padding:16px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);
+}
+.lesson-table h3{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.lt-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid var(--glass-border);
+}
+.lt-row:last-child{border:none}
+.lt-row .time{font-size:12px;color:var(--text-2);width:60px;font-weight:600}
+.lt-row .info{flex:1;padding:0 12px}
+.lt-row .info h4{font-size:13px;font-weight:700}
+.lt-row .info p{font-size:10px;color:var(--text-3);margin-top:2px}
+.lt-row .status{
+  font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;
+}
+.lt-row .status.done{background:rgba(61,220,151,.2);color:var(--green)}
+.lt-row .status.todo{background:rgba(255,182,39,.2);color:var(--gold)}
+.lt-row .status.doing{background:rgba(0,229,255,.2);color:var(--cyan)}
+
+/* AI tutor floating button */
+.ai-fab{
+  position:absolute;right:18px;bottom:90px;width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple-1),var(--cyan));
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  box-shadow:0 8px 24px rgba(107,78,255,.5);
+  animation:aiFloat 3s ease-in-out infinite;z-index:50;cursor:pointer;
+}
+.ai-fab::before{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid rgba(0,229,255,.4);
+  animation:aiPulse 2s infinite;
+}
+
+/* ========== Knowledge Graph ========== */
+.kg-container{
+  width:100%;height:calc(100vh - 200px);
+  position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at center,rgba(107,78,255,.15) 0%,transparent 70%);
+}
+.kg-svg{width:100%;height:100%}
+.kg-node{
+  cursor:pointer;transition:transform .3s;
+}
+.kg-node:hover{transform:scale(1.1)}
+.kg-node-circle{
+  filter:drop-shadow(0 0 12px currentColor);
+  transition:all .3s;
+}
+.kg-node-text{font-size:11px;font-weight:700;fill:#fff;pointer-events:none}
+.kg-legend{
+  position:absolute;bottom:20px;left:20px;right:20px;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);border-radius:var(--radius-md);
+  padding:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+}
+.kg-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-2)}
+.kg-leg-dot{width:10px;height:10px;border-radius:50%}
+
+/* ========== Error Book ========== */
+.error-item{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);padding:16px;margin-bottom:12px;
+}
+.error-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.error-tag{
+  padding:3px 10px;border-radius:8px;font-size:10px;font-weight:700;
+  background:rgba(255,84,112,.15);color:var(--red);
+}
+.error-date{font-size:10px;color:var(--text-3)}
+.error-q{
+  background:rgba(0,0,0,.2);padding:10px 14px;border-radius:10px;
+  font-size:14px;margin-bottom:8px;font-weight:600;
+}
+.error-row{
+  display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:4px;
+}
+.error-row .lbl{color:var(--text-3);width:60px}
+.error-row .val-wrong{color:var(--red);text-decoration:line-through}
+.error-row .val-right{color:var(--green);font-weight:700}
+.error-actions{display:flex;gap:8px;margin-top:12px}
+.error-actions .btn{flex:1;font-size:12px;padding:8px}
+
+/* ========== Achievement Wall ========== */
+.achv-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px 100px;
+}
+.achv-card{
+  aspect-ratio:1;border-radius:var(--radius-md);
+  background:var(--glass);border:1px solid var(--glass-border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:10px;cursor:pointer;
+  transition:transform .2s;
+}
+.achv-card:active{transform:scale(.95)}
+.achv-card .ic{font-size:36px;margin-bottom:6px}
+.achv-card .nm{font-size:11px;font-weight:700;line-height:1.2}
+.achv-card .ds{font-size:9px;color:var(--text-3);margin-top:2px;line-height:1.2}
+.achv-card.locked{opacity:.4;filter:grayscale(.8)}
+.achv-card.unlocked{
+  background:linear-gradient(135deg,rgba(255,182,39,.15),rgba(255,94,156,.05));
+  border-color:rgba(255,182,39,.3);
+  position:relative;overflow:hidden;
+}
+.achv-card.unlocked::after{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:conic-gradient(from 0deg,transparent,rgba(255,182,39,.1),transparent 30%);
+  animation:shine 4s linear infinite;
+}
+@keyframes shine{to{transform:rotate(360deg)}}
+
+/* ========== Modal & Toast ========== */
+.modal-mask{
+  position:absolute;inset:0;background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;z-index:200;
+  opacity:0;pointer-events:none;transition:opacity .3s;padding:20px;
+}
+.modal-mask.show{opacity:1;pointer-events:auto}
+.modal{
+  width:100%;max-width:340px;background:linear-gradient(135deg,rgba(107,78,255,.3),rgba(0,229,255,.1));
+  border:1px solid var(--glass-border);border-radius:var(--radius-xl);
+  padding:28px 24px;text-align:center;backdrop-filter:blur(30px);
+  animation:modalIn .4s cubic-bezier(.4,0,.2,1);
+}
+@keyframes modalIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-emoji{font-size:60px;margin-bottom:10px;animation:bounceIn .8s}
+.modal h2{font-size:22px;font-weight:900;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:20px}
+.modal .btn-block{margin-bottom:8px}
+
+#toast-container{
+  position:absolute;top:60px;left:50%;transform:translateX(-50%);
+  z-index:300;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;
+}
+.toast{
+  background:rgba(20,10,50,.95);backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);border-radius:14px;
+  padding:10px 18px;font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+  animation:toastIn .3s;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+.toast.success{border-color:rgba(61,220,151,.4);color:var(--green)}
+.toast.error{border-color:rgba(255,84,112,.4);color:var(--red)}
+.toast.info{border-color:rgba(0,229,255,.4);color:var(--cyan)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Achievement unlock animation */
+.achv-unlock{
+  position:absolute;inset:0;z-index:250;background:rgba(10,4,32,.95);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.achv-unlock.show{opacity:1;pointer-events:auto}
+.achv-unlock-content{text-align:center;animation:unlockPop .6s}
+@keyframes unlockPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.achv-unlock .badge-big{
+  width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,182,39,.4),rgba(255,140,66,.2));
+  border:3px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:70px;margin:0 auto 20px;
+  box-shadow:0 0 60px rgba(255,182,39,.5);
+  animation:badgeRotate 3s linear infinite;
+}
+@keyframes badgeRotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.achv-unlock h2{font-size:24px;font-weight:900;margin-bottom:6px;
+  background:linear-gradient(90deg,var(--gold),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.achv-unlock p{font-size:14px;color:var(--text-2);margin-bottom:24px}
+.confetti{
+  position:absolute;width:8px;height:8px;
+  animation:confettiFall 2.5s linear forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(-100px) rotate(0);opacity:1}
+  100%{transform:translateY(800px) rotate(720deg);opacity:0}
+}
+
+/* Settings page */
+.setting-section{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);margin:0 20px 14px;overflow:hidden;
+}
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid var(--glass-border);
+}
+.setting-row:last-child{border:none}
+.setting-row .l{display:flex;align-items:center;gap:12px;font-size:14px}
+.setting-row .l .ic{font-size:18px}
+.setting-row .r{color:var(--text-3);font-size:13px;display:flex;align-items:center;gap:6px}
+.toggle{
+  width:44px;height:24px;border-radius:12px;background:rgba(255,255,255,.15);
+  position:relative;cursor:pointer;transition:background .2s;
+}
+.toggle.on{background:linear-gradient(135deg,var(--purple-1),var(--cyan))}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;
+  border-radius:50%;background:#fff;transition:transform .2s;
+}
+.toggle.on::after{transform:translateX(20px)}
+
+/* Small screen fixes */
+@media(max-height:700px){
+  .splash-title{font-size:36px}
+  .onboard-illust{width:200px;height:200px;font-size:110px;margin-bottom:24px}
+  .splash-loader{margin-top:30px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- 顶部状态栏 -->
+  <div class="status-bar">
+    <span class="time" id="statusTime">9:41</span>
+    <span>📶 📡 🔋</span>
+  </div>
+
+  <!-- 启动页 -->
+  <section class="page active" id="page-splash">
+    <canvas id="starfield"></canvas>
+    <div class="splash-stars" id="splashStars"></div>
+    <div class="shooting-star"></div>
+    <div class="splash-content">
+      <div class="logo-3d">
+        <div class="logo-hat"></div>
+        <div class="logo-planet"></div>
+        <div class="logo-ring"></div>
+        <div class="logo-orbit"></div>
+      </div>
+      <h1 class="splash-title">天才基本法</h1>
+      <p class="splash-slogan">掌握数学的基本法则</p>
+      <div class="splash-loader">
+        <div class="loader-bar"></div>
+        <span class="loader-text">正在加载学习宇宙...</span>
+      </div>
+    </div>
+    <div class="splash-footer">
+      <p class="splash-version">v 1.0.0 · 让每个孩子成为天才</p>
+      <p class="splash-tagline">Powered by AI · 4-18岁数学全龄段</p>
+    </div>
+  </section>
+
+  <!-- 引导页1 -->
+  <section class="page onboard" id="page-onboard-1">
+    <div class="onboard-content">
+      <div class="onboard-illust">🚀</div>
+      <h1>欢迎来到<br><span>数学宇宙</span></h1>
+      <p>4-18岁数学全龄段学习平台<br>从数感启蒙到奥数竞赛<br>一站式搞定</p>
+    </div>
+    <div class="onboard-bottom">
+      <div class="dots"><i class="active"></i><i></i><i></i></div>
+      <button class="btn btn-primary btn-block" onclick="goTo('page-onboard-2')">继续 →</button>
+    </div>
+  </section>
+
+  <!-- 引导页2 -->
+  <section class="page onboard" id="page-onboard-2">
+    <div class="onboard-content">
+      <div class="onboard-illust">🧠</div>
+      <h1>AI天师<br><span>1对1辅导</span></h1>
+      <p>拍照搜题 · 思路引导 · 智能诊断<br>像真人家教一样<br>讲懂每一道题</p>
+    </div>
+    <div class="onboard-bottom">
+      <div class="dots"><i></i><i class="active"></i><i></i></div>
+      <button class="btn btn-primary btn-block" onclick="goTo('page-onboard-3')">继续 →</button>
+    </div>
+  </section>
+
+  <!-- 引导页3 -->
+  <section class="page onboard" id="page-onboard-3">
+    <div class="onboard-content">
+      <div class="onboard-illust">🏆</div>
+      <h1>从<span>基本法则</span><br>到思维跃迁</h1>
+      <p>100+思维方法论 · 历年杯赛真题<br>双师模式：AI讲方法 + 名师讲真题<br>让每个孩子都成为数学小天才</p>
+    </div>
+    <div class="onboard-bottom">
+      <div class="dots"><i></i><i></i><i class="active"></i></div>
+      <button class="btn btn-gold btn-block" onclick="goTo('page-grade')">开始启程 🚀</button>
+    </div>
+  </section>
+
+  <!-- 学龄选择 -->
+  <section class="page" id="page-grade">
+    <div class="top-nav">
+      <div class="back-btn" onclick="goTo('page-onboard-3')">‹</div>
+      <h2>选择学段</h2>
+      <div style="width:36px"></div>
+    </div>
+    <div class="grade-header">
+      <h1>选择你的数学阶段 🎯</h1>
+      <p>不同学段匹配不同的课程与难度<br>选错了也别担心，随时可以切换</p>
+    </div>
+    <div class="grade-tabs">
+      <div class="grade-tab active" data-cat="primary">小学</div>
+      <div class="grade-tab" data-cat="junior">初中</div>
+      <div class="grade-tab" data-cat="senior">高中</div>
+      <div class="grade-tab" data-cat="olympic">奥数</div>
+    </div>
+    <div class="scroll">
+      <div class="grade-grid" id="gradeGrid"></div>
+    </div>
+    <div class="grade-bottom">
+      <button class="btn btn-gold btn-block" onclick="confirmGrade()">确认选择</button>
+      <p class="tip">💡 <span>提示：</span>系统会根据学段智能推荐内容</p>
+    </div>
+  </section>
+
+  <!-- 头像选择 -->
+  <section class="page" id="page-avatar">
+    <div class="top-nav">
+      <div class="back-btn" onclick="goTo('page-grade')">‹</div>
+      <h2>创建角色</h2>
+      <div style="width:36px"></div>
+    </div>
+    <div class="avatar-header">
+      <h1>选择你的形象 ✨</h1>
+      <p>选一个你喜欢的小可爱</p>
+    </div>
+    <div class="scroll">
+      <div class="avatar-grid" id="avatarGrid"></div>
+      <div class="name-input-wrap">
+        <input class="name-input" id="nameInput" placeholder="给孩子起个昵称" maxlength="8">
+      </div>
+    </div>
+    <div class="avatar-bottom">
+      <button class="btn btn-gold btn-block" onclick="confirmAvatar()">开始学习 🚀</button>
+    </div>
+  </section>
+
+  <!-- 首页 -->
+  <section class="page" id="page-home">
+    <div class="home-header">
+      <div class="greet">
+        <div class="user-info">
+          <div class="avatar" id="homeAvatar">🦊</div>
+          <div class="greet-text">
+            <h3>晚上好，<span id="homeName">小天才</span> <span class="lvl-badge">L7</span></h3>
+            <p><span class="lv" id="homeGrade">四年级</span> · 连续学习 <b style="color:var(--gold)" id="homeStreak">28</b> 天</p>
+          </div>
+        </div>
+        <div class="header-icons">
+          <div class="icon-btn" onclick="goTo('page-knowledge')">🗺️</div>
+          <div class="icon-btn">🔔<span class="badge">3</span></div>
+        </div>
+      </div>
+      <div class="xp-wrap">
+        <div class="xp-info">
+          <span>经验值 <b id="xpCurrent">680</b> / 1000</span>
+          <span>L7 → L8</span>
+        </div>
+        <div class="xp-bar"><div class="xp-bar-fill" id="xpBar" style="width:68%"></div></div>
+      </div>
+      <div class="stats-card">
+        <div class="stat-item"><div class="stat-num" id="statEnergy">2486</div><div class="stat-label">能量</div></div>
+        <div class="stat-item"><div class="stat-num" id="statCoins">328</div><div class="stat-label">金币</div></div>
+        <div class="stat-item"><div class="stat-num" id="statStreak">28</div><div class="stat-label">打卡</div></div>
+        <div class="stat-item"><div class="stat-num" id="statLevel">7</div><div class="stat-label">等级</div></div>
+      </div>
+    </div>
+
+    <div class="streak-bar">
+      <div class="streak-fire">🔥</div>
+      <div class="streak-info">
+        <h4>已坚持 <b style="color:var(--gold)">28</b> 天</h4>
+        <p>今天再学15分钟，连续记录将刷新纪录！</p>
+        <div class="days-row" id="daysRow"></div>
+      </div>
+      <div class="streak-cta" onclick="goTo('page-games')">去学习</div>
+    </div>
+
+    <div class="scroll">
+      <div class="section">
+        <div class="section-title">
+          <h3><span class="icon">⭐</span>今日推荐</h3>
+          <span class="more">换一批</span>
+        </div>
+        <div class="hero-banner" onclick="goTo('page-lesson')">
+          <div class="hero-text">
+            <div class="tag">智能推荐 · 适合你</div>
+            <h2>分数的奇妙冒险</h2>
+            <p>跟着π博士一起，把披萨切成4份<br>认识1/2、1/4的秘密</p>
+            <div class="start-pill">立即开始 →</div>
+          </div>
+          <div class="hero-emoji">🍕</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <h3><span class="icon">🎯</span>继续学习</h3>
+          <span class="more" onclick="goTo('page-knowledge')">查看图谱 ›</span>
+        </div>
+        <div class="course-list">
+          <div class="course-card" onclick="startGame('pizza')">
+            <div class="course-icon" style="background:linear-gradient(135deg,var(--gold),var(--gold-2))">🍕</div>
+            <h4>分数大作战</h4>
+            <div class="meta"><span>5个知识点</span><span class="dot"></span><span>进度 65%</span></div>
+            <div class="progress"><div class="progress-bar" style="width:65%"></div></div>
+          </div>
+          <div class="course-card" onclick="startGame('space')">
+            <div class="course-icon" style="background:linear-gradient(135deg,var(--purple-1),var(--purple-2))">🚀</div>
+            <h4>太空乘法</h4>
+            <div class="meta"><span>8个知识点</span><span class="dot"></span><span>进度 40%</span></div>
+            <div class="progress"><div class="progress-bar" style="width:40%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="daily-challenge" onclick="startGame('pizza')">
+          <div class="daily-emoji">🎁</div>
+          <div class="daily-info">
+            <h4>每日挑战</h4>
+            <p>完成今日任务，获得50金币奖励</p>
+            <div class="daily-reward">💰 +50 · ⭐ +100经验</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <h3><span class="icon">🚀</span>探索数学世界</h3>
+        </div>
+        <div class="cat-grid">
+          <div class="cat-item" onclick="goTo('page-games')">
+            <div class="ic" style="background:linear-gradient(135deg,var(--gold),var(--gold-2))">🎮</div>
+            <span>游戏大厅</span>
+          </div>
+          <div class="cat-item" onclick="goTo('page-olympic')">
+            <div class="ic" style="background:linear-gradient(135deg,var(--purple-1),var(--purple-2))">🏆</div>
+            <span>奥数训练</span>
+          </div>
+          <div class="cat-item" onclick="goTo('page-ai')">
+            <div class="ic" style="background:linear-gradient(135deg,var(--cyan),var(--green))">🤖</div>
+            <span>AI天师</span>
+          </div>
+          <div class="cat-item" onclick="goTo('page-knowledge')">
+            <div class="ic" style="background:linear-gradient(135deg,#FF5470,#9B7DFF)">🗺️</div>
+            <span>知识图谱</span>
+          </div>
+          <div class="cat-item" onclick="goTo('page-errors')">
+            <div class="ic" style="background:linear-gradient(135deg,var(--pink),var(--gold-2))">📝</div>
+            <span>错题本</span>
+          </div>
+          <div class="cat-item" onclick="goTo('page-achievements')">
+            <div class="ic" style="background:linear-gradient(135deg,var(--green),var(--cyan))">🏅</div>
+            <span>成就墙</span>
+          </div>
+          <div class="cat-item" onclick="goTo('page-me')">
+            <div class="ic" style="background:linear-gradient(135deg,#9B7DFF,#FF5E9C)">👤</div>
+            <span>个人中心</span>
+          </div>
+          <div class="cat-item" onclick="goTo('page-parent')">
+            <div class="ic" style="background:linear-gradient(135deg,#FF8C42,#FFB627)">👨‍👩‍👧</div>
+            <span>家长中心</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <h3><span class="icon">👑</span>班级排行榜</h3>
+          <span class="more">本周 ›</span>
+        </div>
+        <div class="course-list">
+          <div class="course-card">
+            <div class="course-icon" style="background:linear-gradient(135deg,#FFD700,#FFA500);font-size:26px">🥇</div>
+            <h4>小米同学</h4>
+            <div class="meta"><span>3,582能量</span><span class="dot"></span><span>数学之王</span></div>
+          </div>
+          <div class="course-card">
+            <div class="course-icon" style="background:linear-gradient(135deg,#C0C0C0,#E5E5E5);font-size:26px">🥈</div>
+            <h4>豆豆同学</h4>
+            <div class="meta"><span>3,201能量</span><span class="dot"></span><span>差24分</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:40px"></div>
+    </div>
+  </section>
+
+  <!-- 游戏大厅 -->
+  <section class="page" id="page-games">
+    <div class="game-header">
+      <div class="top-nav" style="padding:0">
+        <div class="back-btn" onclick="goTo('page-home')">‹</div>
+        <h2>游戏大厅</h2>
+        <div class="icon-btn" onclick="goTo('page-settings')">⚙️</div>
+      </div>
+      <div class="game-search">
+        <span>🔍</span>
+        <input placeholder="搜索游戏 / 知识点...">
+      </div>
+    </div>
+    <div class="game-cats">
+      <div class="game-cat active">🔥 热门</div>
+      <div class="game-cat">数与运算</div>
+      <div class="game-cat">图形空间</div>
+      <div class="game-cat">逻辑推理</div>
+      <div class="game-cat">应用题</div>
+      <div class="game-cat">奥数思维</div>
+    </div>
+    <div class="scroll">
+      <div class="game-grid" id="gameGrid"></div>
+    </div>
+  </section>
+
+  <!-- 披萨分数游戏 -->
+  <section class="page game-play" id="page-game-pizza">
+    <div class="game-top">
+      <div class="game-close" onclick="endGame()">✕</div>
+      <div class="game-info-row">
+        <div class="game-stat-pill gold">⭐ <span id="pizzaScore">0</span></div>
+        <div class="game-stat-pill green">✓ <span id="pizzaCorrect">0</span></div>
+        <div class="game-stat-pill pink">❤️ <span id="pizzaLife">3</span></div>
+      </div>
+    </div>
+    <div class="game-progress"><div class="game-progress-bar" id="pizzaProgress" style="width:0%"></div></div>
+    <div class="game-stage">
+      <div class="pizza-container" id="pizzaContainer">
+        <svg class="pizza-svg" viewBox="0 0 280 280" id="pizzaSvg">
+          <defs>
+            <radialGradient id="cheese"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFB627"/></radialGradient>
+            <radialGradient id="crust"><stop offset="0%" stop-color="#D4884F"/><stop offset="100%" stop-color="#8B4513"/></radialGradient>
+          </defs>
+          <circle cx="140" cy="140" r="135" fill="url(#crust)"/>
+          <g id="pizzaSlices"></g>
+          <circle cx="140" cy="140" r="20" fill="url(#crust)"/>
+        </svg>
+      </div>
+      <div class="pizza-question">
+        <h3>披萨还剩多少？</h3>
+        <div class="big-q" id="pizzaQ">1/2</div>
+      </div>
+      <div class="pizza-options" id="pizzaOptions"></div>
+    </div>
+    <div class="game-result" id="pizzaResult">
+      <div class="result-card">
+        <div class="result-emoji" id="pizzaResultEmoji">🎉</div>
+        <h2 id="pizzaResultTitle">完美通关！</h2>
+        <p class="subtitle" id="pizzaResultSub">你是真正的披萨大师</p>
+        <div class="result-stats">
+          <div class="result-stat"><div class="v" id="pizzaR1">0</div><div class="l">得分</div></div>
+          <div class="result-stat"><div class="v" id="pizzaR2">0</div><div class="l">答对</div></div>
+          <div class="result-stat"><div class="v" id="pizzaR3">0</div><div class="l">连击</div></div>
+        </div>
+        <button class="btn btn-gold btn-block" onclick="restartGame('pizza')">再来一局</button>
+        <button class="btn btn-ghost btn-block" onclick="endGame()">返回大厅</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 太空乘法游戏 -->
+  <section class="page game-play" id="page-game-space">
+    <div class="game-top">
+      <div class="game-close" onclick="endGame()">✕</div>
+      <div class="game-info-row">
+        <div class="game-stat-pill gold">⭐ <span id="spaceScore">0</span></div>
+        <div class="game-stat-pill green">🔥 <span id="spaceCombo">0</span></div>
+        <div class="game-stat-pill pink">❤️ <span id="spaceLife">3</span></div>
+      </div>
+    </div>
+    <div class="space-bg" id="spaceBg">
+      <div class="rocket">🚀</div>
+    </div>
+    <div class="game-stage">
+      <div class="space-question">
+        <div class="space-q" id="spaceQNum">第 1 题</div>
+        <div class="space-eq" id="spaceEq">7 <span class="op">×</span> 8 <span class="op">=</span> ?</div>
+      </div>
+      <div class="space-timer"><div class="space-timer-fill" id="spaceTimer" style="width:100%"></div></div>
+      <div class="space-options" id="spaceOptions"></div>
+    </div>
+    <div class="game-result" id="spaceResult">
+      <div class="result-card">
+        <div class="result-emoji" id="spaceResultEmoji">🚀</div>
+        <h2 id="spaceResultTitle">太厉害了！</h2>
+        <p class="subtitle" id="spaceResultSub">你的计算速度超群</p>
+        <div class="result-stats">
+          <div class="result-stat"><div class="v" id="spaceR1">0</div><div class="l">得分</div></div>
+          <div class="result-stat"><div class="v" id="spaceR2">0</div><div class="l">答对</div></div>
+          <div class="result-stat"><div class="v" id="spaceR3">0</div><div class="l">最高连击</div></div>
+        </div>
+        <button class="btn btn-gold btn-block" onclick="restartGame('space')">再来一局</button>
+        <button class="btn btn-ghost btn-block" onclick="endGame()">返回大厅</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 数字侦探游戏 -->
+  <section class="page game-play" id="page-game-detective">
+    <div class="game-top">
+      <div class="game-close" onclick="endGame()">✕</div>
+      <div class="game-info-row">
+        <div class="game-stat-pill gold">⭐ <span id="detScore">0</span></div>
+        <div class="game-stat-pill green">✓ <span id="detCorrect">0</span></div>
+        <div class="game-stat-pill pink">❤️ <span id="detLife">3</span></div>
+      </div>
+    </div>
+    <div class="game-progress"><div class="game-progress-bar" id="detProgress" style="width:0%"></div></div>
+    <div class="game-stage">
+      <div class="detective-scene">
+        <div class="scene-magnifier">🔍</div>
+        <div class="scene-fingerprints">🕵️</div>
+        <div class="detective-board">
+          <h3>🕵️ 神秘数字规律</h3>
+        </div>
+      </div>
+      <div class="detective-puzzle" id="detPuzzle"></div>
+      <div class="detective-options" id="detOptions"></div>
+    </div>
+    <div class="game-result" id="detResult">
+      <div class="result-card">
+        <div class="result-emoji" id="detResultEmoji">🕵️</div>
+        <h2 id="detResultTitle">神探就是你！</h2>
+        <p class="subtitle" id="detResultSub">你的逻辑思维满分</p>
+        <div class="result-stats">
+          <div class="result-stat"><div class="v" id="detR1">0</div><div class="l">得分</div></div>
+          <div class="result-stat"><div class="v" id="detR2">0</div><div class="l">答对</div></div>
+          <div class="result-stat"><div class="v" id="detR3">0</div><div class="l">破解数</div></div>
+        </div>
+        <button class="btn btn-gold btn-block" onclick="restartGame('detective')">再来一局</button>
+        <button class="btn btn-ghost btn-block" onclick="endGame()">返回大厅</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 几何游戏 -->
+  <section class="page game-play" id="page-game-geometry">
+    <div class="game-top">
+      <div class="game-close" onclick="endGame()">✕</div>
+      <div class="game-info-row">
+        <div class="game-stat-pill gold">⭐ <span id="geoScore">0</span></div>
+        <div class="game-stat-pill green">✓ <span id="geoCorrect">0</span></div>
+        <div class="game-stat-pill pink">❤️ <span id="geoLife">3</span></div>
+      </div>
+    </div>
+    <div class="game-progress"><div class="game-progress-bar" id="geoProgress" style="width:0%"></div></div>
+    <div class="game-stage">
+      <div class="geo-display">
+        <div class="geo-shape" id="geoShape">🔺</div>
+        <div class="geo-info">
+          <div class="gi"><div class="l">边数</div><div class="v" id="geoSides">3</div></div>
+          <div class="gi"><div class="l">顶点数</div><div class="v" id="geoVertices">3</div></div>
+          <div class="gi"><div class="l">内角和</div><div class="v" id="geoAngle">180°</div></div>
+        </div>
+      </div>
+      <div class="geo-question">
+        <h3 id="geoQuestion">这是什么图形？</h3>
+        <p id="geoHint">仔细观察上面的形状</p>
+      </div>
+      <div class="geo-options" id="geoOptions"></div>
+    </div>
+    <div class="game-result" id="geoResult">
+      <div class="result-card">
+        <div class="result-emoji" id="geoResultEmoji">📐</div>
+        <h2 id="geoResultTitle">几何大师！</h2>
+        <p class="subtitle" id="geoResultSub">你已经掌握了几何基础</p>
+        <div class="result-stats">
+          <div class="result-stat"><div class="v" id="geoR1">0</div><div class="l">得分</div></div>
+          <div class="result-stat"><div class="v" id="geoR2">0</div><div class="l">答对</div></div>
+          <div class="result-stat"><div class="v" id="geoR3">0</div><div class="l">最高连击</div></div>
+        </div>
+        <button class="btn btn-gold btn-block" onclick="restartGame('geometry')">再来一局</button>
+        <button class="btn btn-ghost btn-block" onclick="endGame()">返回大厅</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关卡详情 -->
+  <section class="page" id="page-lesson">
+    <div class="lesson-hero">
+      <div class="crumb">🍕 披萨大作战 / 关卡 12</div>
+      <h1>分数的奥秘</h1>
+      <p>从切披萨开始，认识1/2、1/4...</p>
+      <div class="mascot">🦊</div>
+    </div>
+    <div class="lesson-meta">
+      <div class="m"><span class="ic">⏱️</span>约15分钟</div>
+      <div class="m"><span class="ic">⭐</span>难度适中</div>
+      <div class="m"><span class="ic">👥</span>23,456人学过</div>
+    </div>
+    <div class="lesson-tabs">
+      <div class="lesson-tab active">学习路径</div>
+      <div class="lesson-tab">知识点</div>
+      <div class="lesson-tab">评论 32</div>
+    </div>
+    <div class="scroll">
+      <div class="section">
+        <div class="lesson-step done">
+          <div class="num">✓</div>
+          <div class="info"><h4>动画导入：切披萨的哲学</h4><p>2分钟 · 分数的诞生故事</p></div>
+          <div class="ic">🎬</div>
+        </div>
+        <div class="lesson-step done">
+          <div class="num">✓</div>
+          <div class="info"><h4>概念理解：什么是 1/2？</h4><p>3分钟 · π博士互动讲解</p></div>
+          <div class="ic">📖</div>
+        </div>
+        <div class="lesson-step" onclick="startGame('pizza')">
+          <div class="num">3</div>
+          <div class="info"><h4>动手游戏：分披萨大挑战</h4><p>5分钟 · 把披萨分给小伙伴</p></div>
+          <div class="ic">🎮</div>
+        </div>
+        <div class="lesson-step">
+          <div class="num">4</div>
+          <div class="info"><h4>巩固练习：5道精选题</h4><p>3分钟 · AI智能出题</p></div>
+          <div class="ic">✏️</div>
+        </div>
+        <div class="lesson-step locked">
+          <div class="num">5</div>
+          <div class="info"><h4>挑战关卡：披萨大师赛</h4><p>2分钟 · 通关解锁勋章</p></div>
+          <div class="ic">🏆</div>
+        </div>
+      </div>
+      <div style="height:100px"></div>
+    </div>
+    <div class="lesson-cta">
+      <button class="btn btn-gold" onclick="startGame('pizza')">继续学习 →</button>
+    </div>
+  </section>
+
+  <!-- AI天师 -->
+  <section class="page" id="page-ai">
+    <div class="ai-header">
+      <div class="ai-avatar-big">🤖</div>
+      <div class="ai-info">
+        <h2>π博士 · AI天师</h2>
+        <p><span class="status-dot"></span>在线 · 立即回复</p>
+      </div>
+      <div class="icon-btn" onclick="goTo('page-settings')">⚙️</div>
+    </div>
+    <div class="ai-suggestions">
+      <div class="ai-chip" onclick="askAI('分数怎么算')">🍕 分数怎么算？</div>
+      <div class="ai-chip" onclick="askAI('应用题不会')">📝 应用题不会</div>
+      <div class="ai-chip" onclick="askAI('乘法口诀')">✖️ 乘法口诀</div>
+      <div class="ai-chip" onclick="askAI('几何')">📐 几何图形</div>
+      <div class="ai-chip" onclick="askAI('怎么考高分')">🎯 考试技巧</div>
+    </div>
+    <div class="chat-area" id="chatArea">
+      <div class="chat-msg ai">
+        <div class="chat-msg-avatar">🤖</div>
+        <div class="chat-bubble">你好！我是π博士，你的数学AI天师 🦊<br><br>我可以帮你：<br>• 讲解数学题目（拍照或输入）<br>• 诊断学习薄弱点<br>• 制定个性化学习计划<br>• 推荐适合的练习题<br><br>试试问我"分数怎么算？"或"应用题不会"吧~</div>
+      </div>
+    </div>
+    <div class="ai-input-bar">
+      <input class="ai-input" id="aiInput" placeholder="输入你的问题..." onkeypress="if(event.key==='Enter')sendAI()">
+      <button class="ai-send" id="aiSend" onclick="sendAI()">➤</button>
+    </div>
+  </section>
+
+  <!-- 奥数训练 -->
+  <section class="page" id="page-olympic">
+    <div class="ol-header">
+      <div class="ol-badge">🏆 奥数思维训练营</div>
+      <h1>从<span>基本法则</span><br>到思维跃迁</h1>
+      <p>系统化奥数思维训练 · 100+思维方法论<br>历年真题精讲 · 双师模式</p>
+    </div>
+    <div class="ol-stats">
+      <div class="ol-stat"><div class="n">108</div><div class="l">思维方法</div></div>
+      <div class="ol-stat"><div class="n">2,500+</div><div class="l">真题题库</div></div>
+      <div class="ol-stat"><div class="n">86%</div><div class="l">获奖率</div></div>
+    </div>
+    <div class="scroll">
+      <div class="section">
+        <div class="section-title" style="margin-top:24px"><h3><span class="icon">⚡</span>核心思维方法</h3><span class="more">全部 ›</span></div>
+        <div class="method-card" onclick="startOlympic()">
+          <div class="mnum">01</div>
+          <div class="info" style="flex:1">
+            <h4>枚举法 · 鸡兔同笼</h4>
+            <p>从假设到验证的逻辑闭环</p>
+          </div>
+          <div class="arrow">›</div>
+        </div>
+        <div class="method-card">
+          <div class="mnum">02</div>
+          <div class="info" style="flex:1">
+            <h4>倒推法 · 还原问题</h4>
+            <p>从结果反推过程的逆向思维</p>
+          </div>
+          <div class="arrow">›</div>
+        </div>
+        <div class="method-card">
+          <div class="mnum">03</div>
+          <div class="info" style="flex:1">
+            <h4>等量代换 · 数形结合</h4>
+            <p>数与形互译的解题艺术</p>
+          </div>
+          <div class="arrow">›</div>
+        </div>
+        <div class="method-card">
+          <div class="mnum">04</div>
+          <div class="info" style="flex:1">
+            <h4>抽屉原理</h4>
+            <p>存在性的优雅证明</p>
+          </div>
+          <div class="arrow">›</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title"><h3><span class="icon">👨‍🏫</span>名师讲堂</h3></div>
+        <div class="teacher-card">
+          <div class="teacher-banner">
+            <div><h3>陈老师 · 奥数金牌教练</h3><p>15年竞赛辅导经验 · 学员遍布清北</p></div>
+          </div>
+          <div class="teacher-tags"><span>华杯赛</span><span>迎春杯</span><span>希望杯</span><span>走美杯</span></div>
+          <div class="teacher-actions">
+            <button class="btn btn-primary">观看课程</button>
+            <button class="btn btn-ghost">1对1咨询</button>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title"><h3><span class="icon">📚</span>历年真题</h3></div>
+        <div class="setting-section">
+          <div class="quiz-item" style="padding:14px 16px"><div class="year-tag"><span class="y">2024</span><span class="t">迎春杯</span></div><div class="info"><h4>三年级初赛真题解析</h4><p>20道精选题 · 含详细讲解</p></div><div class="arr">›</div></div>
+          <div class="quiz-item" style="padding:14px 16px"><div class="year-tag"><span class="y">2024</span><span class="t">华杯赛</span></div><div class="info"><h4>四年级复赛冲刺</h4><p>12道高难度题 · 名师精讲</p></div><div class="arr">›</div></div>
+          <div class="quiz-item" style="padding:14px 16px"><div class="year-tag"><span class="y">2023</span><span class="t">走美杯</span></div><div class="info"><h4>五年级真题汇编</h4><p>30道经典题 · 含思路图谱</p></div><div class="arr">›</div></div>
+          <div class="quiz-item" style="padding:14px 16px"><div class="year-tag"><span class="y">2023</span><span class="t">希望杯</span></div><div class="info"><h4>全国邀请赛真题</h4><p>真题+模拟+预测三件套</p></div><div class="arr">›</div></div>
+        </div>
+      </div>
+      <div style="height:80px"></div>
+    </div>
+  </section>
+
+  <!-- 奥数练习 -->
+  <section class="page" id="page-olympic-test">
+    <div class="olym-test">
+      <div class="top-nav" style="padding:0 0 12px">
+        <div class="back-btn" onclick="goTo('page-olympic')">‹</div>
+        <div class="test-progress">
+          <div class="bar"><div class="fill" id="olymBar" style="width:10%"></div></div>
+          <div class="text" id="olymProgress">第 1 / 5 题</div>
+        </div>
+        <div class="game-stat-pill gold">⭐ <span id="olymScore">0</span></div>
+      </div>
+      <div class="test-card">
+        <div class="test-tag">枚举法 · 鸡兔同笼</div>
+        <div class="test-question" id="olymQuestion">题目加载中...</div>
+        <div class="test-options" id="olymOptions"></div>
+        <div class="test-explain" id="olymExplain">
+          <h4>💡 思路解析</h4>
+          <div id="olymExplainText"></div>
+        </div>
+      </div>
+    </div>
+    <div class="test-actions">
+      <button class="btn btn-ghost" onclick="olymPrev()">上一题</button>
+      <button class="btn btn-gold" id="olymNextBtn" onclick="olymNext()" disabled>下一题 →</button>
+    </div>
+  </section>
+
+  <!-- 成长中心 -->
+  <section class="page" id="page-me">
+    <div class="me-header">
+      <div class="me-row">
+        <div class="me-avatar" id="meAvatar">🦊</div>
+        <div class="me-info">
+          <h2 id="meName">小天才</h2>
+          <p id="meGrade">四年级 · 加入第128天</p>
+          <div class="lvl">🏅 数学等级 L7 · 思维之星</div>
+        </div>
+      </div>
+      <div class="me-quick">
+        <div class="q" onclick="goTo('page-errors')"><div class="ic">📝</div><span>错题本</span></div>
+        <div class="q"><div class="ic">⭐</div><span>收藏</span></div>
+        <div class="q"><div class="ic">🎁</div><span>商城</span></div>
+        <div class="q" onclick="goTo('page-achievements')"><div class="ic">🏅</div><span>成就</span></div>
+      </div>
+    </div>
+    <div class="scroll">
+      <div class="radar-wrap">
+        <h3>📊 数学能力雷达图</h3>
+        <svg class="radar-svg" viewBox="0 0 200 200" id="radarSvg"></svg>
+      </div>
+      <div class="section">
+        <div class="section-title"><h3>📈 本周学习</h3><span class="more">详情 ›</span></div>
+        <div class="stats-card">
+          <div class="stat-item"><div class="stat-num">4h28m</div><div class="stat-label">时长</div></div>
+          <div class="stat-item"><div class="stat-num">15</div><div class="stat-label">关卡</div></div>
+          <div class="stat-item"><div class="stat-num">92%</div><div class="stat-label">正确</div></div>
+          <div class="stat-item"><div class="stat-num">38%</div><div class="stat-label">奥数</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title"><h3>🏅 我的勋章</h3><span class="more" onclick="goTo('page-achievements')">全部38枚 ›</span></div>
+        <div class="setting-section">
+          <div class="achv-item"><div class="badge-i">🏆</div><div class="info"><h4>奥数小达人</h4><p>完成5道奥数思维题</p></div><div class="date">12.15</div></div>
+          <div class="achv-item"><div class="badge-i">🔥</div><div class="info"><h4>坚持之星 · 28天</h4><p>连续28天完成学习</p></div><div class="date">12.20</div></div>
+          <div class="achv-item"><div class="badge-i">⚡</div><div class="info"><h4>闪电计算王</h4><p>10秒内答对10道题</p></div><div class="date">12.10</div></div>
+        </div>
+      </div>
+      <div style="height:100px"></div>
+    </div>
+  </section>
+
+  <!-- 家长中心 -->
+  <section class="page" id="page-parent">
+    <div class="parent-hero">
+      <div class="label">👨‍👩‍👧 家长专属</div>
+      <h1 id="parentTitle">学习周报</h1>
+      <p>本周学习总时长 <b style="color:var(--cyan)">4h 28min</b> · 状态良好</p>
+    </div>
+    <div class="scroll">
+      <div class="parent-quick">
+        <div class="pq-card pink"><div class="ic">📊</div><h4>学习报告</h4><p>详细的数据分析</p></div>
+        <div class="pq-card cyan"><div class="ic">⏰</div><h4>课表管理</h4><p>自定义学习计划</p></div>
+        <div class="pq-card purple"><div class="ic">🎯</div><h4>教学建议</h4><p>AI定制辅导方案</p></div>
+        <div class="pq-card gold"><div class="ic">📚</div><h4>家长课堂</h4><p>专业辅导技巧</p></div>
+      </div>
+      <div class="report-card">
+        <h3>📈 本周学习数据 <span class="period">12.16 - 12.22</span></h3>
+        <div class="report-grid">
+          <div class="report-cell"><div class="l">学习时长</div><div class="v">4h 28m</div><div class="d">↑ +18%</div></div>
+          <div class="report-cell"><div class="l">完成关卡</div><div class="v">15</div><div class="d">↑ +3</div></div>
+          <div class="report-cell"><div class="l">正确率</div><div class="v">92%</div><div class="d">↑ +4%</div></div>
+          <div class="report-cell"><div class="l">奥数进度</div><div class="v">38%</div><div class="d">稳步提升</div></div>
+        </div>
+        <div style="position:relative;padding-bottom:24px">
+          <div class="bar-chart" id="weekChart"></div>
+        </div>
+      </div>
+      <div class="lesson-table">
+        <h3>📅 今日学习计划</h3>
+        <div class="lt-row"><div class="time">09:00</div><div class="info"><h4>分数的奇妙冒险</h4><p>第3关 · 互动游戏</p></div><div class="status done">已完成</div></div>
+        <div class="lt-row"><div class="time">10:30</div><div class="info"><h4>奥数思维 · 枚举法</h4><p>鸡兔同笼 · 名师讲堂</p></div><div class="status done">已完成</div></div>
+        <div class="lt-row"><div class="time">15:00</div><div class="info"><h4>每日口算挑战</h4><p>20道精选题 · 限时5分钟</p></div><div class="status doing">进行中</div></div>
+        <div class="lt-row"><div class="time">19:30</div><div class="info"><h4>AI天师1对1辅导</h4><p>本周错题精讲</p></div><div class="status todo">待完成</div></div>
+      </div>
+      <div style="height:100px"></div>
+    </div>
+  </section>
+
+  <!-- 知识图谱 -->
+  <section class="page" id="page-knowledge">
+    <div class="top-nav">
+      <div class="back-btn" onclick="goTo('page-home')">‹</div>
+      <h2>知识图谱</h2>
+      <div class="icon-btn">🔍</div>
+    </div>
+    <div class="kg-container">
+      <svg class="kg-svg" viewBox="0 0 400 600" id="kgSvg"></svg>
+      <div class="kg-legend">
+        <div class="kg-leg-item"><div class="kg-leg-dot" style="background:var(--purple-1)"></div>已掌握</div>
+        <div class="kg-leg-item"><div class="kg-leg-dot" style="background:var(--gold)"></div>学习中</div>
+        <div class="kg-leg-item"><div class="kg-leg-dot" style="background:rgba(255,255,255,.3)"></div>未学习</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 错题本 -->
+  <section class="page" id="page-errors">
+    <div class="top-nav">
+      <div class="back-btn" onclick="goTo('page-home')">‹</div>
+      <h2>错题本</h2>
+      <div class="icon-btn">📊</div>
+    </div>
+    <div class="scroll" style="padding:0 20px 100px">
+      <div class="error-item">
+        <div class="error-top"><div class="error-tag">分数运算</div><div class="error-date">12.20</div></div>
+        <div class="error-q">1/2 + 1/3 = ?</div>
+        <div class="error-row"><div class="lbl">你的答案:</div><div class="val-wrong">1/5</div></div>
+        <div class="error-row"><div class="lbl">正确答案:</div><div class="val-right">5/6</div></div>
+        <div class="error-actions">
+          <button class="btn btn-ghost" onclick="askAI('分数加法怎么算')">问AI天师</button>
+          <button class="btn btn-primary">再练一遍</button>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-top"><div class="error-tag">乘法计算</div><div class="error-date">12.18</div></div>
+        <div class="error-q">25 × 4 = ?</div>
+        <div class="error-row"><div class="lbl">你的答案:</div><div class="val-wrong">80</div></div>
+        <div class="error-row"><div class="lbl">正确答案:</div><div class="val-right">100</div></div>
+        <div class="error-actions">
+          <button class="btn btn-ghost" onclick="askAI('乘法速算技巧')">问AI天师</button>
+          <button class="btn btn-primary">再练一遍</button>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-top"><div class="error-tag">应用题</div><div class="error-date">12.15</div></div>
+        <div class="error-q">小明有15颗糖，吃掉1/3后还剩几颗？</div>
+        <div class="error-row"><div class="lbl">你的答案:</div><div class="val-wrong">5颗</div></div>
+        <div class="error-row"><div class="lbl">正确答案:</div><div class="val-right">10颗</div></div>
+        <div class="error-actions">
+          <button class="btn btn-ghost" onclick="askAI('应用题不会做')">问AI天师</button>
+          <button class="btn btn-primary">再练一遍</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 成就墙 -->
+  <section class="page" id="page-achievements">
+    <div class="top-nav">
+      <div class="back-btn" onclick="goTo('page-me')">‹</div>
+      <h2>成就墙</h2>
+      <div class="icon-btn">📊</div>
+    </div>
+    <div class="scroll">
+      <div class="section" style="text-align:center;padding:20px">
+        <div style="font-size:48px;margin-bottom:8px">🏅</div>
+        <h2 style="font-size:22px;margin-bottom:4px">已解锁 <span style="color:var(--gold)">8</span> / 38</h2>
+        <p style="font-size:13px;color:var(--text-2)">继续努力，解锁更多勋章</p>
+      </div>
+      <div class="achv-grid" id="achvGrid"></div>
+    </div>
+  </section>
+
+  <!-- 设置 -->
+  <section class="page" id="page-settings">
+    <div class="top-nav">
+      <div class="back-btn" onclick="goBack()">‹</div>
+      <h2>设置</h2>
+      <div style="width:36px"></div>
+    </div>
+    <div class="scroll" style="padding-top:20px">
+      <div class="setting-section">
+        <div class="setting-row"><div class="l"><span class="ic">🔊</span>音效</div><div class="r"><div class="toggle on" onclick="toggleSetting(this)"></div></div></div>
+        <div class="setting-row"><div class="l"><span class="ic">📳</span>震动</div><div class="r"><div class="toggle on" onclick="toggleSetting(this)"></div></div></div>
+        <div class="setting-row"><div class="l"><span class="ic">🌙</span>深色模式</div><div class="r"><div class="toggle on" onclick="toggleSetting(this)"></div></div></div>
+        <div class="setting-row"><div class="l"><span class="ic">⏰</span>每日提醒</div><div class="r"><div class="toggle on" onclick="toggleSetting(this)"></div></div></div>
+      </div>
+      <div class="setting-section">
+        <div class="setting-row"><div class="l"><span class="ic">🎓</span>学段</div><div class="r">四年级 ›</div></div>
+        <div class="setting-row"><div class="l"><span class="ic">🎯</span>学习目标</div><div class="r">每天30分钟 ›</div></div>
+        <div class="setting-row"><div class="l"><span class="ic">📚</span>难度</div><div class="r">中等 ›</div></div>
+      </div>
+      <div class="setting-section">
+        <div class="setting-row"><div class="l"><span class="ic">💾</span>清除缓存</div><div class="r">12.3MB ›</div></div>
+        <div class="setting-row"><div class="l"><span class="ic">📤</span>分享给朋友</div><div class="r">›</div></div>
+        <div class="setting-row"><div class="l"><span class="ic">💬</span>意见反馈</div><div class="r">›</div></div>
+        <div class="setting-row"><div class="l"><span class="ic">ℹ️</span>关于天才基本法</div><div class="r">v1.0.0 ›</div></div>
+      </div>
+      <div style="padding:20px"><button class="btn btn-ghost btn-block" onclick="resetApp()">退出登录</button></div>
+    </div>
+  </section>
+
+  <!-- 底部Tab -->
+  <nav id="bottom-nav">
+    <div class="tab-item active" data-target="page-home" onclick="goTo('page-home')">
+      <div class="ic">🏠</div><span>学习</span>
+    </div>
+    <div class="tab-item" data-target="page-games" onclick="goTo('page-games')">
+      <div class="ic">🎮</div><span>游戏</span>
+    </div>
+    <div class="tab-center" onclick="goTo('page-ai')">
+      <div class="ai-btn">🤖</div>
+    </div>
+    <div class="tab-item" data-target="page-olympic" onclick="goTo('page-olympic')">
+      <div class="ic">🏆</div><span>奥数</span>
+    </div>
+    <div class="tab-item" data-target="page-me" onclick="goTo('page-me')">
+      <div class="ic">👤</div><span>我的</span>
+    </div>
+  </nav>
+
+  <!-- 成就解锁动画 -->
+  <div class="achv-unlock" id="achvUnlock">
+    <div class="achv-unlock-content">
+      <div class="badge-big" id="achvUnlockIcon">🏆</div>
+      <h2>成就解锁！</h2>
+      <p id="achvUnlockName">初出茅庐</p>
+      <button class="btn btn-gold" onclick="closeAchvUnlock()">收下勋章 ✨</button>
+    </div>
+  </div>
+
+  <!-- Toast 容器 -->
+  <div id="toast-container"></div>
+</div>
+
+<script>
+/* ============================================
+   ★ 状态管理 ★
+============================================ */
+const STORAGE_KEY = 'talent_app_state_v1';
+const DEFAULT_STATE = {
+  user: { name: '', avatar: '🦊', grade: 4 },
+  xp: 680, level: 7, energy: 2486, coins: 328, streak: 28,
+  completedSteps: {},
+  errors: [],
+  unlockedAchievements: ['first-step','streak-7','streak-30'],
+  settings: { sound: true, vibrate: true, darkMode: true, reminder: true }
+};
+
+let state = loadState();
+let pageHistory = ['page-splash'];
+let currentGame = null;
+let gameTimers = {};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return { ...DEFAULT_STATE, ...JSON.parse(saved) };
+  } catch(e) {}
+  return { ...DEFAULT_STATE };
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+/* ============================================
+   ★ 音效系统（Web Audio API）★
+============================================ */
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, duration = 0.1, type = 'sine', volume = 0.15) {
+  if (!state.settings.sound) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = volume;
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+const sfx = {
+  click: () => playTone(800, 0.05, 'square', 0.1),
+  correct: () => { playTone(523, 0.1); setTimeout(() => playTone(659, 0.1), 80); setTimeout(() => playTone(784, 0.15), 160); },
+  wrong: () => playTone(220, 0.2, 'sawtooth', 0.15),
+  achievement: () => { [523,659,784,1047].forEach((f,i) => setTimeout(() => playTone(f, 0.15, 'sine', 0.18), i*100)); },
+  coin: () => playTone(1200, 0.05, 'sine', 0.1),
+  tick: () => playTone(1500, 0.03, 'sine', 0.08)
+};
+function vibrate(ms = 30) {
+  if (state.settings.vibrate && navigator.vibrate) navigator.vibrate(ms);
+}
+
+/* ============================================
+   ★ 启动页 + 星空背景 ★
+============================================ */
+function initStarfield() {
+  const canvas = document.getElementById('starfield');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const stars = [];
+  for (let i = 0; i < 150; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.5,
+      v: Math.random() * 0.5 + 0.1,
+      a: Math.random()
+    });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.a += 0.02;
+      ctx.globalAlpha = Math.abs(Math.sin(s.a)) * 0.8 + 0.2;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+      s.y -= s.v * 0.05;
+      if (s.y < 0) { s.y = canvas.height; s.x = Math.random() * canvas.width; }
+    });
+    requestAnimationFrame(draw);
+  }
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  draw();
+}
+function initSplashStars() {
+  const wrap = document.getElementById('splashStars');
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('i');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    wrap.appendChild(s);
+  }
+}
+
+/* ============================================
+   ★ 页面导航 ★
+============================================ */
+function goTo(id) {
+  sfx.click();
+  vibrate(20);
+  const current = document.querySelector('.page.active');
+  if (current && current.id !== id) pageHistory.push(current.id);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    if (pageHistory.length > 10) pageHistory = pageHistory.slice(-10);
+  }
+  // Tab bar
+  const nav = document.getElementById('bottom-nav');
+  const tabPages = ['page-home','page-games','page-olympic','page-me'];
+  if (tabPages.includes(id)) {
+    nav.classList.remove('hide');
+    document.querySelectorAll('.tab-item').forEach(t => {
+      t.classList.toggle('active', t.dataset.target === id);
+    });
+  } else {
+    nav.classList.add('hide');
+  }
+  // Scroll to top
+  const scroller = target?.querySelector('.scroll');
+  if (scroller) scroller.scrollTop = 0;
+  // Page-specific inits
+  if (id === 'page-knowledge') renderKnowledgeGraph();
+  if (id === 'page-games') renderGameGrid();
+  if (id === 'page-achievements') renderAchievements();
+  if (id === 'page-me') renderRadar();
+  if (id === 'page-parent') renderWeekChart();
+}
+function goBack() {
+  if (pageHistory.length > 1) {
+    const prev = pageHistory.pop();
+    if (prev === pageHistory[pageHistory.length-1]) pageHistory.pop();
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(prev).classList.add('active');
+    const nav = document.getElementById('bottom-nav');
+    const tabPages = ['page-home','page-games','page-olympic','page-me'];
+    nav.classList.toggle('hide', !tabPages.includes(prev));
+  } else {
+    goTo('page-home');
+  }
+}
+
+/* ============================================
+   ★ 学段选择 ★
+============================================ */
+const GRADES = {
+  primary: [
+    {id:1, name:'一年级', sub:'6-7岁', emoji:'1️⃣', hot:false},
+    {id:2, name:'二年级', sub:'7-8岁', emoji:'2️⃣', hot:false},
+    {id:3, name:'三年级', sub:'8-9岁', emoji:'3️⃣', hot:false},
+    {id:4, name:'四年级', sub:'9-10岁', emoji:'4️⃣', hot:true},
+    {id:5, name:'五年级', sub:'10-11岁', emoji:'5️⃣', hot:false},
+    {id:6, name:'六年级', sub:'11-12岁', emoji:'6️⃣', hot:false}
+  ],
+  junior: [
+    {id:7, name:'初一', sub:'12-13岁', emoji:'🧑‍🎓', hot:false},
+    {id:8, name:'初二', sub:'13-14岁', emoji:'📚', hot:false},
+    {id:9, name:'初三', sub:'14-15岁', emoji:'🎯', hot:true}
+  ],
+  senior: [
+    {id:10, name:'高一', sub:'15-16岁', emoji:'🏫', hot:false},
+    {id:11, name:'高二', sub:'16-17岁', emoji:'🎓', hot:false},
+    {id:12, name:'高三', sub:'17-18岁', emoji:'🚀', hot:true}
+  ],
+  olympic: [
+    {id:13, name:'奥数启蒙', sub:'思维入门', emoji:'🌟', hot:false},
+    {id:14, name:'奥数进阶', sub:'方法训练', emoji:'⭐', hot:false},
+    {id:15, name:'奥数冲刺', sub:'竞赛备考', emoji:'🏆', hot:true}
+  ]
+};
+let selectedGrade = state.user.grade;
+function renderGradeGrid(cat) {
+  const grid = document.getElementById('gradeGrid');
+  const data = GRADES[cat] || [];
+  grid.innerHTML = data.map(g => `
+    <div class="grade-card ${selectedGrade===g.id?'selected':''}" onclick="pickGrade(${g.id})">
+      ${g.hot?'<div class="hot-tag">HOT</div>':''}
+      <div class="emoji">${g.emoji}</div>
+      <div class="label">${g.name}</div>
+      <div class="sub">${g.sub}</div>
+    </div>
+  `).join('');
+}
+function pickGrade(id) {
+  sfx.click(); vibrate(20);
+  selectedGrade = id;
+  const cat = Object.keys(GRADES).find(k => GRADES[k].some(g => g.id === id));
+  renderGradeGrid(cat);
+}
+function confirmGrade() {
+  sfx.click();
+  if (!selectedGrade) { toast('请先选择学段','error'); return; }
+  state.user.grade = selectedGrade;
+  saveState();
+  goTo('page-avatar');
+}
+document.querySelectorAll('.grade-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    sfx.click();
+    document.querySelectorAll('.grade-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderGradeGrid(tab.dataset.cat);
+  });
+});
+
+/* ============================================
+   ★ 头像选择 ★
+============================================ */
+const AVATARS = ['🦊','🐼','🐰','🦁','🐯','🐶','🐱','🐨','🐸','🐵','🐔','🦄','🐙','🐢','🦉','🐧'];
+let selectedAvatar = state.user.avatar;
+function renderAvatarGrid() {
+  const grid = document.getElementById('avatarGrid');
+  grid.innerHTML = AVATARS.map(a => `
+    <div class="avatar-item ${selectedAvatar===a?'selected':''}" onclick="pickAvatar('${a}')">${a}</div>
+  `).join('');
+  document.getElementById('nameInput').value = state.user.name || '';
+}
+function pickAvatar(a) {
+  sfx.click(); vibrate(20);
+  selectedAvatar = a;
+  document.querySelectorAll('.avatar-item').forEach(el => {
+    el.classList.toggle('selected', el.textContent === a);
+  });
+}
+function confirmAvatar() {
+  sfx.click();
+  const name = document.getElementById('nameInput').value.trim() || '小天才';
+  state.user.avatar = selectedAvatar;
+  state.user.name = name;
+  saveState();
+  applyUser();
+  goTo('page-home');
+  setTimeout(() => {
+    toast('🎉 注册成功！欢迎来到数学宇宙');
+    setTimeout(() => checkAchievement('first-step', '迈出第一步', '👣', '完成首次登录'), 1500);
+  }, 500);
+}
+function applyUser() {
+  document.getElementById('homeAvatar').textContent = state.user.avatar;
+  document.getElementById('homeName').textContent = state.user.name;
+  document.getElementById('meAvatar').textContent = state.user.avatar;
+  document.getElementById('meName').textContent = state.user.name;
+  const gradeObj = Object.values(GRADES).flat().find(g => g.id === state.user.grade);
+  const gradeName = gradeObj ? gradeObj.name : '四年级';
+  document.getElementById('homeGrade').textContent = gradeName;
+  document.getElementById('meGrade').textContent = `${gradeName} · 加入第${Math.floor(Math.random()*200)+100}天`;
+  document.getElementById('parentTitle').textContent = `${state.user.name}的学习周报`;
+}
+
+/* ============================================
+   ★ 游戏大厅 ★
+============================================ */
+const GAMES = [
+  {id:'pizza', name:'披萨大作战', desc:'分数启蒙', icon:'🍕', cls:'g1', tag:'关卡 12', stars:3, action:'startGame("pizza")'},
+  {id:'space', name:'太空乘法', desc:'两位数乘', icon:'🚀', cls:'g2', tag:'关卡 8', stars:2, action:'startGame("space")'},
+  {id:'detective', name:'数字侦探', desc:'逻辑推理', icon:'🕵️', cls:'g3', tag:'关卡 15', stars:3, action:'startGame("detective")'},
+  {id:'geometry', name:'几何大师', desc:'空间几何', icon:'📐', cls:'g4', tag:'关卡 5', stars:1, action:'startGame("geometry")'},
+  {id:'olympic', name:'奥数魔法', desc:'思维训练', icon:'🧙', cls:'g5', tag:'关卡 20', stars:3, action:'startGame("detective")'},
+  {id:'shopping', name:'超市购物', desc:'应用计算', icon:'🛒', cls:'g6', tag:'关卡 6', stars:2, action:'startGame("space")'},
+  {id:'locked1', name:'神秘副本', desc:'通关解锁', icon:'🔒', cls:'g2', tag:'未解锁', stars:0, locked:true},
+  {id:'locked2', name:'巅峰对决', desc:'奥数专项', icon:'🔒', cls:'g1', tag:'VIP', stars:0, locked:true}
+];
+function renderGameGrid() {
+  const grid = document.getElementById('gameGrid');
+  grid.innerHTML = GAMES.map(g => `
+    <div class="game-card ${g.cls} ${g.locked?'locked':''}" onclick="${g.locked?'toast(\'🔒 通关上一关解锁\',\'info\')':g.action}">
+      <div class="bg">${g.icon}</div>
+      ${g.locked ? '<div class="lock-overlay">🔒</div>' : `
+        <div class="corner-tag">${g.tag}</div>
+        <div class="stars-row">${'⭐'.repeat(g.stars)}</div>
+      `}
+      <div class="info"><h4>${g.name}</h4><p>${g.desc}</p></div>
+    </div>
+  `).join('');
+}
+
+/* ============================================
+   ★ 游戏1：披萨分数 ★
+============================================ */
+let pizzaState = { score:0, correct:0, life:3, qNum:0, total:10, maxCombo:0, combo:0 };
+function startPizzaGame() {
+  pizzaState = { score:0, correct:0, life:3, qNum:0, total:10, maxCombo:0, combo:0 };
+  currentGame = 'pizza';
+  goTo('page-game-pizza');
+  nextPizzaQuestion();
+}
+function nextPizzaQuestion() {
+  if (pizzaState.qNum >= pizzaState.total) { showPizzaResult(); return; }
+  pizzaState.qNum++;
+  pizzaState.combo = 0;
+  // Generate pizza question
+  const totals = [2, 3, 4, 6, 8];
+  const total = totals[Math.floor(Math.random() * totals.length)];
+  const eaten = Math.floor(Math.random() * (total - 1)) + 1;
+  const remaining = total - eaten;
+  const answer = `${remaining}/${total}`;
+  // Render pizza slices
+  renderPizza(total, eaten);
+  // Question
+  document.getElementById('pizzaQ').textContent = `还剩多少？`;
+  // Options
+  const opts = new Set([answer]);
+  while (opts.size < 4) {
+    const r = Math.floor(Math.random() * total) + 1;
+    const w = `${r}/${total}`;
+    if (r !== remaining) opts.add(w);
+  }
+  const optArr = Array.from(opts).sort(() => Math.random() - 0.5);
+  document.getElementById('pizzaOptions').innerHTML = optArr.map(o => `
+    <div class="pizza-option" onclick="checkPizza(this, '${o}', '${answer}')">${o}</div>
+  `).join('');
+  // Update stats
+  updatePizzaStats();
+}
+function renderPizza(total, eaten) {
+  const svg = document.getElementById('pizzaSlices');
+  svg.innerHTML = '';
+  const cx = 140, cy = 140, r = 130;
+  const anglePer = (Math.PI * 2) / total;
+  // Pick which slices are eaten
+  const eatenIdx = [];
+  const allIdx = Array.from({length: total}, (_, i) => i);
+  shuffle(allIdx);
+  for (let i = 0; i < eaten; i++) eatenIdx.push(allIdx[i]);
+  for (let i = 0; i < total; i++) {
+    const startAngle = -Math.PI / 2 + i * anglePer;
+    const endAngle = startAngle + anglePer;
+    const x1 = cx + r * Math.cos(startAngle);
+    const y1 = cy + r * Math.sin(startAngle);
+    const x2 = cx + r * Math.cos(endAngle);
+    const y2 = cy + r * Math.sin(endAngle);
+    const largeArc = anglePer > Math.PI ? 1 : 0;
+    const path = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+    const isEaten = eatenIdx.includes(i);
+    const slice = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    slice.setAttribute('d', path);
+    slice.setAttribute('class', 'slice' + (isEaten ? ' eaten' : ''));
+    slice.setAttribute('fill', 'url(#cheese)');
+    slice.setAttribute('stroke', '#8B4513');
+    slice.setAttribute('stroke-width', '1.5');
+    svg.appendChild(slice);
+    // Add pepperoni if not eaten
+    if (!isEaten) {
+      const midAngle = startAngle + anglePer / 2;
+      const px = cx + r * 0.6 * Math.cos(midAngle);
+      const py = cy + r * 0.6 * Math.sin(midAngle);
+      const pep = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      pep.setAttribute('cx', px);
+      pep.setAttribute('cy', py);
+      pep.setAttribute('r', 6);
+      pep.setAttribute('fill', '#D32F2F');
+      svg.appendChild(pep);
+    }
+  }
+}
+function checkPizza(el, chosen, answer) {
+  document.querySelectorAll('.pizza-option').forEach(o => o.style.pointerEvents = 'none');
+  if (chosen === answer) {
+    el.classList.add('correct');
+    pizzaState.correct++;
+    pizzaState.combo++;
+    pizzaState.maxCombo = Math.max(pizzaState.maxCombo, pizzaState.combo);
+    const points = 10 * (1 + Math.floor(pizzaState.combo / 3));
+    pizzaState.score += points;
+    sfx.correct();
+    vibrate(20);
+    setTimeout(nextPizzaQuestion, 800);
+  } else {
+    el.classList.add('wrong');
+    pizzaState.life--;
+    sfx.wrong();
+    vibrate(100);
+    // Show correct
+    document.querySelectorAll('.pizza-option').forEach(o => {
+      if (o.textContent === answer) o.classList.add('correct');
+    });
+    if (pizzaState.life <= 0) {
+      setTimeout(showPizzaResult, 1200);
+    } else {
+      setTimeout(nextPizzaQuestion, 1500);
+    }
+  }
+  updatePizzaStats();
+}
+function updatePizzaStats() {
+  document.getElementById('pizzaScore').textContent = pizzaState.score;
+  document.getElementById('pizzaCorrect').textContent = pizzaState.correct;
+  document.getElementById('pizzaLife').textContent = '❤️'.repeat(pizzaState.life);
+  document.getElementById('pizzaProgress').style.width = (pizzaState.qNum / pizzaState.total * 100) + '%';
+}
+function showPizzaResult() {
+  sfx.achievement();
+  const perfect = pizzaState.correct === pizzaState.total;
+  const good = pizzaState.correct >= pizzaState.total * 0.7;
+  document.getElementById('pizzaResultEmoji').textContent = perfect ? '🏆' : (good ? '🎉' : '💪');
+  document.getElementById('pizzaResultTitle').textContent = perfect ? '完美通关！' : (good ? '表现优秀！' : '继续努力！');
+  document.getElementById('pizzaResultSub').textContent = perfect ? '你是真正的披萨大师' : (good ? '你离大师只差一点' : '再多练习几次');
+  document.getElementById('pizzaR1').textContent = pizzaState.score;
+  document.getElementById('pizzaR2').textContent = pizzaState.correct + '/' + pizzaState.total;
+  document.getElementById('pizzaR3').textContent = pizzaState.maxCombo;
+  document.getElementById('pizzaResult').classList.add('show');
+  addEnergy(pizzaState.score);
+  addXP(pizzaState.correct * 20);
+  if (perfect) checkAchievement('pizza-master', '披萨大师', '🍕', '分数关卡完美通关');
+}
+
+/* ============================================
+   ★ 游戏2：太空乘法 ★
+============================================ */
+let spaceState = { score:0, correct:0, life:3, combo:0, maxCombo:0, qNum:0, total:10, timer:null, timeLeft:10 };
+function startSpaceGame() {
+  spaceState = { score:0, correct:0, life:3, combo:0, maxCombo:0, qNum:0, total:10, timeLeft:10 };
+  currentGame = 'space';
+  goTo('page-game-space');
+  renderSpaceBg();
+  nextSpaceQuestion();
+}
+function renderSpaceBg() {
+  const bg = document.getElementById('spaceBg');
+  bg.innerHTML = '<div class="rocket">🚀</div>';
+  for (let i = 0; i < 30; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 2 + 's';
+    bg.appendChild(s);
+  }
+  for (let i = 0; i < 2; i++) {
+    const p = document.createElement('div');
+    p.className = 'planet';
+    const colors = ['#FFB627','#00E5FF','#FF5E9C','#9B7DFF'];
+    p.style.background = `radial-gradient(circle at 30% 30%, ${colors[i*2]}, ${colors[i*2+1]})`;
+    p.style.width = (30 + Math.random() * 40) + 'px';
+    p.style.height = p.style.width;
+    p.style.top = (10 + Math.random() * 60) + '%';
+    p.style.left = (5 + Math.random() * 85) + '%';
+    p.style.animationDelay = (i * 2) + 's';
+    bg.appendChild(p);
+  }
+}
+function nextSpaceQuestion() {
+  if (spaceState.qNum >= spaceState.total || spaceState.life <= 0) { showSpaceResult(); return; }
+  spaceState.qNum++;
+  spaceState.timeLeft = 10;
+  document.getElementById('spaceQNum').textContent = `第 ${spaceState.qNum} 题`;
+  // Generate based on grade
+  const grade = state.user.grade || 4;
+  let a, b;
+  if (grade <= 2) {
+    a = Math.floor(Math.random() * 9) + 1;
+    b = Math.floor(Math.random() * 9) + 1;
+  } else if (grade <= 6) {
+    a = Math.floor(Math.random() * 12) + 1;
+    b = Math.floor(Math.random() * 12) + 1;
+  } else {
+    a = Math.floor(Math.random() * 25) + 5;
+    b = Math.floor(Math.random() * 12) + 2;
+  }
+  const answer = a * b;
+  // Options
+  const opts = new Set([answer]);
+  while (opts.size < 4) {
+    const offset = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 10) + 1);
+    const w = answer + offset;
+    if (w > 0 && w !== answer) opts.add(w);
+  }
+  const optArr = Array.from(opts).sort(() => Math.random() - 0.5);
+  document.getElementById('spaceEq').innerHTML = `${a} <span class="op">×</span> ${b} <span class="op">=</span> ?`;
+  document.getElementById('spaceOptions').innerHTML = optArr.map(o => `
+    <div class="space-option" onclick="checkSpace(this, ${o}, ${answer})">${o}</div>
+  `).join('');
+  // Timer
+  clearInterval(spaceState.timer);
+  spaceState.timer = setInterval(() => {
+    spaceState.timeLeft -= 0.1;
+    document.getElementById('spaceTimer').style.width = (spaceState.timeLeft / 10 * 100) + '%';
+    if (spaceState.timeLeft <= 0) {
+      clearInterval(spaceState.timer);
+      spaceTimeout();
+    }
+  }, 100);
+}
+function spaceTimeout() {
+  sfx.wrong(); vibrate(100);
+  spaceState.life--;
+  document.querySelectorAll('.space-option').forEach(o => o.style.pointerEvents = 'none');
+  if (spaceState.life <= 0) {
+    setTimeout(showSpaceResult, 1000);
+  } else {
+    setTimeout(nextSpaceQuestion, 1000);
+  }
+  updateSpaceStats();
+}
+function checkSpace(el, chosen, answer) {
+  clearInterval(spaceState.timer);
+  document.querySelectorAll('.space-option').forEach(o => o.style.pointerEvents = 'none');
+  if (chosen === answer) {
+    el.classList.add('correct');
+    spaceState.correct++;
+    spaceState.combo++;
+    spaceState.maxCombo = Math.max(spaceState.maxCombo, spaceState.combo);
+    const timeBonus = Math.floor(spaceState.timeLeft * 5);
+    const points = 20 + timeBonus + spaceState.combo * 5;
+    spaceState.score += points;
+    sfx.correct();
+    vibrate(20);
+  } else {
+    el.classList.add('wrong');
+    spaceState.life--;
+    sfx.wrong();
+    vibrate(100);
+    spaceState.combo = 0;
+    document.querySelectorAll('.space-option').forEach(o => {
+      if (parseInt(o.textContent) === answer) o.classList.add('correct');
+    });
+  }
+  updateSpaceStats();
+  if (spaceState.life <= 0) {
+    setTimeout(showSpaceResult, 1200);
+  } else {
+    setTimeout(nextSpaceQuestion, 1000);
+  }
+}
+function updateSpaceStats() {
+  document.getElementById('spaceScore').textContent = spaceState.score;
+  document.getElementById('spaceCombo').textContent = spaceState.combo;
+  document.getElementById('spaceLife').textContent = '❤️'.repeat(spaceState.life);
+}
+function showSpaceResult() {
+  clearInterval(spaceState.timer);
+  sfx.achievement();
+  const perfect = spaceState.correct === spaceState.total;
+  const good = spaceState.correct >= spaceState.total * 0.7;
+  document.getElementById('spaceResultEmoji').textContent = perfect ? '🚀' : (good ? '⭐' : '💫');
+  document.getElementById('spaceResultTitle').textContent = perfect ? '完美着陆！' : (good ? '速度超群！' : '继续加速！');
+  document.getElementById('spaceResultSub').textContent = `最高连击 x${spaceState.maxCombo}`;
+  document.getElementById('spaceR1').textContent = spaceState.score;
+  document.getElementById('spaceR2').textContent = spaceState.correct + '/' + spaceState.total;
+  document.getElementById('spaceR3').textContent = spaceState.maxCombo;
+  document.getElementById('spaceResult').classList.add('show');
+  addEnergy(spaceState.score);
+  addXP(spaceState.correct * 25);
+  if (spaceState.maxCombo >= 5) checkAchievement('combo-5', '连击大师', '🔥', '达成5连击');
+  if (perfect) checkAchievement('speed-king', '闪电算手', '⚡', '太空乘法完美通关');
+}
+
+/* ============================================
+   ★ 游戏3：数字侦探 ★
+============================================ */
+let detState = { score:0, correct:0, life:3, qNum:0, total:8, current:null };
+const SEQUENCES = [
+  { type: 'arithmetic', start: 2, diff: 2, len: 5, hint: '相邻两数相差2（偶数序列）' },
+  { type: 'square', start: 1, len: 5, hint: '每一项是n的平方' },
+  { type: 'odd', start: 1, diff: 2, len: 5, hint: '相邻相差2（奇数序列）' },
+  { type: 'reverse', start: 100, diff: -10, len: 5, hint: '每项减10' },
+  { type: 'multiply', start: 1, factor: 2, len: 5, hint: '每项是前一项的2倍' },
+  { type: 'triangle', start: 1, diff: 1, len: 5, hint: '相邻相差递增1（三角数）' },
+  { type: 'add3', start: 3, diff: 3, len: 5, hint: '等差数列，公差为3' },
+  { type: 'fib', start: 1, len: 6, hint: '每项是前两项之和' },
+  { type: 'pow', start: 2, base: 1, len: 5, hint: '2的n次方' },
+  { type: 'diff_inc', start: 1, len: 5, hint: '公差递增' }
+];
+function genSequence(s, len) {
+  const arr = [];
+  switch (s.type) {
+    case 'arithmetic': for (let i = 0; i < len; i++) arr.push(s.start + i * s.diff); break;
+    case 'square': for (let i = 1; i <= len; i++) arr.push(i * i); break;
+    case 'odd': for (let i = 0; i < len; i++) arr.push(s.start + i * s.diff); break;
+    case 'reverse': for (let i = 0; i < len; i++) arr.push(s.start + i * s.diff); break;
+    case 'multiply': let v = s.start; for (let i = 0; i < len; i++) { arr.push(v); v *= s.factor; } break;
+    case 'triangle': let tv = 0; for (let i = 1; i <= len; i++) { tv += i; arr.push(tv); } break;
+    case 'add3': for (let i = 0; i < len; i++) arr.push(s.start + i * s.diff); break;
+    case 'fib': { let a = 1, b = 1; arr.push(a); arr.push(b); for (let i = 2; i < len; i++) { let c = a + b; arr.push(c); a = b; b = c; } } break;
+    case 'pow': { let p = 1; for (let i = 0; i < len; i++) { p *= s.base; arr.push(p); } } break;
+    case 'diff_inc': { let d = 1, vv = 1; for (let i = 0; i < len; i++) { arr.push(vv); vv += d; d++; } break; }
+  }
+  return arr;
+}
+function startDetectiveGame() {
+  detState = { score:0, correct:0, life:3, qNum:0, total:8, current:null };
+  currentGame = 'detective';
+  goTo('page-game-detective');
+  nextDetQuestion();
+}
+function nextDetQuestion() {
+  if (detState.qNum >= detState.total || detState.life <= 0) { showDetResult(); return; }
+  detState.qNum++;
+  const seqIdx = Math.floor(Math.random() * SEQUENCES.length);
+  const seq = SEQUENCES[seqIdx];
+  const arr = genSequence(seq, seq.len);
+  const answer = arr[arr.length - 1];
+  const visible = arr.slice(0, -1);
+  // Options
+  const opts = new Set([answer]);
+  while (opts.size < 4) {
+    const offset = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1);
+    const w = answer + offset;
+    if (w > 0 && w !== answer) opts.add(w);
+  }
+  const optArr = Array.from(opts).sort(() => Math.random() - 0.5);
+  // Render
+  document.getElementById('detPuzzle').innerHTML = `
+    <p>🔍 找出规律，破解下一个数字</p>
+    <div class="number-sequence">
+      ${visible.map((n, i) => `<div class="num-card" style="animation-delay:${i*0.1}s">${n}</div>`).join('<div class="num-arrow">→</div>')}
+      <div class="num-card mystery">?</div>
+    </div>
+  `;
+  document.getElementById('detOptions').innerHTML = optArr.map(o => `
+    <div class="det-option" onclick="checkDet(this, ${o}, ${answer}, '${seq.hint}')">${o}</div>
+  `).join('');
+  detState.current = { hint: seq.hint };
+  updateDetStats();
+}
+function checkDet(el, chosen, answer, hint) {
+  document.querySelectorAll('.det-option').forEach(o => o.style.pointerEvents = 'none');
+  if (chosen === answer) {
+    el.classList.add('correct');
+    detState.correct++;
+    detState.score += 20;
+    sfx.correct();
+    vibrate(20);
+  } else {
+    el.classList.add('wrong');
+    detState.life--;
+    sfx.wrong();
+    vibrate(100);
+    document.querySelectorAll('.det-option').forEach(o => {
+      if (parseInt(o.textContent) === answer) o.classList.add('correct');
+    });
+  }
+  updateDetStats();
+  if (detState.life <= 0) {
+    setTimeout(showDetResult, 1500);
+  } else {
+    setTimeout(nextDetQuestion, 1500);
+  }
+}
+function updateDetStats() {
+  document.getElementById('detScore').textContent = detState.score;
+  document.getElementById('detCorrect').textContent = detState.correct;
+  document.getElementById('detLife').textContent = '❤️'.repeat(detState.life);
+  document.getElementById('detProgress').style.width = (detState.qNum / detState.total * 100) + '%';
+}
+function showDetResult() {
+  sfx.achievement();
+  const perfect = detState.correct === detState.total;
+  const good = detState.correct >= detState.total * 0.6;
+  document.getElementById('detResultEmoji').textContent = perfect ? '🕵️' : (good ? '🔍' : '🤔');
+  document.getElementById('detResultTitle').textContent = perfect ? '神探就是你！' : (good ? '福尔摩斯级别' : '再接再厉');
+  document.getElementById('detResultSub').textContent = '你的逻辑思维很棒';
+  document.getElementById('detR1').textContent = detState.score;
+  document.getElementById('detR2').textContent = detState.correct + '/' + detState.total;
+  document.getElementById('detR3').textContent = detState.correct;
+  document.getElementById('detResult').classList.add('show');
+  addEnergy(detState.score);
+  addXP(detState.correct * 30);
+  if (detState.correct >= 5) checkAchievement('detective-novice', '逻辑新秀', '🕵️', '答对5道数字侦探题');
+}
+
+/* ============================================
+   ★ 游戏4：几何大师 ★
+============================================ */
+let geoState = { score:0, correct:0, life:3, qNum:0, total:8, combo:0, maxCombo:0 };
+const SHAPES = [
+  { name:'三角形', icon:'🔺', sides:3, vertices:3, angle:180 },
+  { name:'正方形', icon:'🟦', sides:4, vertices:4, angle:360 },
+  { name:'五边形', icon:'⬟', sides:5, vertices:5, angle:540 },
+  { name:'六边形', icon:'⬢', sides:6, vertices:6, angle:720 },
+  { name:'圆形', icon:'⚪', sides:0, vertices:0, angle:360 },
+  { name:'长方形', icon:'▬', sides:4, vertices:4, angle:360 }
+];
+function startGeoGame() {
+  geoState = { score:0, correct:0, life:3, qNum:0, total:8, combo:0, maxCombo:0 };
+  currentGame = 'geometry';
+  goTo('page-game-geometry');
+  nextGeoQuestion();
+}
+function nextGeoQuestion() {
+  if (geoState.qNum >= geoState.total || geoState.life <= 0) { showGeoResult(); return; }
+  geoState.qNum++;
+  const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+  const qType = Math.floor(Math.random() * 3);
+  let question, correct, options = [];
+  if (qType === 0) {
+    question = '这个图形叫什么？';
+    correct = shape.name;
+    options = SHAPES.map(s => s.name).sort(() => Math.random() - 0.5).slice(0, 4);
+    if (!options.includes(correct)) { options[0] = correct; options.sort(() => Math.random() - 0.5); }
+  } else if (qType === 1) {
+    question = `这个图形有几条边？`;
+    correct = shape.sides;
+    options = [];
+    const seen = new Set();
+    while (options.length < 4) {
+      const w = Math.max(0, shape.sides + (Math.floor(Math.random() * 5) - 2));
+      if (!seen.has(w)) { seen.add(w); options.push(w); }
+    }
+    options[options.indexOf(correct)] = correct;
+    options.sort(() => Math.random() - 0.5);
+  } else {
+    question = `这个图形的内角和是多少度？`;
+    correct = shape.angle;
+    options = [];
+    const seen = new Set();
+    while (options.length < 4) {
+      const w = shape.angle + (Math.floor(Math.random() * 5) - 2) * 90;
+      if (!seen.has(w) && w >= 0) { seen.add(w); options.push(w); }
+    }
+    options[options.indexOf(correct)] = correct;
+    options.sort(() => Math.random() - 0.5);
+  }
+  document.getElementById('geoShape').textContent = shape.icon;
+  document.getElementById('geoSides').textContent = shape.sides;
+  document.getElementById('geoVertices').textContent = shape.vertices;
+  document.getElementById('geoAngle').textContent = shape.angle + '°';
+  document.getElementById('geoQuestion').textContent = question;
+  document.getElementById('geoHint').textContent = qType === 0 ? '仔细观察上面的形状' : (qType === 1 ? '数一数边数' : '想一想内角和公式');
+  document.getElementById('geoOptions').innerHTML = options.map(o => `
+    <div class="geo-option" onclick="checkGeo(this, '${o}', '${correct}')">
+      <div class="ic">${qType === 0 ? SHAPES.find(s=>s.name===o)?.icon || '❓' : '🔢'}</div>
+      <div class="nm">${o}${qType === 2 ? '°' : ''}</div>
+    </div>
+  `).join('');
+  updateGeoStats();
+}
+function checkGeo(el, chosen, answer) {
+  document.querySelectorAll('.geo-option').forEach(o => o.style.pointerEvents = 'none');
+  if (chosen === answer) {
+    el.classList.add('correct');
+    geoState.correct++;
+    geoState.combo++;
+    geoState.maxCombo = Math.max(geoState.maxCombo, geoState.combo);
+    geoState.score += 20 + geoState.combo * 5;
+    sfx.correct();
+    vibrate(20);
+  } else {
+    el.classList.add('wrong');
+    geoState.life--;
+    geoState.combo = 0;
+    sfx.wrong();
+    vibrate(100);
+    document.querySelectorAll('.geo-option').forEach(o => {
+      const txt = o.querySelector('.nm').textContent.replace('°','');
+      if (txt === answer) o.classList.add('correct');
+    });
+  }
+  updateGeoStats();
+  if (geoState.life <= 0) {
+    setTimeout(showGeoResult, 1200);
+  } else {
+    setTimeout(nextGeoQuestion, 1200);
+  }
+}
+function updateGeoStats() {
+  document.getElementById('geoScore').textContent = geoState.score;
+  document.getElementById('geoCorrect').textContent = geoState.correct;
+  document.getElementById('geoLife').textContent = '❤️'.repeat(geoState.life);
+  document.getElementById('geoProgress').style.width = (geoState.qNum / geoState.total * 100) + '%';
+}
+function showGeoResult() {
+  sfx.achievement();
+  const perfect = geoState.correct === geoState.total;
+  const good = geoState.correct >= geoState.total * 0.6;
+  document.getElementById('geoResultEmoji').textContent = perfect ? '📐' : (good ? '🔷' : '📏');
+  document.getElementById('geoResultTitle').textContent = perfect ? '几何大师！' : (good ? '空间感很强' : '再接再厉');
+  document.getElementById('geoResultSub').textContent = `最高连击 x${geoState.maxCombo}`;
+  document.getElementById('geoR1').textContent = geoState.score;
+  document.getElementById('geoR2').textContent = geoState.correct + '/' + geoState.total;
+  document.getElementById('geoR3').textContent = geoState.maxCombo;
+  document.getElementById('geoResult').classList.add('show');
+  addEnergy(geoState.score);
+  addXP(geoState.correct * 30);
+  if (perfect) checkAchievement('geometry-master', '几何大师', '📐', '完美通关几何关卡');
+}
+
+/* ============================================
+   ★ 游戏入口 ★
+============================================ */
+function startGame(id) {
+  sfx.click();
+  switch (id) {
+    case 'pizza': startPizzaGame(); break;
+    case 'space': startSpaceGame(); break;
+    case 'detective': startDetectiveGame(); break;
+    case 'geometry': startGeoGame(); break;
+    default: startPizzaGame();
+  }
+}
+function restartGame(id) {
+  document.querySelectorAll('.game-result').forEach(r => r.classList.remove('show'));
+  startGame(id);
+}
+function endGame() {
+  sfx.click();
+  clearInterval(spaceState.timer);
+  document.querySelectorAll('.game-result').forEach(r => r.classList.remove('show'));
+  goTo('page-games');
+}
+
+/* ============================================
+   ★ 奥数练习 ★
+============================================ */
+let olymState = { idx:0, total:5, score:0, answered:false };
+const OLYM_QUESTIONS = [
+  {
+    q: '鸡兔同笼，共有头 35 个，脚 94 只。鸡和兔各有多少只？',
+    options: ['鸡23兔12', '鸡12兔23', '鸡20兔15', '鸡15兔20'],
+    correct: 0,
+    explain: '假设全是鸡：35×2=70 只脚，少了 94-70=24 只。每只兔比鸡多 2 只脚，所以兔有 24÷2=12 只，鸡有 35-12=23 只。<br>✅ 鸡 23 只，兔 12 只'
+  },
+  {
+    q: '小明从家到学校需要 30 分钟，如果他想 8:00 到校，最晚什么时候出发？',
+    options: ['7:20', '7:25', '7:30', '7:35'],
+    correct: 2,
+    explain: '从 8:00 倒推 30 分钟：<br>8:00 - 30 分钟 = 7:30<br>✅ 最晚 7:30 出发'
+  },
+  {
+    q: '一个数加上自己，再乘以 2，等于 100。这个数是多少？',
+    options: ['20', '25', '30', '50'],
+    correct: 1,
+    explain: '设这个数为 x：(x+x)×2=100<br>2x×2=100 → 4x=100 → x=25<br>✅ 答案是 25'
+  },
+  {
+    q: '5 个连续偶数的和是 80，中间那个数是多少？',
+    options: ['14', '16', '18', '20'],
+    correct: 1,
+    explain: '5 个连续偶数中间的那个数 = 平均数<br>80÷5 = 16<br>✅ 中间那个数是 16（5个数是12,14,16,18,20）'
+  },
+  {
+    q: '一根木头锯成 3 段需要 6 分钟，锯成 6 段需要几分钟？',
+    options: ['12', '15', '18', '20'],
+    correct: 1,
+    explain: '锯成 3 段需要锯 2 次，每次 3 分钟。<br>锯成 6 段需要锯 5 次，5×3=15 分钟。<br>✅ 答案是 15 分钟'
+  }
+];
+function startOlympic() {
+  olymState = { idx:0, total:5, score:0, answered:false };
+  goTo('page-olympic-test');
+  renderOlymQuestion();
+}
+function renderOlymQuestion() {
+  const q = OLYM_QUESTIONS[olymState.idx];
+  olymState.answered = false;
+  document.getElementById('olymBar').style.width = ((olymState.idx+1)/olymState.total*100) + '%';
+  document.getElementById('olymProgress').textContent = `第 ${olymState.idx+1} / ${olymState.total} 题`;
+  document.getElementById('olymScore').textContent = olymState.score;
+  document.getElementById('olymQuestion').innerHTML = q.q;
+  document.getElementById('olymOptions').innerHTML = q.options.map((o, i) => `
+    <div class="test-option" data-idx="${i}" onclick="checkOlym(${i})">
+      <div class="ltr">${'ABCD'[i]}</div>
+      <div>${o}</div>
+    </div>
+  `).join('');
+  document.getElementById('olymExplain').classList.remove('show');
+  document.getElementById('olymNextBtn').disabled = true;
+  document.getElementById('olymNextBtn').textContent = olymState.idx === olymState.total-1 ? '完成 ✓' : '下一题 →';
+}
+function checkOlym(idx) {
+  if (olymState.answered) return;
+  olymState.answered = true;
+  const q = OLYM_QUESTIONS[olymState.idx];
+  const opts = document.querySelectorAll('.test-option');
+  opts.forEach(o => o.classList.add('disabled'));
+  if (idx === q.correct) {
+    opts[idx].classList.add('correct');
+    olymState.score += 20;
+    sfx.correct();
+    vibrate(20);
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+    sfx.wrong();
+    vibrate(100);
+  }
+  document.getElementById('olymExplainText').innerHTML = q.explain;
+  document.getElementById('olymExplain').classList.add('show');
+  document.getElementById('olymScore').textContent = olymState.score;
+  document.getElementById('olymNextBtn').disabled = false;
+}
+function olymNext() {
+  if (olymState.idx < olymState.total - 1) {
+    olymState.idx++;
+    renderOlymQuestion();
+  } else {
+    sfx.achievement();
+    toast(`🎉 奥数训练完成！得分 ${olymState.score}`);
+    addXP(olymState.score);
+    addEnergy(50);
+    if (olymState.score >= 80) checkAchievement('olympic-rookie', '奥数新秀', '🏆', '完成奥数训练');
+    goTo('page-olympic');
+  }
+}
+function olymPrev() {
+  if (olymState.idx > 0) {
+    olymState.idx--;
+    renderOlymQuestion();
+  }
+}
+
+/* ============================================
+   ★ AI天师对话系统 ★
+============================================ */
+const AI_RESPONSES = {
+  default: [
+    '好问题！让我想想... 🤔<br><br>其实这道题的关键在于<span class="math">理解题意</span>，先把题目读三遍，找出已知条件和求解目标。',
+    'π博士来帮你拆解这道题 💡<br><br>第一步：<span class="math">审题</span>，找出关键数字<br>第二步：<span class="math">列式</span>，思考运算方法<br>第三步：<span class="math">求解</span>，仔细计算<br>要不要我一步步带你走？',
+    '这是一个很棒的思考！👏<br><br>我建议你先<span class="math">画图</span>或者<span class="math">举例</span>，把抽象的数学变成看得见的东西。'
+  ],
+  分数: [
+    '分数其实很直观！🍕<br><br>想象你有一个披萨，<span class="math">1/2</span>就是切一刀分成2份取1份，<span class="math">1/4</span>就是切3刀分成4份取1份。<br><br><b>分数加法</b>：先通分（找共同分母），再分子相加。<br>例如：1/2 + 1/3 = 3/6 + 2/6 = <span class="math">5/6</span>',
+    '分数比大小有诀窍 ✨<br>• 同分母比分子：1/4 < 3/4<br>• 同分子比分母：1/3 > 1/4<br>• 不同分母：先通分再比较<br><br>记住：<span class="math">分母越大，分数越小</span>（分子相同时）',
+  ],
+  加法: [
+    '加法是数学的基础！<br>几个关键点：<br>• <span class="math">同位数对齐</span><br>• 从<span class="math">个位</span>开始加<br>• 满10<span class="math">进1</span><br><br>比如：35 + 27 = ？<br>个位：5+7=12，写2进1<br>十位：3+2+1=6<br>答案是<span class="math">62</span>'
+  ],
+  乘法: [
+    '乘法是<span class="math">加法的快捷方式</span>！<br><br>比如 7×8，就是 8 个 7 相加：<br>7+7+7+7+7+7+7+7 = <span class="math">56</span><br><br>⚡ <b>速算技巧</b>：<br>• 任何数×5 = 先×10再÷2<br>• 任何数×9 = ×10再减自己<br>• 任何数×11 = 首尾不变中间加'
+  ],
+  几何: [
+    '几何图形有<span class="math">属性三要素</span>：<br>• 边数（sides）<br>• 顶点数（vertices）<br>• 内角和<br><br>📐 <b>内角和公式</b>：<br>三角形 = 180°<br>四边形 = 360°<br>五边形 = 540°<br>六边形 = 720°<br><br>公式：<span class="math">(n-2) × 180°</span>'
+  ],
+  应用题: [
+    '应用题有"四步法"：<br><br>1️⃣ <b>读题</b>：至少读2遍<br>2️⃣ <b>找条件</b>：把已知数字圈出来<br>3️⃣ <b>定问题</b>：要求什么？<br>4️⃣ <b>列式</b>：思考运算关系<br><br>遇到不会的，可以先<span class="math">画图</span>或者<span class="math">举例</span>试试！'
+  ],
+  高分: [
+    '想考高分？送你4个秘诀 🎯<br><br>1️⃣ <b>基础要扎实</b>：概念、定理要背熟<br>2️⃣ <b>刷题要精</b>：每道错题都搞懂<br>3️⃣ <b>限时训练</b>：培养速度感<br>4️⃣ <b>学会检查</b>：做完先检查再交卷<br><br>记住：<span class="math">会做的题不能错</span>，比难题更重要！'
+  ]
+};
+function askAI(text) {
+  document.getElementById('aiInput').value = text;
+  sendAI();
+}
+function sendAI() {
+  const input = document.getElementById('aiInput');
+  const text = input.value.trim();
+  if (!text) return;
+  sfx.click();
+  addChatMsg('user', text);
+  input.value = '';
+  // Show typing
+  const chatArea = document.getElementById('chatArea');
+  const typing = document.createElement('div');
+  typing.className = 'chat-msg ai';
+  typing.id = 'typingMsg';
+  typing.innerHTML = `
+    <div class="chat-msg-avatar">🤖</div>
+    <div class="chat-bubble">
+      <div class="chat-typing"><i></i><i></i><i></i></div>
+    </div>
+  `;
+  chatArea.appendChild(typing);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  // AI response
+  setTimeout(() => {
+    document.getElementById('typingMsg')?.remove();
+    const response = getAIResponse(text);
+    addChatMsg('ai', response);
+    sfx.tick();
+  }, 800 + Math.random() * 600);
+}
+function getAIResponse(text) {
+  // Keyword detection
+  const lower = text.toLowerCase();
+  let pool = AI_RESPONSES.default;
+  if (/分数|几分之几|通分|约分|分子|分母/.test(text)) pool = AI_RESPONSES['分数'];
+  else if (/加法|加|和/.test(text)) pool = AI_RESPONSES['加法'];
+  else if (/乘法|乘|积|口诀/.test(text)) pool = AI_RESPONSES['乘法'];
+  else if (/几何|图形|三角形|正方形|圆形|边|角|面积/.test(text)) pool = AI_RESPONSES['几何'];
+  else if (/应用题|解决问题|题目|题不会|怎么做/.test(text)) pool = AI_RESPONSES['应用题'];
+  else if (/考试|高分|成绩|考好|方法/.test(text)) pool = AI_RESPONSES['高分'];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function addChatMsg(role, text) {
+  const chatArea = document.getElementById('chatArea');
+  const msg = document.createElement('div');
+  msg.className = `chat-msg ${role}`;
+  msg.innerHTML = `
+    <div class="chat-msg-avatar">${role === 'ai' ? '🤖' : '🦊'}</div>
+    <div class="chat-bubble">${text}</div>
+  `;
+  chatArea.appendChild(msg);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+/* ============================================
+   ★ 知识图谱（SVG）★
+============================================ */
+function renderKnowledgeGraph() {
+  const svg = document.getElementById('kgSvg');
+  // Define nodes (K12 math knowledge graph)
+  const nodes = [
+    {id:'num', label:'数与运算', x:200, y:50, level:2, color:'#6B4EFF'},
+    {id:'arith', label:'加减乘除', x:100, y:140, level:1, color:'#6B4EFF'},
+    {id:'frac', label:'分数', x:200, y:140, level:3, color:'#FFB627'},
+    {id:'dec', label:'小数', x:300, y:140, level:1, color:'#6B4EFF'},
+    {id:'geom', label:'图形几何', x:60, y:240, level:0, color:'rgba(255,255,255,.3)'},
+    {id:'shape', label:'平面图形', x:60, y:340, level:0, color:'rgba(255,255,255,.3)'},
+    {id:'space', label:'立体图形', x:180, y:340, level:0, color:'rgba(255,255,255,.3)'},
+    {id:'logic', label:'逻辑推理', x:320, y:240, level:2, color:'#6B4EFF'},
+    {id:'seq', label:'数列规律', x:280, y:340, level:3, color:'#FFB627'},
+    {id:'apply', label:'应用题', x:200, y:240, level:1, color:'#6B4EFF'},
+    {id:'olym', label:'奥数思维', x:200, y:440, level:3, color:'#FFB627'},
+    {id:'count', label:'计数问题', x:80, y:440, level:0, color:'rgba(255,255,255,.3)'},
+    {id:'chick', label:'鸡兔同笼', x:200, y:540, level:3, color:'#FFB627'},
+    {id:'travel', label:'行程问题', x:320, y:440, level:0, color:'rgba(255,255,255,.3)'}
+  ];
+  // Define edges
+  const edges = [
+    ['num','arith'], ['num','frac'], ['num','dec'],
+    ['arith','apply'], ['frac','apply'], ['dec','apply'],
+    ['logic','seq'], ['logic','olym'],
+    ['apply','olym'], ['seq','olym'],
+    ['geom','shape'], ['geom','space'],
+    ['olym','chick'], ['olym','count'], ['olym','travel'],
+    ['apply','travel']
+  ];
+  let svgContent = '';
+  // Edges
+  edges.forEach(([from, to]) => {
+    const f = nodes.find(n => n.id === from);
+    const t = nodes.find(n => n.id === to);
+    if (f && t) {
+      const opacity = Math.min(f.level, t.level) > 0 ? 0.5 : 0.15;
+      svgContent += `<line x1="${f.x}" y1="${f.y}" x2="${t.x}" y2="${t.y}" stroke="rgba(255,255,255,${opacity})" stroke-width="${1 + Math.min(f.level, t.level) * 0.5}"/>`;
+    }
+  });
+  // Nodes
+  nodes.forEach(n => {
+    const r = 14 + n.level * 4;
+    const isLearning = n.level === 3;
+    svgContent += `
+      <g class="kg-node" onclick="toast('点击进入: ${n.label}','info')">
+        <circle class="kg-node-circle" cx="${n.x}" cy="${n.y}" r="${r}" fill="${n.color}" opacity="${n.level === 0 ? 0.2 : 0.7}"/>
+        ${isLearning ? `<circle cx="${n.x}" cy="${n.y}" r="${r+6}" fill="none" stroke="${n.color}" stroke-width="1.5" opacity="0.5"><animate attributeName="r" values="${r+6};${r+12};${r+6}" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/></circle>` : ''}
+        <text class="kg-node-text" x="${n.x}" y="${n.y+3}" text-anchor="middle">${n.label}</text>
+      </g>
+    `;
+  });
+  svg.innerHTML = svgContent;
+}
+
+/* ============================================
+   ★ 能力雷达图 ★
+============================================ */
+function renderRadar() {
+  const svg = document.getElementById('radarSvg');
+  const abilities = [
+    {label:'数感', value:0.85},
+    {label:'计算', value:0.92},
+    {label:'几何', value:0.65},
+    {label:'应用', value:0.78},
+    {label:'推理', value:0.70},
+    {label:'空间', value:0.60}
+  ];
+  const cx = 100, cy = 100, R = 70;
+  const N = abilities.length;
+  // Calculate points
+  const points = abilities.map((a, i) => {
+    const angle = (Math.PI * 2 * i) / N - Math.PI / 2;
+    return { x: cx + R * a.value * Math.cos(angle), y: cy + R * a.value * Math.sin(angle), label: a.label, value: a.value };
+  });
+  // Build SVG
+  let content = '';
+  // Grid
+  for (let g = 1; g <= 4; g++) {
+    const r = R * g / 4;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const angle = (Math.PI * 2 * i) / N - Math.PI / 2;
+      pts.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
+    }
+    content += `<polygon points="${pts.join(' ')}" fill="rgba(107,78,255,${0.05+g*0.02})" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+  }
+  // Axes
+  for (let i = 0; i < N; i++) {
+    const angle = (Math.PI * 2 * i) / N - Math.PI / 2;
+    content += `<line x1="${cx}" y1="${cy}" x2="${cx + R * Math.cos(angle)}" y2="${cy + R * Math.sin(angle)}" stroke="rgba(255,255,255,0.1)"/>`;
+  }
+  // Data
+  content += `<polygon points="${points.map(p=>`${p.x},${p.y}`).join(' ')}" fill="rgba(255,182,39,0.3)" stroke="#FFB627" stroke-width="2"/>`;
+  // Points
+  points.forEach(p => {
+    content += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#FFB627"/>`;
+  });
+  // Labels
+  abilities.forEach((a, i) => {
+    const angle = (Math.PI * 2 * i) / N - Math.PI / 2;
+    const lx = cx + (R + 18) * Math.cos(angle);
+    const ly = cy + (R + 18) * Math.sin(angle);
+    content += `<text x="${lx}" y="${ly}" fill="#fff" font-size="11" text-anchor="middle" font-weight="600" dominant-baseline="middle">${a.label}</text>`;
+  });
+  svg.innerHTML = content;
+}
+
+/* ============================================
+   ★ 成就系统 ★
+============================================ */
+const ACHIEVEMENTS = [
+  {id:'first-step', name:'迈出第一步', desc:'完成首次登录', icon:'👣'},
+  {id:'streak-7', name:'坚持7天', desc:'连续学习7天', icon:'🔥'},
+  {id:'streak-30', name:'坚持30天', desc:'连续学习30天', icon:'⭐'},
+  {id:'pizza-master', name:'披萨大师', desc:'分数关卡完美通关', icon:'🍕'},
+  {id:'combo-5', name:'连击大师', desc:'达成5连击', icon:'🔥'},
+  {id:'speed-king', name:'闪电算手', desc:'太空乘法完美通关', icon:'⚡'},
+  {id:'detective-novice', name:'逻辑新秀', desc:'答对5道数字侦探题', icon:'🕵️'},
+  {id:'geometry-master', name:'几何大师', desc:'完美通关几何关卡', icon:'📐'},
+  {id:'olympic-rookie', name:'奥数新秀', desc:'完成奥数训练', icon:'🏆'},
+  {id:'rich', name:'积分大户', desc:'获得500金币', icon:'💰'},
+  {id:'level-5', name:'小学霸', desc:'升到5级', icon:'📚'},
+  {id:'level-10', name:'数学小天才', desc:'升到10级', icon:'🌟'},
+  {id:'perfect-10', name:'完美主义者', desc:'10关全对', icon:'💯'},
+  {id:'energy-1000', name:'能量满满', desc:'获得1000能量', icon:'⚡'},
+  {id:'first-ai', name:'对话大师', desc:'首次和AI对话', icon:'🤖'}
+];
+function renderAchievements() {
+  const grid = document.getElementById('achvGrid');
+  grid.innerHTML = ACHIEVEMENTS.map(a => {
+    const unlocked = state.unlockedAchievements.includes(a.id);
+    return `
+      <div class="achv-card ${unlocked ? 'unlocked' : 'locked'}">
+        <div class="ic">${a.icon}</div>
+        <div class="nm">${a.name}</div>
+        <div class="ds">${a.desc}</div>
+      </div>
+    `;
+  }).join('');
+}
+function checkAchievement(id, name, icon, desc) {
+  if (state.unlockedAchievements.includes(id)) return;
+  state.unlockedAchievements.push(id);
+  saveState();
+  showAchvUnlock(icon, name);
+  addXP(100);
+  addEnergy(20);
+}
+function showAchvUnlock(icon, name) {
+  sfx.achievement();
+  document.getElementById('achvUnlockIcon').textContent = icon;
+  document.getElementById('achvUnlockName').textContent = name;
+  const el = document.getElementById('achvUnlock');
+  el.classList.add('show');
+  // Confetti
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = (Math.random() * 100) + '%';
+    c.style.background = ['#FFB627','#FF5E9C','#00E5FF','#6B4EFF','#3DDC97'][Math.floor(Math.random()*5)];
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    c.style.animationDuration = (1.5 + Math.random()) + 's';
+    c.style.transform = `rotate(${Math.random()*360}deg)`;
+    el.appendChild(c);
+  }
+}
+function closeAchvUnlock() {
+  sfx.click();
+  document.getElementById('achvUnlock').classList.remove('show');
+  document.querySelectorAll('.confetti').forEach(c => c.remove());
+}
+
+/* ============================================
+   ★ 家长中心 - 周报图表 ★
+============================================ */
+function renderWeekChart() {
+  const chart = document.getElementById('weekChart');
+  const data = [40, 60, 50, 70, 55, 80, 90];
+  const labels = ['一','二','三','四','五','六','日'];
+  chart.innerHTML = data.map((h, i) => {
+    const isToday = i === data.length - 1;
+    return `<div class="bar ${isToday?'today':''}" style="height:${h}%">
+      <div class="lbl">${labels[i]}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================
+   ★ 经验/能量/金币管理 ★
+============================================ */
+function addXP(n) {
+  state.xp = (state.xp || 0) + n;
+  while (state.xp >= 1000) {
+    state.xp -= 1000;
+    state.level++;
+    toast(`🎉 升级到 L${state.level}！`);
+    if (state.level === 5) checkAchievement('level-5', '小学霸', '📚', '升到5级');
+    if (state.level === 10) checkAchievement('level-10', '数学小天才', '🌟', '升到10级');
+  }
+  saveState();
+  updateStats();
+}
+function addEnergy(n) {
+  state.energy = (state.energy || 0) + n;
+  state.coins = (state.coins || 0) + Math.floor(n / 10);
+  saveState();
+  updateStats();
+  if (state.coins >= 500) checkAchievement('rich', '积分大户', '💰', '获得500金币');
+  if (state.energy >= 1000) checkAchievement('energy-1000', '能量满满', '⚡', '获得1000能量');
+}
+function updateStats() {
+  document.getElementById('statEnergy').textContent = state.energy;
+  document.getElementById('statCoins').textContent = state.coins;
+  document.getElementById('statStreak').textContent = state.streak;
+  document.getElementById('statLevel').textContent = state.level;
+  document.getElementById('xpCurrent').textContent = state.xp;
+  document.getElementById('xpBar').style.width = (state.xp / 10) + '%';
+}
+
+/* ============================================
+   ★ 通用工具 ★
+============================================ */
+function toast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${type==='success'?'✓':type==='error'?'✗':'ℹ'}</span> ${msg}`;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    setTimeout(() => t.remove(), 300);
+  }, 2200);
+}
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function toggleSetting(el) {
+  sfx.click();
+  el.classList.toggle('on');
+}
+function resetApp() {
+  if (confirm('确定要退出登录吗？所有数据将清除。')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
+/* ============================================
+   ★ 初始化 ★
+============================================ */
+function init() {
+  // Starfield
+  initStarfield();
+  initSplashStars();
+  // Grade grid
+  renderGradeGrid('primary');
+  // Avatar grid
+  renderAvatarGrid();
+  // Apply user
+  applyUser();
+  updateStats();
+  // Days row
+  const days = ['一','二','三','四','五','六','日'];
+  const today = new Date().getDay();
+  const todayIdx = today === 0 ? 6 : today - 1;
+  document.getElementById('daysRow').innerHTML = days.map((d, i) => {
+    let cls = 'day-dot';
+    if (i < todayIdx) cls += ' active';
+    if (i === todayIdx) cls += ' today';
+    return `<div class="${cls}">${d}</div>`;
+  }).join('');
+  // Status bar time
+  function updateTime() {
+    const d = new Date();
+    document.getElementById('statusTime').textContent = `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  updateTime();
+  setInterval(updateTime, 30000);
+  // Splash -> Onboard
+  setTimeout(() => goTo('page-onboard-1'), 3500);
+}
+// Add haptic feedback to all buttons
+document.addEventListener('click', e => {
+  if (e.target.closest('button, .btn, .tab-item, .cat-item, .course-card, .game-card, .grade-card, .avatar-item, .method-card, .quiz-item, .achv-item, .achv-card, .ai-chip, .lesson-step, .setting-row, .day-dot, .ai-send, .icon-btn, .back-btn, .toggle, .streak-cta, .hero-banner, .ai-fab, .tab-center, .pq-card, .cat-item')) {
+    // already handled
+  }
+}, true);
+init();
+</script>
+</body>
+</html>
